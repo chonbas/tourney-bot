@@ -1,0 +1,35 @@
+{
+  "name": "tourneybot",
+  "version": "0.0.0",
+  "description": "A Discord chatbot that runs a tournament based on Challonge. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chonbas/194.git"
+  },
+  "keywords": [
+    "chatbot",
+    "Discord",
+    "Challonge",
+    "tournament",
+    "administrator",
+    "administration"
+  ],
+  "author": "tourneybot-makers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chonbas/194/issues"
+  },
+  "homepage": "https://github.com/chonbas/194#readme",
+  "dependencies": {
+    "challonge": "^2.1.0",
+    "discord.js": "^11.0.0",
+    "mongodb": "^2.2.25"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0"
+  }
+}
