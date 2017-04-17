@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "node node_modules/jslint/bin/jslint.js index.js src/* test/*"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "mongodb": "^2.2.25"
   },
   "devDependencies": {
+    "jslint": "^0.10.3",
     "mocha": "^3.2.0"
   }
 }
