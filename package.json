@@ -4,7 +4,7 @@
   "description": "A Discord chatbot that runs a tournament based on Challonge. ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "node node_modules/jslint/bin/jslint.js index.js src/* test/*"
   },
   "repository": {
@@ -28,7 +28,8 @@
   "dependencies": {
     "challonge": "^2.1.0",
     "discord.js": "^11.0.0",
-    "mongodb": "^2.2.25"
+    "mongodb": "^2.2.25",
+    "mongoose": "^4.9.5"
   },
   "devDependencies": {
     "jslint": "^0.10.3",
