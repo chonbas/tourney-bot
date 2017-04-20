@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var constants = require('../util/constants');
 const Console = require('../util/console');
 mongoose.connect('mongodb://localhost/test');
 
@@ -24,7 +25,13 @@ var start_mongodb_client = () => {
 var get_tournament_status = () => {
 	Console.log('Get tournament status ran');
 	// return int 0 - 3
-	return Math.floor(Math.random() * 4);      
+	switch(Math.floor(Math.random() * 4)){
+	case 0: return constants.NO_TOURNEY;
+	case 1: return constants.INIT_TOURNEY;
+	case 2: return constants.SETUP_TOURNEY;
+	case 3: return constants.RUN_TOURNEY;
+	case 4: return constants.CLOSE_TOURNEY;
+	}
 };
 
 module.exports = { 
