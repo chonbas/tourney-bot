@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-const Console = require('./util/console');
+const Console = require('../util/console');
 mongoose.connect('mongodb://localhost/test');
 
 // Connect to the db

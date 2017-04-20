@@ -1,4 +1,4 @@
-const db = require('../mongodb');
+const db = require('../webservices/mongodb');
 const constants = require('../util/constants');
 var no_tourney_handler = require('./no_tourney/handler');
 var init_tourney_handler = require('./init_tourney/handler');

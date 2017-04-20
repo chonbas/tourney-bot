@@ -7,8 +7,8 @@ try {
 	Console.log('You must provide a credentials file with API tokens, etc.');
 	process.exit();
 }
-const discordclient = require ('./discord');
-const mongodbclient = require ('./mongodb');
+const discordclient = require ('./webservices/discord');
+const mongodbclient = require ('./webservices/mongodb');
 
 mongodbclient.start_mongodb_client()
 	.then(() => {
