@@ -8,6 +8,7 @@ handlers[constants.SETUP_TOURNEY] = require('./setup_tourney/handler');
 handlers[constants.RUN_TOURNEY] = require('./run_tourney/handler');
 handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
+
 var manager = {};
 manager.distribute_msg = (msg) => {
 	// never reply to bots

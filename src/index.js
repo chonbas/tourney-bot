@@ -1,3 +1,4 @@
+//
 const Console = require('./util/console');
 try {
 	//check that credentials file exists

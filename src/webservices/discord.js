@@ -1,3 +1,4 @@
+//
 const Discord = require('discord.js');
 const Console = require('../util/console');
 const token = require('../../credentials').DISCORD_TOKEN;

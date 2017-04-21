@@ -1,3 +1,4 @@
+//
 var constants = {
 	'CONSTANT_MESSAGE': 'hello world',
 	'NO_TOURNEY': 'a',    // no tournament is set up
