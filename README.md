@@ -1,5 +1,6 @@
 # Tourneybot
-
+[![CircleCI](https://circleci.com/gh/chonbas/194.svg?style=svg&circle-token=091bfb5aa1f0f28b757733f2a8575b56e439e259)](https://circleci.com/gh/chonbas/194)
+[![CircleCI](https://circleci.com/gh/chonbas/194/tree/circleci.svg?style=svg&circle-token=091bfb5aa1f0f28b757733f2a8575b56e439e259)](https://circleci.com/gh/chonbas/194/tree/circleci)
 ## Usage
 
 

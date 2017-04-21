@@ -1,8 +1,9 @@
+//
 const Discord = require('discord.js');
 const Console = require('../util/console');
 const token = require('../../credentials').DISCORD_TOKEN;
 var manager = require('../handlers/manager');
-
+//
 var start_discord_client = () => {
 	const client = new Discord.Client();
 

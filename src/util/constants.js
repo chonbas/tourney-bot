@@ -1,3 +1,4 @@
+//
 var constants = {
 	'CONSTANT_MESSAGE': 'hello world',
 	'NO_TOURNEY': 'a',    // no tournament is set up
@@ -6,5 +7,5 @@ var constants = {
 	'RUN_TOURNEY': 'd',   // tournament is in progress
 	'CLOSE_TOURNEY': 'e', // tournament is finished, perform clean/reset to none
 };
-
+//
 module.exports = constants;

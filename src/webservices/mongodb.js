@@ -1,8 +1,9 @@
+//
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
 const Console = require('../util/console');
 mongoose.connect('mongodb://localhost/test');
-
+//
 // Connect to the db
 var start_mongodb_client = () => {
 	return new Promise((fulfill, reject) => {
