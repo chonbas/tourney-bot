@@ -1,6 +1,6 @@
 # Tourneybot
-![Circle-CI Status](https://circleci.com/gh/chonbas/194.svg?style=shield&circle-token=:circle-token)
-![Circle-CI-Branch-Status](https://circleci.com/gh/chonbas/194/tree/circleci.png?circle-token=:circle-token)
+[![Circle-CI Status](https://circleci.com/gh/chonbas/194.svg?style=shield&circle-token=:circle-token)
+[![Circle-CI-Branch-Status](https://circleci.com/gh/chonbas/194/tree/circleci.png?circle-token=:circle-token)
 ## Usage
 
 
