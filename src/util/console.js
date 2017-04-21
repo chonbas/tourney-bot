@@ -4,7 +4,7 @@
 Using our own console lets us turn it on/off freely. 
 */
 var Console = {};
-
+//
 Console.log = (msg) => {
 	console.log(msg);
 };
