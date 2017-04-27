@@ -1,6 +1,6 @@
 var handler = {};
 //
-handler.handle_msg = (msg) => {
+handler.handleMsg = (msg) => {
 	msg.reply('close-tourney handler handled');
 };
 

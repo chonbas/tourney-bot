@@ -11,7 +11,7 @@ try {
 const discordclient = require ('./webservices/discord');
 const mongodbclient = require ('./webservices/mongodb');
 
-mongodbclient.start_mongodb_client()
+mongodbclient.startMongodbClient()
 	.then(() => {
-		discordclient.start_discord_client();
+		discordclient.startDiscordClient();
 	});

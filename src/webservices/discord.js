@@ -4,7 +4,7 @@ const Console = require('../util/console');
 const token = require('../../credentials').DISCORD_TOKEN;
 var manager = require('../handlers/manager');
 //
-var start_discord_client = () => {
+var startDiscordClient = () => {
 	const client = new Discord.Client();
 
 	client.on('ready', () => {
@@ -31,4 +31,4 @@ var start_discord_client = () => {
 	});
 };
 
-module.exports = { start_discord_client };
+module.exports = { startDiscordClient };

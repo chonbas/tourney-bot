@@ -2,10 +2,12 @@
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
 const Console = require('../util/console');
+var Guild = require('./schemas/guildSchema.js')
+
 mongoose.connect('mongodb://localhost/test');
 //
 // Connect to the db
-var start_mongodb_client = () => {
+var startMongodbClient = () => {
 	return new Promise((fulfill, reject) => {
 		var db = mongoose.connection;
 
@@ -19,11 +21,17 @@ var start_mongodb_client = () => {
 		db.once('open', (res) => {
 			Console.log('Connected to MongoDB.');
 			fulfill(res);
+			Guild.create({
+				guild_id: 'test',
+				challonge_id: 'test',
+			}, function(err, guildObj){
+				Console.log(guildObj);
+			});
 		});
 	});
 };
 
-var get_tournament_status = () => {
+var getTournamentStatus = () => {
 	Console.log('Get tournament status ran');
 	// return int 0 - 3
 	switch(Math.floor(Math.random() * 4)){
@@ -36,6 +44,6 @@ var get_tournament_status = () => {
 };
 
 module.exports = { 
-	start_mongodb_client,
-	get_tournament_status
+	startMongodbClient,
+	getTournamentStatus
 };

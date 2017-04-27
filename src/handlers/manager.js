@@ -10,13 +10,13 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
 
 var manager = {};
-manager.distribute_msg = (msg) => {
+manager.distributeMsg = (msg) => {
 	// never reply to bots
 	if (msg.author.bot) return;
-	var status = db.get_tournament_status();
+	var status = db.getTournamentStatus();
 	var handler = handlers[status];
 	//check that handler has function before acting
-	handler.handle_msg && handler.handle_msg(msg);
+	handler.handleMsg && handler.handleMsg(msg);
 	
 };
 
