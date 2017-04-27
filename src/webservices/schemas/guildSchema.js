@@ -11,8 +11,8 @@ var participant_schema = new mongoose.Schema({
 		challonge_id:{
 			type: String,
 			index: true
-			},
 		},
+	},
 	name: String
 });
 
@@ -24,9 +24,9 @@ var channel_schema = new mongoose.Schema({
 });
 
 var chat_state_schema = new mongoose.Schema({
-	 // This is to be used for NLP purposes 
-	 // to keep track of chat state
-	 type: mongoose.Schema.Types.Mixed
+	// This is to be used for NLP purposes 
+	// to keep track of chat state
+	type: mongoose.Schema.Types.Mixed
 });
 
 var guild_schema = new mongoose.Schema({
