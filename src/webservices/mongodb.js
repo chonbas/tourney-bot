@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
 const Console = require('../util/console');
-var Guild = require('./schemas/guildSchema.js')
+var Guild = require('./schemas/guildSchema.js');
 
 mongoose.connect('mongodb://localhost/test');
 //
