@@ -21,7 +21,7 @@ var startDiscordClient = () => {
 	});
 
 	client.on('message', msg => {
-		manager.distribute_msg(msg);
+		manager.distributeMsg(msg);
 	});
 
 	client.login(token).catch((err) => {
