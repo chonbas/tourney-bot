@@ -3,7 +3,6 @@ const constants = require('../util/constants');
 const Console = require('../util/console');
 var client = require('../webservices/discord');
 
-//
 var handlers = {};
 handlers[constants.NO_TOURNEY] = require('./no_tourney/handler');
 handlers[constants.INIT_TOURNEY] = require('./init_tourney/handler');
@@ -14,12 +13,11 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
 var manager = {};
 manager.distributeMsg = (msg) => {
-	Console.log('Heard message');
-	//init_client();
 	// never reply to bots
 	if (msg.author.bot) return;
+	// only respond to @bot mentions
 	if (!msg.isMentioned(client.user)) {
-		Console.log('No mention, no response');
+		Console.debug('Message heard, but no @bot so not replying.');
 		return;
 	}
 
