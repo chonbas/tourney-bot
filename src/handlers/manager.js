@@ -1,5 +1,8 @@
 const db = require('../webservices/mongodb');
 const constants = require('../util/constants');
+const Console = require('../util/console');
+var client = require('../webservices/discord');
+
 //
 var handlers = {};
 handlers[constants.NO_TOURNEY] = require('./no_tourney/handler');
@@ -11,13 +14,20 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
 var manager = {};
 manager.distributeMsg = (msg) => {
+	Console.log('Heard message');
+	//init_client();
 	// never reply to bots
 	if (msg.author.bot) return;
+	if (!msg.isMentioned(client.user)) {
+		Console.log('No mention, no response');
+		return;
+	}
+
 	var status = db.getTournamentStatus();
 	var handler = handlers[status];
 	//check that handler has function before acting
 	handler.handleMsg && handler.handleMsg(msg);
-	
+
 };
 
 module.exports = manager;
