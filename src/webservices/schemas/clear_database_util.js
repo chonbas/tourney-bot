@@ -13,6 +13,7 @@ db.on('error', (err) =>{
 db.once('open', () => {
 	Console.log('Connected to MongoDB. Clearing DB...');
 	Guild.remove({}, () => {
+		// TODO: delete challonge tournaments before removing from MongoDB
 		Console.log('Cleared!');
 		process.exit();
 	});

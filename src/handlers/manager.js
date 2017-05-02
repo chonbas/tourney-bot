@@ -20,11 +20,11 @@ manager.distributeMsg = (msg) => {
 		Console.debug('Message heard, but no @bot so not replying.');
 		return;
 	}
-	db.createTournament();
-	var status = db.getTournamentStatus();
-	var handler = handlers[status];
-	//check that handler has function before acting
-	handler.handleMsg && handler.handleMsg(msg);
+	db.getTournamentStatus(msg.guild.id).then((status) => {
+		var handler = handlers[status];
+		//check that handler has function before acting
+		handler.handleMsg && handler.handleMsg(msg);
+	});
 
 };
 
