@@ -4,34 +4,36 @@ var constants = require('../util/constants');
 const Console = require('../util/console');
 var Guild = require('./schemas/guildSchema.js');
 
+var exports = {};
+
+//initialize database, and report access
 mongoose.connect('mongodb://localhost/test');
-//
-// Connect to the db
-var startMongodbClient = () => {
+var db = mongoose.connection;
+db.on('error', (err) =>{
+	Console.error.bind(Console, 'connection error:');
+	Console.log(err);
+	Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
+});
+db.once('open', () => {
+	Console.log('Connected to MongoDB.');
+});
+
+// make tournament-making easy
+exports.createTournament = (guild_id, challonge_id) => {
 	return new Promise((fulfill, reject) => {
-		var db = mongoose.connection;
-
-		db.on('error', (err) =>{
-			Console.error.bind(Console, 'connection error:');
-			Console.log(err); 
-			Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
-			reject(err);
-		});
-
-		db.once('open', (res) => {
-			Console.log('Connected to MongoDB.');
-			fulfill(res);
-			Guild.create({
-				guild_id: 'test',
-				challonge_id: 'test',
-			}, function(err, guildObj){
-				Console.log(guildObj);
-			});
+		Guild.create({
+			guild_id: guild_id,
+			challonge_id: challonge_id,
+		}, function(err, guildObj){
+			if (err) { reject(err); }
+			Console.debug('Made tournament');
+			Console.log(guildObj);
+			fulfill(guildObj);
 		});
 	});
 };
 
-var getTournamentStatus = () => {
+exports.getTournamentStatus = () => {
 	Console.log('Get tournament status ran');
 	// return int 0 - 3
 	switch(Math.floor(Math.random() * 4)){
@@ -43,7 +45,4 @@ var getTournamentStatus = () => {
 	}
 };
 
-module.exports = { 
-	startMongodbClient,
-	getTournamentStatus
-};
+module.exports = exports;
