@@ -32,6 +32,7 @@ var chat_state_schema = new mongoose.Schema({
 var guild_schema = new mongoose.Schema({
 	guild_id: String,
 	challonge_id: String,
+	tourney_state: String, // Tourney state \in {Constants}
 	participants:  [participant_schema],
 	channels: [channel_schema],
 	chat_state: [chat_state_schema]
