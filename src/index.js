@@ -1,4 +1,3 @@
-//
 const Console = require('./util/console');
 var credentials;
 try {
@@ -9,18 +8,15 @@ try {
 	Console.log('You must provide a credentials file with API tokens, etc.');
 	process.exit();
 }
-const discordclient = require ('./webservices/discord');
-const mongodbclient = require ('./webservices/mongodb');//
+const discordclient = require('./webservices/discord');
 const manager_listeners = require('./handlers/manager_listeners');
 
-mongodbclient.startMongodbClient()
-	.then(() => {
-		manager_listeners.addListeners(discordclient);
-		discordclient.login(credentials.DISCORD_TOKEN).catch((err) => {
-			Console.log(err);
-			Console.log('\n\nYou must provide a proper Discord API token in credentials.js.');
-			process.exit();
-		}).then(() => {
-			Console.log('Logged in');
-		});
-	});
+
+manager_listeners.addListeners(discordclient);
+discordclient.login(credentials.DISCORD_TOKEN).catch((err) => {
+	Console.log(err);
+	Console.log('\n\nYou must provide a proper Discord API token in credentials.js.');
+	process.exit();
+}).then(() => {
+	Console.log('Logged in');
+});
