@@ -8,7 +8,7 @@ var challongeclient = require('./challonge');
 var exports = {};
 
 //initialize database, and report access
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect(constants['DATABASE_ADDRESS']);
 var db = mongoose.connection;
 db.on('error', (err) =>{
 	Console.error.bind(Console, 'connection error:');

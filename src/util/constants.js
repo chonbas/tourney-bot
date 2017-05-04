@@ -6,6 +6,7 @@ var constants = {
 	'SETUP_TOURNEY': 'c', // players are joining tournament
 	'RUN_TOURNEY': 'd',   // tournament is in progress
 	'CLOSE_TOURNEY': 'e', // tournament is finished, perform clean/reset to none
+	'DATABASE_ADDRESS':	'mongodb://localhost/test' // update to live when needeed
 };
 //
 module.exports = constants;
