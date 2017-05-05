@@ -10,6 +10,7 @@ var exports = {};
 //initialize database, and report access
 mongoose.connect(constants['DATABASE_ADDRESS']);
 var db = mongoose.connection;
+mongoose.set('debug', true);
 db.on('error', (err) =>{
 	Console.error.bind(Console, 'connection error:');
 	Console.log(err);
@@ -50,15 +51,12 @@ exports.createTournament = (guild_id) => {
 					guild_id: guild_id,
 				}, function(err, guildObj){
 					if (err) { reject(err); }
-					Console.debug('Made tournament');
-					Console.log(guildObj);
+					Console.log('Guild with guild_id:' + guild_id + ' created');
 					fulfill(guildObj);
 				});
-			} else if (guild_obj){
-				reject('Guild already has a tournament.');
 			} else {
-				reject(err);
-			}	
+				reject('Guild already exists.');
+			}
 		});
 		
 	});
@@ -88,7 +86,7 @@ exports.deleteTournament = (guild_id) => {
 			if (!guild_obj) { reject('' + guild_id + ' not found');}
 			guild_obj.remove().then(function(guild_obj){
 				fulfill('Guild with guild id:' + guild_obj.guild_id + ' removed from database.');
-			}).onRejected(function(err){
+			}).catch(function(err){
 				reject(err);
 			});
 
@@ -111,8 +109,9 @@ exports.setChallongeID = (guild_id, challonge_id) => {
 			if (!guild_obj){ reject('Not found'); }
 			guild_obj.challonge_id = challonge_id;
 			guild_obj.save().then(function(guild_obj){
+				Console.log('ChallongeID set to:' + challonge_id +' for guild with id:' + guild_id);
 				fulfill(guild_obj);
-			}).onRejected(function(err){
+			}).catch(function(err){
 				reject(err);
 			});
 		});
@@ -121,7 +120,13 @@ exports.setChallongeID = (guild_id, challonge_id) => {
 
 /* getChallongeID(guild_id)
  * -------------------------------------------------------
- * 
+ * Attempts to find the guild with the given id,
+ * and if that guild's challonge id is not null, the promise
+ * is fulfilled and the challonge id is returned.
+ * If tourney not found, challonge id is null, or any other error
+ * occurs, the promise will be rejected.
+ * Usage:
+ * var guild_challonge_id = db.getChallongeID(guild_id);
  * -------------------------------------------------------
 */
 exports.getChallongeID = (guild_id) => {
@@ -155,7 +160,7 @@ exports.getTournamentStatus = (guild_id) => {
 				fulfill(constants.NO_TOURNEY);
 			// otherwise, determine tournament status
 			} else {
-				if(guild_obj.challonge_id == null) {
+				if(!guild_obj.challonge_id) {
 					fulfill(constants.INIT_TOURNEY);
 				}
 				fulfill(constants.SETUP_TOURNEY);
@@ -268,6 +273,12 @@ exports.removeParticipant = (guild_id, discord_id) => {
  * -------------------------------------------------------
 */
 exports.getParticipantChallongeID = (guild_id, discord_id) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
+
+exports.getParticipantDiscordID = (guild_id, challonge_id) => {
 	return new Promise((fulfill, reject) => {
 
 	});

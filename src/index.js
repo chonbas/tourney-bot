@@ -1,4 +1,15 @@
 const Console = require('./util/console');
+
+var DEBUG = true;
+
+
+if (DEBUG){
+	var db_tests = require('./tests/dbTests');
+	// db_tests.testTourneyCreation();
+	db_tests.testTourneyChallongeSetGet();
+
+}
+
 var credentials;
 try {
 	//check that credentials file exists
@@ -20,3 +31,8 @@ discordclient.login(credentials.DISCORD_TOKEN).catch((err) => {
 }).then(() => {
 	Console.log('Logged in');
 });
+
+
+
+
+
