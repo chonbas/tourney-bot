@@ -8,6 +8,10 @@ var participant_schema = new mongoose.Schema({
 			type: String,
 			index: true
 		},
+		discord_id:{
+			type:String,
+			index: true
+		},
 		challonge_id:{
 			type: String,
 			index: true
@@ -35,7 +39,8 @@ var guild_schema = new mongoose.Schema({
 	tourney_state: String, // Tourney state \in {Constants}
 	participants:  [participant_schema],
 	channels: [channel_schema],
-	chat_state: [chat_state_schema]
+	chat_state: [chat_state_schema],
+	unique : true
 });
 
 var Guild = mongoose.model('Guild', guild_schema);

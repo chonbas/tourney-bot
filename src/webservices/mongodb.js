@@ -19,6 +19,7 @@ db.once('open', () => {
 	Console.log('Connected to MongoDB.');
 });
 
+
 // ████████████████████████████████████████████████████
 // FUNCTIONS!!!
 // BELOW HERE ARE FUNCTIONS FOR EVERYONE TO CALL :-D
@@ -26,23 +27,81 @@ db.once('open', () => {
 // TODO? maybe make a list right here of fxn to call?
 // ████████████████████████████████████████████████████
 
-// make tournament-making easy
+/* createTournament(guild_id)
+ * -------------------------------------------------------
+ * Takes guild_id and first checks if the guild is already
+ * in the db -- if it is, then reject the creation as each
+ * guild can only have one active tourney.
+ * If no guild found, attempt to create new tourney.
+ * Returns: Promise
+ * Usage:
+ * db.createTournament(guild_id).then(function(err, guild_obj){
+ * 		//DO STUFF
+ * });
+ * -------------------------------------------------------
+*/
 exports.createTournament = (guild_id) => {
 	return new Promise((fulfill, reject) => {
-		Guild.create({
+		Guild.findOne({
 			guild_id: guild_id,
-		}, function(err, guildObj){
+		}, function(err, guild_obj){
+			if (!guild_obj){
+				Guild.create({
+					guild_id: guild_id,
+				}, function(err, guildObj){
+					if (err) { reject(err); }
+					Console.debug('Made tournament');
+					Console.log(guildObj);
+					fulfill(guildObj);
+				});
+			} else if (guild_obj){
+				reject('Guild already has a tournament.');
+			} else {
+				reject(err);
+			}	
+		});
+		
+	});
+};
+
+/* deleteTournament(guild_id)
+ * -------------------------------------------------------
+ * Takes guild_id and first tries to find tournament in db,
+ * if guild is found, the tournament is removed. If guild 
+ * is not found, the promise rejects and an error is returned.
+ * If the remove operation fails, promise also rejects
+ * and error is returned.
+ * Returns: Promise
+ * db.deleteTournament(guild_id).then(function(err, data){
+ * 		//DO STUFF
+ * });
+ * -------------------------------------------------------
+*/
+
+
+exports.deleteTournament = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}, function(err, guild_obj){
 			if (err) { reject(err); }
-			Console.debug('Made tournament');
-			Console.log(guildObj);
-			fulfill(guildObj);
+			if (!guild_obj) { reject('' + guild_id + ' not found');}
+			guild_obj.remove().then(function(guild_obj){
+				fulfill('Guild with guild id:' + guild_obj.guild_id + ' removed from database.');
+			}).onRejected(function(err){
+				reject(err);
+			});
+
 		});
 	});
 };
 
-// TODO: deleteTournament(guild_id)
-// for cleanup when a tournament is done
-
+/* setChallongeID(guild_id, challonge_id)
+ * -------------------------------------------------------
+ * Attempts to find the guild with the given id, if 
+ * guild not found
+ * -------------------------------------------------------
+*/
 exports.setChallongeID = (guild_id, challonge_id) => {
 	return new Promise((fulfill, reject) => {
 		Guild.findOne({
@@ -51,12 +110,20 @@ exports.setChallongeID = (guild_id, challonge_id) => {
 			if (err) { reject(err); }
 			if (!guild_obj){ reject('Not found'); }
 			guild_obj.challonge_id = challonge_id;
-			guild_obj.save();
-			fulfill('Set id to ' + challonge_id);
+			guild_obj.save().then(function(guild_obj){
+				fulfill(guild_obj);
+			}).onRejected(function(err){
+				reject(err);
+			});
 		});
 	});
 };
 
+/* getChallongeID(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 exports.getChallongeID = (guild_id) => {
 	return new Promise((fulfill, reject) => {
 		Guild.findOne({
@@ -71,6 +138,11 @@ exports.getChallongeID = (guild_id) => {
 	});
 };
 
+/* getTournamentStatus(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 exports.getTournamentStatus = (guild_id) => {
 	return new Promise((fulfill, reject) => {
 		// get the relevant tournament
@@ -106,33 +178,134 @@ exports.getTournamentStatus = (guild_id) => {
 	});
 };
 
-//unsure about how this works, sorry!
-exports.incrementTournamentStatus = (guild_id) => {
+/* advanceTournamentState(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.advanceTournamentState = (guild_id) => {
 	return new Promise((fulfill, reject) => {
 		// TODO: actually incrementTournamentStatus
 		fulfill(guild_id);
 		reject();
 	});
 };
+/* getTournamentParticipants(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.getTournamentParticipants = (guild_id) => {
+	return new Promise((fulfill, reject) => {
 
-// TODO: createChannel(channel_id)
-// not sure if guild_id is needed
+	});
+};
+/* getTournamentChannels(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.getTournamentChannels = (guild_id) => {
+	return new Promise((fulfill, reject) => {
 
-// TODO: getChannelType()
+	});
+};
+/* createChannel(guild_id, channel_id, channel_type)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.createChannel = (guild_id, channel_id, channel_type) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
+
+/* getChannelType(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.getChannelType = (guild_id, channel_id) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
+
+/* deleteChannel(guild_id, channel_id) 
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.deleteChannel = (guild_id, channel_id) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
+/* createParticipant(guild_id, name, discord_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.createParticipant = (guild_id, name, discord_id) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
+/* removeParticipant(guild_id, discord_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.removeParticipant = (guild_id, discord_id) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
+/* getParticipantChallongeID(guild_id, discord_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
+exports.getParticipantChallongeID = (guild_id, discord_id) => {
+	return new Promise((fulfill, reject) => {
+
+	});
+};
 
 // TODO: createChatState(???)
 // actually maybe isn't necessary but am not sure
-
+/* deleteTournament(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 // TODO: getChatState(???)
 // returns a chat state object.
 // Users: be sure to obj.save()!!
-
+/* deleteTournament(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 // TODO: createParticipant(???)
-
+/* deleteTournament(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 // TODO: getParticipant(???)
-
+/* deleteTournament(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 // TODO: removeParticipant(???)
-
+/* deleteTournament(guild_id)
+ * -------------------------------------------------------
+ * 
+ * -------------------------------------------------------
+*/
 // TODO: other functions...?
 
 module.exports = exports;
