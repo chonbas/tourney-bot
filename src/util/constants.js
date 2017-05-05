@@ -7,10 +7,10 @@ var constants = {
 	'RUN_TOURNEY': 3,   // tournament is in progress
 	'CLOSE_TOURNEY': 4, // tournament is finished, perform clean/reset to none
 	'DATABASE_ADDRESS':	'mongodb://localhost/test', // update to live when needeed
-	'JURY_CHANNEL': 'jury',
-	'GENERAL_CHANNEL': 'general',
-	'MATCH_CHANNEL': 'match',
-	'TEAM_CHANNEL': 'team'
+	'JURY_CHANNEL': 0,
+	'GENERAL_CHANNEL': 1,
+	'MATCH_CHANNEL': 2,
+	'TEAM_CHANNEL': 3
 };
 //
 module.exports = constants;
