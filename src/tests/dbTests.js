@@ -1,7 +1,6 @@
 const db = require('../webservices/mongodb');
 const Console = require('../util/console');
 const assert = require('assert');
-const Guild = require('../webservices/schemas/guildSchema');
 exports = {};
 
 
@@ -9,7 +8,6 @@ function resetTourney(msg) {
 	db.deleteTournament('1234').then((data) =>{
 		Console.log(data);
 		Console.log(msg);
-		Console.log(Guild);
 	}).catch((err)=>{
 		Console.log(err);
 	});

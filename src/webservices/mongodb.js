@@ -317,8 +317,8 @@ exports.createParticipant = (guild_id, name, discord_id) => {
 			}
 			var new_participant = {name:name, ids:{discord_id:discord_id}};
 			guild_obj.participants.push(new_participant);
-			guild_obj.save().then(function(guild_obj){
-				fulfill('Participant "' + name+'" added to guild with id:'+guild_obj.guild_id);
+			guild_obj.save().then(function(){
+				fulfill('Participant "' + name+'" added to guild with id:'+guild_id);
 			}).catch(function(err){
 				reject(err);
 			});
@@ -343,7 +343,6 @@ exports.removeParticipant = (guild_id, discord_id) => {
 			var participantIndex = guild_obj.participants.findIndex(findParticipant);
 			if (participantIndex === -1) {reject('Participant not found.');}
 			guild_obj.participants.splice(participantIndex,1);
-			Console.log(guild_obj.participants);
 			guild_obj.save(function(){
 				fulfill('Participant with discord_id '+ discord_id +' removed from guild with id:'+guild_id);
 			}).catch(function(err){
@@ -473,9 +472,27 @@ exports.getParticipantsByRoleID = (guild_id, role_id) => {
  * 
  * -------------------------------------------------------
 */
-exports.createChannel = (guild_id, channel_id, channel_type) => {
+exports.createChannel = (guild_id, channel_id, channel_type, ref_id) => {
 	return new Promise((fulfill, reject) => {
-
+		Guild.findOne({
+			guild_id:guild_id
+		}).then(function(guild_obj){
+			if (!channel_type){
+				reject('Must Provide a channel type.');
+			}
+			if (!channel_id || 0 === channel_id.length){
+				reject('Must Provide a channel id.');
+			}
+			var new_channel = {channel_type: channel_type, channel_id:channel_id, ref_id:ref_id};
+			guild_obj.channels.push(new_channel);
+			guild_obj.save().then(function(){
+				fulfill('Channel ' + channel_id +' added to guild with id:'+guild_id);
+			}).catch(function(err){
+				reject(err);
+			});
+		}).catch(function(err){
+			reject(err);
+		});
 	});
 };
 
@@ -486,7 +503,21 @@ exports.createChannel = (guild_id, channel_id, channel_type) => {
 */
 exports.getChannelType = (guild_id, channel_id) => {
 	return new Promise((fulfill, reject) => {
-
+		var findChannel = (channel) =>{
+			return channel.channel_id === channel_id;
+		};
+		Guild.findOne({
+			guild_id:guild_id
+		}).then(function(guild_obj){
+			var channel = guild_obj.channels.find(findChannel);
+			if (!channel){
+				reject('Participant not found.');
+			} else {
+				fulfill(channel.channel_type);
+			} 
+		}).catch(function(err){
+			reject(err);
+		});
 	});
 };
 
@@ -497,7 +528,23 @@ exports.getChannelType = (guild_id, channel_id) => {
 */
 exports.deleteChannel = (guild_id, channel_id) => {
 	return new Promise((fulfill, reject) => {
-
+		var findChannel = (channel) =>{
+			return channel.channel_id === channel_id;
+		};
+		Guild.findOne({
+			guild_id:guild_id
+		}).then(function(guild_obj){
+			var channelIndex = guild_obj.channels.findIndex(findChannel);
+			if (channelIndex === -1) {reject('channel not found.');}
+			guild_obj.channels.splice(channelIndex,1);
+			guild_obj.save(function(){
+				fulfill('channel with channel_id '+ channel_id +' removed from guild with id:'+guild_id);
+			}).catch(function(err){
+				reject(err);
+			});
+		}).catch(function(err){
+			reject(err);
+		});
 	});
 };
 

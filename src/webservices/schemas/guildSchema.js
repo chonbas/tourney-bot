@@ -27,7 +27,7 @@ var channel_schema = new mongoose.Schema({
 		index: true,
 		unique: true
 	},
-	reference_id: String //If channel is a match channel, ref_id refers to match id,
+	ref_id: String //If channel is a match channel, ref_id refers to match id,
 						//If channel is jury chnnale, ref_id refers specific id 
 });
 
