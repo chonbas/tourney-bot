@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 var participant_schema = new mongoose.Schema({
 	ids: {
-		discord_role_id:{ //Role ID within Discord server
+		role_id:{ //Role ID within Discord server
 			type: String,
 			index: true
 		},
