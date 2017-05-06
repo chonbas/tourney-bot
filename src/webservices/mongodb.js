@@ -63,14 +63,14 @@ exports.createTournament = (guild_id) => {
 		}).catch((err)=>{
 			Console.log(err);
 		});
-		
+
 	});
 };
 
 /* deleteTournament(guild_id)
  * -------------------------------------------------------
  * Takes guild_id and first tries to find tournament in db,
- * if guild is found, the tournament is removed. If guild 
+ * if guild is found, the tournament is removed. If guild
  * is not found, the promise rejects and an error is returned.
  * If the remove operation fails, promise also rejects
  * and error is returned.
@@ -88,7 +88,7 @@ exports.deleteTournament = (guild_id) => {
 			guild_id: guild_id,
 		}).then(function(guild_obj){
 			Console.log(guild_obj);
-			if (guild_obj == null){ 
+			if (guild_obj == null){
 				reject('Guild ' + guild_id + ' not found');
 			} else {
 				guild_obj.remove().then(function(guild_obj){
@@ -96,7 +96,7 @@ exports.deleteTournament = (guild_id) => {
 				}).catch(function(err){
 					reject(err);
 				});
-			} 
+			}
 		}).catch((err)=>{
 			Console.log(err);
 		});
@@ -105,7 +105,7 @@ exports.deleteTournament = (guild_id) => {
 
 /* setChallongeID(guild_id, challonge_id)
  * -------------------------------------------------------
- * Attempts to find the guild with the given id, if 
+ * Attempts to find the guild with the given id, if
  * guild not found
  * -------------------------------------------------------
 */
@@ -156,7 +156,7 @@ exports.getChallongeID = (guild_id) => {
 
 /* getTournamentStatus(guild_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.getTournamentStatus = (guild_id) => {
@@ -182,14 +182,14 @@ exports.getTournamentStatus = (guild_id) => {
 /* advanceTournamentState(guild_id)
  * -------------------------------------------------------
  * Attempts to find guild with given guild_id,
- * if any errors occur or the guild doesn't exist, the 
+ * if any errors occur or the guild doesn't exist, the
  * promise is rejected.
  * If a guild is found then, if the tourney was in it final state
- * the ghuild is removed.
+ * the guild is removed.
  * Otherwise, the tourney state is advanced to the next stage
  * and the guild object is returned.
  * Usage:
- * 
+ *
  * db.advanceTournamentState(guild_id).then(function(guild_obj){
  * 		//DO STUFF!
  * }).catch(function(err){
@@ -218,7 +218,7 @@ exports.advanceTournamentState = (guild_id) => {
 				}).catch(function(err){
 					reject(err);
 				});
-				
+
 			}
 		}).catch( (err) => {
 			Console.log(err);
@@ -230,9 +230,9 @@ exports.advanceTournamentState = (guild_id) => {
  * -------------------------------------------------------
  * Attempts to find a guild by guild_id, if the guild is found
  * then retrieve the array of participants and return upon
- * fulfillment. Any no tourney is found, or the tourney has no 
+ * fulfillment. Any no tourney is found, or the tourney has no
  * participants, or if any errors occur, the promise is rejected.
- * 
+ *
  * Usage:
  * db.getTournamentParticipants(guild_id).then(function(participants){
  * 	///do stuff
@@ -260,9 +260,9 @@ exports.getTournamentParticipants = (guild_id) => {
  * -------------------------------------------------------
  * Attempts to find a guild by guild_id, if the guild is found
  * then retrieve the array of channels and return upon
- * fulfillment. Any no tourney is found, or the tourney has no 
+ * fulfillment. Any no tourney is found, or the tourney has no
  * channels, or if any errors occur, the promise is rejected.
- * 
+ *
  * Usage:
  * db.getTournamentParticipants(guild_id).then(function(channels){
  * 	///do stuff
@@ -290,7 +290,7 @@ exports.getTournamentChannels = (guild_id) => {
  * -------------------------------------------------------
  * Creates a new participant by looking up the given guild,
  * creating a new participant object and pushing it to
- * the guild's participants array. 
+ * the guild's participants array.
  * If no name or discord id is provided, the promise will reject.
  * If any errors occur, promise will reject.
  * Returns a success message.
@@ -329,7 +329,7 @@ exports.createParticipant = (guild_id, name, discord_id) => {
 };
 /* removeParticipant(guild_id, discord_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.removeParticipant = (guild_id, discord_id) => {
@@ -355,7 +355,7 @@ exports.removeParticipant = (guild_id, discord_id) => {
 };
 /* getParticipantChallongeID(guild_id, discord_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.setParticipantChallongeID = (guild_id, discord_id, challonge_id) => {
@@ -382,7 +382,7 @@ exports.setParticipantChallongeID = (guild_id, discord_id, challonge_id) => {
 
 /* setParticipantChallongeID(guild_id, discord_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.getParticipantChallongeID = (guild_id, discord_id) => {
@@ -405,7 +405,7 @@ exports.getParticipantChallongeID = (guild_id, discord_id) => {
 
 /* getParticipantDiscordID(guild_id, discord_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.getParticipantDiscordID = (guild_id, challonge_id) => {
@@ -418,7 +418,7 @@ exports.getParticipantDiscordID = (guild_id, challonge_id) => {
 		}).then(function(guild_obj){
 			var participant = guild_obj.participants.find(findParticipant);
 			if (!participant){reject('Participant not found.');}
-			fulfill(participant.ids.discord_id);			
+			fulfill(participant.ids.discord_id);
 		}).catch(function(err){
 			reject(err);
 		});
@@ -427,7 +427,7 @@ exports.getParticipantDiscordID = (guild_id, challonge_id) => {
 
 /*
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.getParticipantRoleID = (guild_id, discord_id) => {
@@ -450,7 +450,7 @@ exports.getParticipantRoleID = (guild_id, discord_id) => {
 
 /*
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 // exports.getParticipantsByRoleID = (guild_id, role_id) => {
@@ -461,7 +461,7 @@ exports.getParticipantRoleID = (guild_id, discord_id) => {
 // 		Guild.findOne({
 // 			guild_id:guild_id
 // 		}).then(function(guild_obj){
-			
+
 // 		}).catch(function(err){
 // 			reject(err);
 // 		});
@@ -469,7 +469,7 @@ exports.getParticipantRoleID = (guild_id, discord_id) => {
 // };
 /* createChannel(guild_id, channel_id, channel_type)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.createChannel = (guild_id, channel_id, channel_type, ref_id) => {
@@ -498,7 +498,7 @@ exports.createChannel = (guild_id, channel_id, channel_type, ref_id) => {
 
 /* getChannelType(guild_id, channel_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.getChannelType = (guild_id, channel_id) => {
@@ -514,16 +514,16 @@ exports.getChannelType = (guild_id, channel_id) => {
 				reject('Participant not found.');
 			} else {
 				fulfill(channel.channel_type);
-			} 
+			}
 		}).catch(function(err){
 			reject(err);
 		});
 	});
 };
 
-/* deleteChannel(guild_id, channel_id) 
+/* deleteChannel(guild_id, channel_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 exports.deleteChannel = (guild_id, channel_id) => {
@@ -554,7 +554,7 @@ exports.deleteChannel = (guild_id, channel_id) => {
 // actually maybe isn't necessary but am not sure
 /* deleteTournament(guild_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 // TODO: getChatState(???)
@@ -562,7 +562,7 @@ exports.deleteChannel = (guild_id, channel_id) => {
 // Users: be sure to obj.save()!!
 /* deleteTournament(guild_id)
  * -------------------------------------------------------
- * 
+ *
  * -------------------------------------------------------
 */
 
