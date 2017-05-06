@@ -453,20 +453,20 @@ exports.getParticipantRoleID = (guild_id, discord_id) => {
  * 
  * -------------------------------------------------------
 */
-exports.getParticipantsByRoleID = (guild_id, role_id) => {
-	return new Promise((fulfill, reject) => {
-		var findParticipant = (participant) =>{
-			return participant.ids.role_id === role_id;
-		};
-		Guild.findOne({
-			guild_id:guild_id
-		}).then(function(guild_obj){
+// exports.getParticipantsByRoleID = (guild_id, role_id) => {
+// 	return new Promise((fulfill, reject) => {
+// 		var findParticipant = (participant) =>{
+// 			return participant.ids.role_id === role_id;
+// 		};
+// 		Guild.findOne({
+// 			guild_id:guild_id
+// 		}).then(function(guild_obj){
 			
-		}).catch(function(err){
-			reject(err);
-		});
-	});
-};
+// 		}).catch(function(err){
+// 			reject(err);
+// 		});
+// 	});
+// };
 /* createChannel(guild_id, channel_id, channel_type)
  * -------------------------------------------------------
  * 
