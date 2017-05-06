@@ -32,8 +32,3 @@ discordclient.login(credentials.DISCORD_TOKEN).catch((err) => {
 }).then(() => {
 	Console.log('Logged in');
 });
-
-
-
-
-
