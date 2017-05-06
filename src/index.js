@@ -1,13 +1,14 @@
 const Console = require('./util/console');
 
-var DEBUG = true;
+var DEBUG = false;
 
 
 if (DEBUG){
 	var db_tests = require('./tests/dbTests');
 	// db_tests.testTourneyCreation();
-	db_tests.testTourneyChallongeSetGet();
-
+	// db_tests.testTourneyChallongeSetGet();
+	db_tests.testParticipantCreateGet();
+	// db_tests.resetDB();
 }
 
 var credentials;
