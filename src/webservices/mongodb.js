@@ -462,7 +462,48 @@ exports.setParticipantChallongeID = (guild_id, discord_id, challonge_id) => {
 		});
 	});
 };
-
+/* setParticipantRoleID(guild_id, discord_id, role_id)
+ * -------------------------------------------------------
+ * Attempts to retrieve guild with given id, look up participant
+ * and update the role id.
+ * 
+ * If guild not found fulfill with NO TOURNEY
+ * If participant not found fulfill with NO_PARTICIPANT
+ * If errors occur during lookup or update, Reject with error
+ * 
+ * Returns: Promise -- On Success fulfills with UPDATE_SUCCESS
+ * Usage:
+ * db.setParticipantRoleID(guild_id, discord_id, role_id).then( (status)=> {
+ * 		//DO STUFF
+ * }).catch( (err) => {
+ * 		//ERROR HANDLING
+ * });
+ * -------------------------------------------------------
+*/
+exports.setParticipantRoleID = (guild_id, discord_id, role_id) => {
+	return new Promise((fulfill, reject) => {
+		var findParticipant = (participant) =>{
+			return participant.ids.discord_id === discord_id;
+		};
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY); }
+			var participant = guild_obj.participants.find(findParticipant);
+			if (!participant){ fulfill(constants.NO_PARTICIPANT);}
+			participant.ids.role_id = role_id;
+			guild_obj.save( () => {
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
 /* getParticipantChallongeID(guild_id, discord_id)
  * -------------------------------------------------------
  *  Attempts to retrieve guild with given id, look up participant
@@ -700,6 +741,7 @@ exports.getChannelType = (guild_id, channel_id) => {
 		});
 	});
 };
+
 /* deleteChannel(guild_id, channel_id)
  * -------------------------------------------------------
  * Attempts to look up guild with given id, then looks up
@@ -742,6 +784,7 @@ exports.deleteChannel = (guild_id, channel_id) => {
 		});
 	});
 };
+
 /* deleteChannesByTypel(guild_id, channel_type)
  * -------------------------------------------------------
  * Attempts to look up guild with given id, then looks up

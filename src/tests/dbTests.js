@@ -16,6 +16,7 @@ function resetTourney(msg) {
 exports.resetDB = () => {
 	resetTourney('bam');
 };
+
 exports.testTourneyCreation = () => {
 	db.createTournament('1234').then((data) =>{
 		Console.log(data);
