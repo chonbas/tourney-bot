@@ -467,9 +467,22 @@ exports.getParticipantRoleID = (guild_id, discord_id) => {
 // 		});
 // 	});
 // };
+
 /* createChannel(guild_id, channel_id, channel_type)
  * -------------------------------------------------------
+ * Creates a new channel by looking up the given guild,
+ * and storing the channel_id, channel_type, and ref_id.
  *
+ * Channel types can be found under util/constants.js
+ *
+ * If channel is a match channel, ref_id refers to match id,
+ * If channel is jury channel, ref_id refers specific id.
+ *
+ * db.createChannel(guild_id, name, discord_id).then(function(data){
+ * 	//do stuff
+ * }).catch(function(err){
+ * 	//error handling
+ * })
  * -------------------------------------------------------
 */
 exports.createChannel = (guild_id, channel_id, channel_type, ref_id) => {
