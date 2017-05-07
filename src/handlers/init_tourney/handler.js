@@ -1,3 +1,4 @@
+
 /**
 INIT TOURNEY HANDLER
 Once a user has expressed interest in designing a tournament,
@@ -14,18 +15,19 @@ var chat = require('./chat_state_handle');
 var channel_init = require('./init_channels');
 var challonge_init = require('./challonge_make');
 
+
 var handler = {};
 
 var advanceTournamentStatus = (msg) => {
 	Console.log('Init tourney handler "done"; advancing to setup');
 	// TODO: initialize challonge
 	// tournament and use db.setChallongeID() to set challonge ID
-	challonge_init().then((challonge_id) => {
+	challonge_init(msg).then((challonge_id) => {
 		Console.log('challonge_id: ' + challonge_id);
 		db.setChallongeID(msg.guild.id, challonge_id);
 		db.advanceTournamentState(msg.guild.id);
 		channel_init(msg);
-	});
+	}).catch();
 };
 
 handler.handleMsg = (msg) => {
@@ -34,6 +36,7 @@ handler.handleMsg = (msg) => {
 			advanceTournamentStatus(msg);
 		}
 	}).catch((err) => { Console.log(err); });
+
 };
 
 
