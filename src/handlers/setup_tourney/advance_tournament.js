@@ -2,19 +2,16 @@ var Console = require('../../util/console');
 // eslint-disable-next-line
 const db = require('../../webservices/mongodb');
 var advanceTournamentChallonge = require('./advance_tournament_challonge');
+var advanceTournamentDiscord = require('./advance_tournament_discord');
 
 // actually run tournament!!
 var advanceTournamentStatus = (msg) => {
 	var guild_id = msg.guild.id;
-	advanceTournamentChallonge(msg).then((match_data) => {
-		// TODO: use match_data to initialize
+	advanceTournamentChallonge(msg).then(() => {
+		return advanceTournamentDiscord(msg);
 	}).then(() => {
-		// TODO: make DB actually reflect new state
-		return db.getTournamentStatus(guild_id);
-	});
-	var log_msg = 'Advancing from setup phase to running tournament';
-	msg.reply(log_msg);
-	Console.log(log_msg);
+		return db.advanceTournamentState(guild_id);
+	}).catch((err) => Console.log(err));
 };
 
 module.exports = advanceTournamentStatus;
