@@ -1,5 +1,5 @@
 /*
-MATCH handler
+MATCH HANDLER
 
 listens for checkins, sets matches to pending (makes them "live" in Challonge)
 examines messages to report match scores

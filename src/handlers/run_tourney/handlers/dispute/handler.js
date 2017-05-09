@@ -1,3 +1,11 @@
+/*
+DISPUTE HANDLER
+
+examines messages/events to detect consensus on a jury
+removes dispute from list
+
+*/
+
 var Console = require('../../../../util/console');
 
 var handler = {};

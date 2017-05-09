@@ -1,3 +1,10 @@
+/*
+ADVANCE HANDLER
+
+just says "sorry am busy please let me resolve mah things, brb one minute"
+
+*/
+
 var Console = require('../../../../util/console');
 
 var handler = {};
