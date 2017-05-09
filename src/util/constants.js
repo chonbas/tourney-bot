@@ -10,6 +10,7 @@ var constants = {
 	// running tournament statuses
 	'RECEIVING_MATCH_REPORTS': 0,
 	'RESOLVING_DISPUTES': 1,
+	'ADVANCING': 2,
 
 	// channel types
 	'NO_CHANNEL': 0, //channel does not exist

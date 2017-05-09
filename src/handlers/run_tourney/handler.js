@@ -27,6 +27,7 @@ var handler = {};
 var subhandlers = {};
 subhandlers[constants.RECEIVING_MATCH_REPORTS] = require('./match/handler');
 subhandlers[constants.RESOLVING_DISPUTES] = require('./court/handler');
+subhandlers[constants.ADVANCING] = require('./advance/handler');
 
 handler.handleMsg = (msg) => {
 	msg.reply('setup tourney handler handling');
