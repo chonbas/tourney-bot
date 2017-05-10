@@ -15,12 +15,27 @@ activate dispute resolving handler
 var Console = require('../../../../util/console');
 var timer = require('../timer');
 var dispute_resolver = require('../disputes/resolver');
+var getMatches = require('../match_list_from_challonge');
+var notifyEndMatches = require('./notify_end_matches');
+var initDisputeChannels = require('./init_dispute_channels');
 
 var resolver = (guild, round) => {
 	var log_me = 'matches resolver resolving';
 	Console.log(log_me);
 
-	timer.set(guild.id, () => {dispute_resolver(guild, round);});
+	//TODO: set state in DB to advancing
+	//get the matches
+	getMatches(guild).then((matches) => {
+	//tell matches it's over
+		return notifyEndMatches(guild, matches);
+	}).then(() => {
+	//init disputes
+		return initDisputeChannels(guild);
+	}).then(() => {
+
+		timer.set(guild.id, () => {dispute_resolver(guild, round);});
+		//TODO: set state in DB to disputing
+	}).catch((err) => {Console.log(err);});
 };
 
 module.exports = resolver;
