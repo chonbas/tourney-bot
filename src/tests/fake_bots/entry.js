@@ -52,14 +52,14 @@ tokens.forEach((token) => {
 
 	client.on('ready', () => {
 		var link = `https://discordapp.com/oauth2/authorize?client_id=${client.user.id}&scope=bot&permissions=121920`;
-		Console.log(`${client.user.username} ready for action!\nAdd with\n\n${link}\n\n`);
+		Console.log(`${client.user.username} ready for action! Add using this URL: \n\n${link}\n\n`);
 		testbots.push(client.user.id);
 		client.do_emoji_echo = false;
 
 		//send a "i'm awake" message
 		client.guilds.map((guild) => {
-			guild.defaultChannel.sendMessage(`${client.user.username} has arrived.`);
-
+			guild.defaultChannel.sendMessage(`${client.user.username} has arrived.
+Write @me to have me echo to users with a display name containing "${target_string}".`);
 		});
 	});
 
