@@ -7,6 +7,7 @@ var challongeclient = require('./challonge');
 
 var exports = {};
 
+
 //initialize database, and report access
 mongoose.connect(constants['DATABASE_ADDRESS']);
 var db = mongoose.connection;
@@ -20,13 +21,6 @@ db.once('open', () => {
 	Console.log('Connected to MongoDB.');
 });
 
-
-// ████████████████████████████████████████████████████
-// FUNCTIONS!!!
-// BELOW HERE ARE FUNCTIONS FOR EVERYONE TO CALL :-D
-// TODO: add comments describing what each function does
-// TODO? maybe make a list right here of fxn to call?
-// ████████████████████████████████████████████████████
 
 /* createTournament(guild_id)
  * -------------------------------------------------------
@@ -212,6 +206,45 @@ exports.getTournamentStatus = (guild_id) => {
 	});
 };
 
+/* getTournamentRunningStatus(guild_id)
+ * -------------------------------------------------------
+ * Attempts to find guild with the given id,
+ * if no tourney found fulfills with NO_TOURNEY.
+ * If tourney is found, checks the state of the tourney,
+ * if the tourney is in RUN_TOURNEY,
+ * fulfills with current sub state of tournament.
+ * If tourney is not in RUN_TOURNEY, fulfills with
+ * null.
+ * If any error occurs during retrieval, rejects with error.
+ * 
+ * Returns: Promise -- On success returns tourney state
+ * Usage:
+ * db.getTournamentStatus(guild_id).then( (tourney_state){
+ * 		//DO STUFF
+ * }).catch((err)=>{
+ * 		//ERROR HANDLING
+ * });
+ * -------------------------------------------------------
+*/
+exports.getTourneyRunState = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id
+		}).then( (guild_obj) => {
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY); } 
+			var tourney_state = guild_obj.tourney_state;
+			if (tourney_state === constants.RUN_TOURNEY){
+				fulfill(guild_obj.tourney_sub_state);
+			} else {
+				fulfill(null); // If tourney not in run state, return null
+			}
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 /* advanceTournamentState(guild_id)
  * -------------------------------------------------------
  * Attempts to find guild with given guild_id,
@@ -226,7 +259,7 @@ exports.getTournamentStatus = (guild_id) => {
  * 
  * Returns- Promise, On successful fulfill UPDATE_SUCCESS
  * Usage:
- * db.advanceTournamentState(guild_id).then( (guild_obj) => {
+ * db.advanceTournamentState(guild_id).then( (status) => {
  * 		//DO STUFF!
  * }).catch( (err) => {
  * 		/error handling
@@ -248,6 +281,9 @@ exports.advanceTournamentState = (guild_id) => {
 					reject(err);
 				});
 			} else {
+				if (current_state === constants.RUN_TOURNEY){
+					guild_obj.tourney_sub_state = null; // reset run tourney state
+				}
 				current_state++;
 				guild_obj.tourney_state = current_state;
 				guild_obj.save().then( () => {
@@ -264,11 +300,97 @@ exports.advanceTournamentState = (guild_id) => {
 	});
 };
 
+/* advanceTourneyRunState(guild_id)
+ * -------------------------------------------------------
+ * Attempts to find guild with given guild_id,
+ * if any errors occur during tourney retrieval
+ * or update the promise is rejected.
+ * If the guild is not found, fulfills with NO_TOURNEY.
+ * If a guild is found, check to ensure it is in RUN_TOURNEY,
+ * if it is, check which sub state its in. If it is in the last substate
+ * (STATE_ADV_DISPUTE), wrap around back to STATE_MATCH, otherwise
+ * simply advance by one. If advance successfull, fulfill with
+ * UPDATE_SUCCESS.
+ * 
+ * If tourney was not in RUN_TOURNEY, fulfills with null.
+
+ * Returns- Promise, On successful fulfill UPDATE_SUCCESS
+ * Usage:
+ * db.advanceTourneyRunState(guild_id).then( (status) => {
+ * 		//DO STUFF!
+ * }).catch( (err) => {
+ * 		/error handling
+ * });
+ * -------------------------------------------------------
+*/
+exports.advanceTourneyRunState = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY);}
+			var current_state = guild_obj.tourney_state;
+			if (current_state === constants.RUN_TOURNEY){
+				var cur_run_state = guild_obj.tourney_sub_state;
+				if (cur_run_state === constants.STATE_ADV_DISPUTE){
+					guild_obj.tourney_sub_state = constants.STATE_MATCH;
+				} else {
+					guild_obj.tourney_sub_state = cur_run_state + 1;
+				}
+				guild_obj.save().then( () => {
+					fulfill(constants.UPDATE_SUCCESS);
+				}).catch( (err) =>{
+					Console.log(err);
+					reject(err);
+				});
+			} else {
+				fulfill(null);
+			}
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+/* getTournamentTeams(guild_id)
+ * -------------------------------------------------------
+ * Attempts to find a guild by guild_id, if the guild is found
+ * then retrieve the array of teamss and return upon
+ * fulfillment. Any no tourney is found, fulfills with NO_TOURNEY.
+ * If any errors occur, the promise is rejected.
+ * Note: If no teams, an empty array is returned.
+ * 
+ * Returns- Promise, On successful fulfill Team Array
+ * Usage:
+ * db.getTournamentParticipants(guild_id).then( (teams) =>{
+ * 	///do stuff
+ * }).catch( (err) => {
+ * 	/error handling
+ * });
+ * -------------------------------------------------------
+*/
+exports.getTournamentTeams = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY);}
+			var teams = guild_obj.teams;
+			fulfill(teams);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 /* getTournamentParticipants(guild_id)
  * -------------------------------------------------------
  * Attempts to find a guild by guild_id, if the guild is found
- * then retrieve the array of participants and return upon
- * fulfillment. Any no tourney is found, fulfills with NO_TOURNEY.
+ * then iterates over teams and retrieves array of participants
+ *  and return upon fulfillment. Any no tourney is found, 
+ * fulfills with NO_TOURNEY.
  * If any errors occur, the promise is rejected.
  * Note: If no participants, an empty array is returned.
  * 
@@ -287,7 +409,11 @@ exports.getTournamentParticipants = (guild_id) => {
 			guild_id:guild_id
 		}).then( (guild_obj) => {
 			if (!guild_obj) { fulfill(constants.NO_TOURNEY);}
-			var participants = guild_obj.participants;
+			var teams = guild_obj.teams;
+			var participants = [];
+			for (let team of teams){
+				participants.concat(team.participants);	
+			}
 			fulfill(participants);
 		}).catch( (err) => {
 			Console.log(err);
@@ -330,6 +456,108 @@ exports.getTournamentChannels = (guild_id) => {
 	});
 };
 
+/* createTeam(guild_id, name, discord_id)
+ * -------------------------------------------------------
+ * Creates a new team by looking up the given guild,
+ * creating a new team object and pushing it to
+ * the guild's teams array.
+ * If no guild is found, fulfills with NO_TOURNEY.
+ * If no name or role id is provided, the promise will reject.
+ * If a team already exists with the given role_id, promise rejects.
+ * If any errors occur, promise will reject.
+ * 
+ * If team creation is successful, returns the team's ID.
+ * 
+ * Returns- Promise, On successful fulfill CREATE_SUCCESS
+ * Usage:
+ * db.createParticipant(guild_id, name, discord_id).then( (status)=> {
+ * 	//do stuff
+ * }).catch( (err) => {
+ * 	//error handling
+ * })
+ * -------------------------------------------------------
+*/
+exports.createTeam = (guild_id, role_id, name) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY); }
+			if (!role_id || 0 === role_id.length){
+				Console.log('Must Provide a role id for team.');
+				reject('Must provide a role id for team');
+			}
+			if (!name || 0 === name.length){
+				Console.log('Must Provide a name for team.');
+				reject('Must provide a name for team');
+			}
+			var team_obj = guild_obj.teams.find( (team) => {
+				return team.role_id === role_id;
+			});
+			if (team_obj) { 
+				Console.log('Team with given role_id already exists.');
+				reject('Team with given role_id already exists.'); 
+			}
+			var new_team = {name:name, role_id:role_id, members:[]};
+			guild_obj.teams.push(new_team);
+			guild_obj.save().then( () => {
+				fulfill(new_team._id);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+/* removeTeam(guild_id, role_id)
+ * -------------------------------------------------------
+ * Attempts to retrieve guild with given id, and then 
+ * attempts to find team with given role id.
+ * if found, team is removed and fulfill
+ * with REMOVE_SUCCESS.
+ * If Tourney not found, fulfill with NO_TOURNEY.
+ * If team not found, fulfill with NO_TEAM.
+ * If any eror occurs with either guild lookup or participant
+ * removal, promise rejects with error.
+ * 
+ * Returns- Promise, On successful fulfill REMOVE_SUCCESS
+ * Usage:
+ * db.removeParticipant(guild_id, team_id, discord_id).then( (status)=> {
+ * 		//DO STUFF
+ * }).catch( (err) => {
+ * 		//ERROR HANDLING
+ * });
+ * -------------------------------------------------------
+*/
+exports.removeTeam = (guild_id, role_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			var findTeam = (team) =>{
+				return team.role_id === role_id;
+			};
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY); }
+			var teamIndex = guild_obj.team.findIndex(findTeam);
+			if (teamIndex === -1) {fulfill(constants.NO_TEAM);}
+			guild_obj.members.splice(teamIndex,1);
+			guild_obj.save( () => {
+				fulfill(constants.REMOVE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 /* createParticipant(guild_id, name, discord_id)
  * -------------------------------------------------------
  * Creates a new participant by looking up the given guild,
@@ -348,7 +576,7 @@ exports.getTournamentChannels = (guild_id) => {
  * })
  * -------------------------------------------------------
 */
-exports.createParticipant = (guild_id, name, discord_id) => {
+exports.createParticipant = (guild_id, name, discord_id, team_id) => {
 	return new Promise((fulfill, reject) => {
 		Guild.findOne({
 			guild_id:guild_id
@@ -362,8 +590,12 @@ exports.createParticipant = (guild_id, name, discord_id) => {
 				Console.log('Must Provide a discord id for participant.');
 				reject('Must provide a discord id for participant');
 			}
-			var new_participant = {name:name, ids:{discord_id:discord_id}};
-			guild_obj.participants.push(new_participant);
+			var team_obj = guild_obj.teams.find( (team) => {
+				return team.id === team_id;
+			});
+			if (!team_obj) { fulfill(constants.NO_TEAM); }
+			var new_participant = {name:name, ids:{discord_id:discord_id, role_id:team_obj.role_id}};
+			team_obj.members.push(new_participant);
 			guild_obj.save().then( () => {
 				fulfill(constants.CREATE_SUCCESS);
 			}).catch( (err) => {
@@ -376,27 +608,30 @@ exports.createParticipant = (guild_id, name, discord_id) => {
 		});
 	});
 };
+
 /* removeParticipant(guild_id, discord_id)
  * -------------------------------------------------------
  * Attempts to retrieve guild with given id, and then 
- * attempts to find participant with given discord_id,
+ * attempts to find team with given id, then
+ * find participant with given discord_id,
  * if found, participant is removed and fulfill
  * with REMOVE_SUCCESS.
  * If Tourney not found, fulfill with NO_TOURNEY.
+ * If team not found, fulfill with NO_TEAM.
  * If participant not found, fulfill with NO_PARTICIPANT.
  * If any eror occurs with either guild lookup or participant
  * removal, promise rejects with error.
  * 
  * Returns- Promise, On successful fulfill REMOVE_SUCCESS
  * Usage:
- * db.removeParticipant(guild_id, discord_id).then( (status)=> {
+ * db.removeParticipant(guild_id, team_id, discord_id).then( (status)=> {
  * 		//DO STUFF
  * }).catch( (err) => {
  * 		//ERROR HANDLING
  * });
  * -------------------------------------------------------
 */
-exports.removeParticipant = (guild_id, discord_id) => {
+exports.removeParticipant = (guild_id, team_id, discord_id) => {
 	return new Promise((fulfill, reject) => {
 		var findParticipant = (participant) =>{
 			return participant.ids.discord_id === discord_id;
@@ -405,9 +640,13 @@ exports.removeParticipant = (guild_id, discord_id) => {
 			guild_id:guild_id
 		}).then( (guild_obj) => {
 			if (!guild_obj) { fulfill(constants.NO_TOURNEY); }
-			var participantIndex = guild_obj.participants.findIndex(findParticipant);
+			var team_obj = guild_obj.teams.find( (team) => {
+				return team.id === team_id;
+			});
+			if (!team_obj) { fulfill(constants.NO_TEAM); }
+			var participantIndex = team_obj.members.findIndex(findParticipant);
 			if (participantIndex === -1) {fulfill(constants.NO_PARTICIPANT);}
-			guild_obj.participants.splice(participantIndex,1);
+			team_obj.members.splice(participantIndex,1);
 			guild_obj.save( () => {
 				fulfill(constants.REMOVE_SUCCESS);
 			}).catch( (err) => {
@@ -420,6 +659,7 @@ exports.removeParticipant = (guild_id, discord_id) => {
 		});
 	});
 };
+
 /* setParticipantChallongeID(guild_id, discord_id)
  * -------------------------------------------------------
  * Attempts to retrieve guild with given id, look up participant

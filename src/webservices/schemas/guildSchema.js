@@ -2,6 +2,14 @@
 
 var mongoose = require('mongoose');
 
+var dispute_schema = new mongoose.Schema({
+	id : mongoose.Types.ObjectId(),
+	originator: String, //discord_id for originator
+	defendant: String,
+	dispute_type: Number,
+	additional_info: String
+});
+
 var participant_schema = new mongoose.Schema({
 	ids: {
 		role_id:{ //Role ID within Discord server
@@ -10,7 +18,8 @@ var participant_schema = new mongoose.Schema({
 		},
 		discord_id:{
 			type:String,
-			index: true
+			index: true,
+			unique:true
 		},
 		challonge_id:{
 			type: String,
@@ -18,6 +27,13 @@ var participant_schema = new mongoose.Schema({
 		},
 	},
 	name: String
+});
+
+var team_schema = new mongoose.Schema({
+	_id : mongoose.Types.ObjectId(),
+	members:[participant_schema],
+	name:String,
+	role_id:String
 });
 
 var channel_schema = new mongoose.Schema({
@@ -37,6 +53,7 @@ var chat_state_schema = new mongoose.Schema({
 	type: mongoose.Schema.Types.Mixed
 });
 
+
 var guild_schema = new mongoose.Schema({
 	guild_id: {
 		type:String,
@@ -49,10 +66,11 @@ var guild_schema = new mongoose.Schema({
 		index: true
 	},
 	tourney_state: Number, // Tourney state \in {Constants}
-	participants:  [participant_schema],
+	tourney_sub_state: Number, //If tourney is RUNNING, specify cycle state
+	teams:  [team_schema],
 	channels: [channel_schema],
 	chat_state: [chat_state_schema],
-
+	disputes: [dispute_schema]
 });
 
 var Guild = mongoose.model('Guild', guild_schema);
