@@ -27,14 +27,12 @@ if(tokens.length === 0 || tokens[0].length < 50){
 var testbots = [];
 
 var echoToTargets = (msg, client_id) => {
-	// exclude my test buddies
-	var potential_targets = msg.guild.members.filter((member) => {
-		if(testbots.includes(member.id)) return false;
-		return true;
-	});
+	// if our target is writing, don't reply
+	if(msg.guild.members.get(msg.author.id).displayName
+	.toLowerCase().includes(target_string)) return;
 
 	// find the actual target by nickname having "tourney"
-	var targets = potential_targets.filter((member) => {
+	var targets = msg.guild.members.filter((member) => {
 		if(member.displayName.toLowerCase().includes(target_string)) {
 			return true;
 		}
@@ -43,8 +41,10 @@ var echoToTargets = (msg, client_id) => {
 
 	targets.map((target) => {
 		var str = msg.content.replace(client_id, target.id);
+
 		msg.channel.sendMessage(str);
 	});
+
 };
 
 tokens.forEach((token) => {
@@ -64,6 +64,7 @@ Write @me to have me echo to users with a display name containing "${target_stri
 	});
 
 	client.on('message', msg => {
+		if (msg.author.bot) return;
 		// if I'm mentioned
 		if (!msg.isMentioned(client.user)) {return;}
 
@@ -81,6 +82,8 @@ Write @me to have me echo to users with a display name containing "${target_stri
 	});
 
 	client.on('messageReactionAdd', (msgRxn, user) => {
+		if (user.bot) return;
+
 		// if should echo, do so
 		if (client.do_emoji_echo
 		&& user.id === client.emoji_echoer) {
