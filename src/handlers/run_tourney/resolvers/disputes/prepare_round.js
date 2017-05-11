@@ -3,6 +3,7 @@ var check_in_resolver = require('../check_in/resolver');
 var timer = require('../timer');
 
 var prep = (guild, round) => {
+// TODO: set handler to match-resolving
 	Console.log('Preparing round ' + round);
 	timer.set(guild.id, () => {check_in_resolver(guild, round);});
 };
