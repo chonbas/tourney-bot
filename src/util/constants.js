@@ -15,6 +15,11 @@ var constants = {
 	'STATE_DISPUTE':2, //..
 	'STATE_ADV_DISPUTE':3,
 
+	// running tournament statuses
+	'RECEIVING_MATCH_REPORTS': 0,
+	'RESOLVING_DISPUTES': 1,
+	'ADVANCING': 2,
+
 	// channel types
 	'NO_CHANNEL': 0, //channel does not exist
 	'JURY_CHANNEL': 0, //channel used for dispute resolution
@@ -28,7 +33,7 @@ var constants = {
 	'DISPUTE_DC':1,
 
 	//DB statuses
-	'UPDATE_SUCCESS': 0, 
+	'UPDATE_SUCCESS': 0,
 	'REMOVE_SUCCESS': 1,
 	'CREATE_SUCCESS':2,
 	'NO_PARTICIPANT':3,
@@ -40,7 +45,7 @@ var constants = {
 
 	// other constants
 	'CONSTANT_MESSAGE': 'hello world',
-	
+
 	'DATABASE_ADDRESS':	'mongodb://localhost/test' // update to live when needeed
 };
 //

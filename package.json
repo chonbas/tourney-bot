@@ -7,7 +7,8 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "cleardb": "node src/webservices/schemas/clear_database_util.js",
-    "lint": "node node_modules/eslint/bin/eslint.js credentials.js.TEMPLATE *.js src/** test/**"
+    "lint": "node node_modules/eslint/bin/eslint.js credentials.js.TEMPLATE *.js src/** test/**",
+    "lintfix": "node node_modules/eslint/bin/eslint.js --fix credentials.js.TEMPLATE *.js src/** test/**"
   },
   "repository": {
     "type": "git",
