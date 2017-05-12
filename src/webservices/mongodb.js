@@ -21,6 +21,11 @@ db.on('error', (err) =>{
 });
 db.once('open', () => {
 	Console.log('Connected to MongoDB.');
+	if (constants.MONGO_DEBUG){
+		Guild.remove({}, () => {
+			Console.log('Cleared!');
+		});
+	}
 });
 
 /* AVAILABLE FUNCTIONS:
