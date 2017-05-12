@@ -6,7 +6,7 @@ var dispute_schema = new mongoose.Schema({
 	id : mongoose.Types.ObjectId(),
 	originator: String, //discord_id for originator
 	defendant: String,
-	dispute_type: Number,
+	type: Number,
 	additional_info: String
 });
 
@@ -18,13 +18,8 @@ var participant_schema = new mongoose.Schema({
 		},
 		discord_id:{
 			type:String,
-			index: true,
-			unique:true
-		},
-		challonge_id:{
-			type: String,
 			index: true
-		},
+		}
 	},
 	name: String
 });
@@ -33,7 +28,9 @@ var team_schema = new mongoose.Schema({
 	_id : mongoose.Types.ObjectId(),
 	members:[participant_schema],
 	name:String,
-	role_id:String
+	role_id:String,
+	owner:String,
+	challonge_id:String
 });
 
 var channel_schema = new mongoose.Schema({

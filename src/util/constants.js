@@ -31,6 +31,9 @@ var constants = {
 	'CREATE_SUCCESS':2,
 	'NO_PARTICIPANT':3,
 	'NO_TEAM':4,
+	'PARTICIPANT_IN_TEAM':5,
+	'DISPUTE_EXISTS':6,
+	'TEAM_EXISTS':7,
 
 	// other constants
 	'CONSTANT_MESSAGE': 'hello world',
