@@ -1,11 +1,11 @@
-# Tourneybot
+# TourneyBot
 [![CircleCI](https://circleci.com/gh/chonbas/194.svg?style=svg&circle-token=091bfb5aa1f0f28b757733f2a8575b56e439e259)](https://circleci.com/gh/chonbas/194)
 [![CircleCI](https://circleci.com/gh/chonbas/194/tree/circleci.svg?style=svg&circle-token=091bfb5aa1f0f28b757733f2a8575b56e439e259)](https://circleci.com/gh/chonbas/194/tree/circleci)
 ## Usage
 
 
 ## Hosting Instructions
-Want to host Tourneybot? That's great! Here's how you do it. 
+Want to host TourneyBot? That's great! Here's how you do it. 
 ### Installation
 1. Install [NodeJS](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/download-center#community)'s community server.
 1. Clone the repository.
@@ -16,7 +16,7 @@ Want to host Tourneybot? That's great! Here's how you do it.
 1. TODO: db initialization (mongoose)
 
 ### Running the bot
-After installing, to actually run Tourneybot you will need to do a couple things. 
+After installing, to actually run TourneyBot you will need to do a couple things. 
 1. Run MongoDB on your computer. For instructions, click [here](https://docs.mongodb.com/getting-started/shell/installation/), select the installation guide for your OS and scroll down to "Run MongoDB".
 1. Make a link to add Tourneybot to servers. 
    1. Get your Client ID. Visit the [Discord API](https://discordapi.com/) site, go to "My Apps", click on the app, and under "App Details" copy the Client ID. 
