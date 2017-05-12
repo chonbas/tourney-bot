@@ -1,9 +1,8 @@
 const Console = require('./util/console');
+const constants = require('./util/constants');
 
-var DEBUG = false;
 
-
-if (DEBUG){
+if (constants.DEBUG){
 	var db_tests = require('./tests/dbTests');
 	// db_tests.testTourneyCreation();
 	// db_tests.testTourneyChallongeSetGet();

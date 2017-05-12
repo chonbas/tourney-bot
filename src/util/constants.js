@@ -1,5 +1,7 @@
 //
 var constants = {
+	'DEBUG': false, // DEBUG FLAG USED TO RUN TESTS
+	'MONGO_DEBUG': true, //MONGO DEBUG FLAG USED TO LOG ALL MONGO OPS
 	// tournament statuses
 	'NO_TOURNEY': 0,    // no tournament is set up
 	'INIT_TOURNEY': 1,  // user is setting tournament params

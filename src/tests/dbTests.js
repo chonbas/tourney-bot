@@ -21,10 +21,10 @@ exports.testTourneyCreation = () => {
 	db.createTournament('1234').then((data) =>{
 		Console.log(data);
 		resetTourney('Tourney Creation PASS');
-	}).catch((err) =>{	
+	}).catch((err) =>{
 		Console.log(err);
 		resetTourney('Tourney Creation FAIL');
-	});	
+	});
 };
 
 exports.testTourneyChallongeSetGet = () => {
@@ -47,7 +47,7 @@ exports.testTourneyChallongeSetGet = () => {
 	}).catch((err) =>{
 		resetTourney('TourneyChallongeSetGet FAIL');
 		Console.log(err);
-	});	
+	});
 };
 
 
@@ -87,7 +87,7 @@ exports.testTourneyChallongeSetGet = () => {
 // 	}).catch((err) =>{
 // 		Console.log(err);
 // 		resetTourney('Participant Create Get FAIL');
-// 	});	
+// 	});
 // };
 
 
