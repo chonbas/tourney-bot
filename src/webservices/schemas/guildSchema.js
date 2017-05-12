@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 
 var dispute_schema = new mongoose.Schema({
-	id : mongoose.Types.ObjectId(),
+	_id : mongoose.Schema.Types.ObjectId,
 	originator: String, //discord_id for originator
 	defendant: String,
 	type: Number,
@@ -25,7 +25,7 @@ var participant_schema = new mongoose.Schema({
 });
 
 var team_schema = new mongoose.Schema({
-	_id : mongoose.Types.ObjectId(),
+	_id : mongoose.Schema.Types.ObjectId,
 	members:[participant_schema],
 	name:String,
 	role_id:String,
