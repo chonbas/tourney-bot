@@ -11,7 +11,9 @@ var exports = {};
 //initialize database, and report access
 mongoose.connect(constants['DATABASE_ADDRESS']);
 var db = mongoose.connection;
-mongoose.set('debug', true);
+
+mongoose.set('debug', constants.MONGO_DEBUG);
+
 db.on('error', (err) =>{
 	Console.error.bind(Console, 'connection error:');
 	Console.log(err);
