@@ -21,26 +21,27 @@ function processName(msg) {
 var makeChallongeTourney = (msg) => {
 	Console.log(msg.content);
 	var t_name = processName(msg.content);
+	var t_url = randomString(9, '0123456789abcdefghijklmnopqrstuvwxyz')
 	return new Promise((fulfill, reject) => {
 		// TODO: make channels for tournament
 		client.tournaments.create({
 			tournament: {
 				name: t_name,
-				url: randomString(9, '0123456789abcdefghijklmnopqrstuvwxyz'),
+				url: t_url,
 				tournamentType: 'single elimination',
 			},
 			callback: (err, data) => {
 				Console.log('BEGINNING OF CALLBACK');
 				if(err){
-					Console.log('ERROR HERE');
+					Console.log(err);
 					reject();
 				}
 				else{
 					Console.log(err,data);
-					Console.log('data 0 returned is: ' + data[0]);
-					Console.log('data 1 returned is: ' + data[1]);
-					var challonge_id = 'GARBAGE';
-					fulfill(challonge_id);
+					Console.log('tourney url is: ' + t_url);
+					//Console.log('data 1 returned is: ' + data[1]);
+					//var challonge_id = 'GARBAGE';
+					fulfill(t_url);
 				}
 			}
 		});
