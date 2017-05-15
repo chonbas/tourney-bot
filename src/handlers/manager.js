@@ -14,7 +14,8 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 var manager = {};
 manager.distributeMsg = (msg) => {
 	// never reply to bots
-	if (msg.author.bot) return;
+	// TODO: Add this check before release!!
+	// if (msg.author.bot) return;
 	// only respond to @bot mentions
 	if (!msg.isMentioned(client.user)) {
 		Console.debug('Message heard, but no @bot so not replying.');
