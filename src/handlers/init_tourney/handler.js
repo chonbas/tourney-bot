@@ -23,7 +23,7 @@ var advanceTournamentStatus = (msg) => {
 	// tournament and use db.setChallongeID() to set challonge ID
 	challonge_init(msg).then((challonge_id) => {
 		Console.log('challonge_id: ' + challonge_id);
-		db.setChallongeID(msg.guild.id, challonge_id);
+		db.setTournamentChallongeID(msg.guild.id, challonge_id);
 		db.advanceTournamentState(msg.guild.id);
 		channel_init(msg);
 	}).catch();
