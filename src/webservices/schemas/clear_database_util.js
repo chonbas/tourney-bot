@@ -12,11 +12,8 @@ db.on('error', (err) =>{
 	Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
 });
 db.once('open', () => {
-
 	Console.log('Connected to MongoDB. Clearing DB...');
-
 	Guild.remove({}, () => {
-
 		// TODO: delete challonge tournaments before removing from MongoDB
 		Console.log('Cleared!');
 		//process.exit();
@@ -31,7 +28,7 @@ client.tournaments.index({
 		}
 		else{
 			Console.log(data.length);
-			for(var i=0, tourney; tourney = data[i]; i++){
+			for(let tourney of data){
 				if(tourney.tournament.createdByApi == false){
 					continue;
 				}
@@ -66,7 +63,7 @@ db.getChallongeID(msg.guild.id).then((t_url)=>{
 				}
 		}
 	});
-});	
+});
 */
 
 
