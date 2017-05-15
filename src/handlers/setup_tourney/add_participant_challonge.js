@@ -9,7 +9,7 @@ var db = require('../../webservices/mongodb');
 var addParticipantChallonge = (msg, participant_name) => {
 	return new Promise((fulfill, reject) => {
 		// TODO: Actually add to tournament.
-		db.getChallongeID(msg.guild.id).then((t_url)=>{
+		db.getTournamentChallongeID(msg.guild.id).then((t_url)=>{
 			Console.log('dd_p_url = '+t_url);
 			var p_name = participant_name;
 			client.participants.create({
