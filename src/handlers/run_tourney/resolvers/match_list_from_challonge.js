@@ -9,7 +9,10 @@ var get_list = (guild, round) => {
 		Console.log('  Retreiving match list for' + guild.id);
 
 		// TODO: actually get matches
-		if(round == 4) fulfill([]);
+		if(round >= 4) {
+			Console.log('END: simulating end');
+			fulfill([]);
+		}
 		fulfill(['GARBAGE_MATCH_1', 'GARBAGE_MATCH_2', 'GARBAGE_MATCH_3']);
 		reject();
 	});
