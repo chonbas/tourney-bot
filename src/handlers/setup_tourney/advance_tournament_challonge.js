@@ -9,7 +9,7 @@ var client = require('../../webservices/challonge');
 var startChallongeTourney = (msg) => {
 	return new Promise((fulfill, reject) => {
 		// TODO: tell challonge to start the tournament
-		db.getChallongeID(msg.guild.id).then((t_url)=>{
+		db.getTournamentChallongeID(msg.guild.id).then((t_url)=>{
 			client.tournaments.start({
 				id: t_url,
 				callback: (err, data) => {
