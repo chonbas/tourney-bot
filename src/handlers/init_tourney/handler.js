@@ -20,7 +20,6 @@ var handler = {};
 
 var advanceTournamentStatus = (msg) => {
 	Console.log('Init tourney handler "done"; advancing to setup');
-	// TODO: initialize challonge
 	// tournament and use db.setChallongeID() to set challonge ID
 	challonge_init(msg).then((challonge_id) => {
 		Console.log('challonge_id: ' + challonge_id);
