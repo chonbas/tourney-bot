@@ -21,7 +21,7 @@ function processName(msg) {
 var makeChallongeTourney = (msg) => {
 	Console.log(msg.content);
 	var t_name = processName(msg.content);
-	var t_url = randomString(9, '0123456789abcdefghijklmnopqrstuvwxyz')
+	var t_url = randomString(9, '0123456789abcdefghijklmnopqrstuvwxyz');
 	return new Promise((fulfill, reject) => {
 		// TODO: make channels for tournament
 		client.tournaments.create({

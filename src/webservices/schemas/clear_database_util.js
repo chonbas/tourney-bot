@@ -27,12 +27,10 @@ client.tournaments.index({
 	callback: (err, data) => {
 		if(err){
 			Console.log(err);
-			reject();
+			//reject();
 		}
 		else{
-			console.log(data[0]);
-			console.log(data[0].tournament.id);
-			Console.log(data.length)
+			Console.log(data.length);
 			for(var i=0, tourney; tourney = data[i]; i++){
 				if(tourney.tournament.createdByApi == false){
 					continue;
@@ -44,7 +42,7 @@ client.tournaments.index({
 							Console.log(err);
 						}
 						else{
-							console.log(err,data)
+							Console.log(err,data);
 						}
 					}
 				});

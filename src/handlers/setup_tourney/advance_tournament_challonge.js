@@ -19,7 +19,7 @@ var startChallongeTourney = (msg) => {
 					}
 					else{
 						Console.log('Started Challonge tournament');
-						console.log(err, data);
+						Console.log(err, data);
 					}
 				}
 			});

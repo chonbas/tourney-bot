@@ -10,8 +10,8 @@ var addParticipantChallonge = (msg, participant_name) => {
 	return new Promise((fulfill, reject) => {
 		// TODO: Actually add to tournament.
 		db.getChallongeID(msg.guild.id).then((t_url)=>{
-			Console.log("add_p_url = "+t_url)
-			p_name = participant_name
+			Console.log('dd_p_url = '+t_url);
+			var p_name = participant_name;
 			client.participants.create({
 				id: t_url,
 				participant: {
@@ -23,7 +23,7 @@ var addParticipantChallonge = (msg, participant_name) => {
 						reject();
 					}
 					else{
-						console.log(err, data);
+						Console.log(err, data);
 					}
 				}
 			});
