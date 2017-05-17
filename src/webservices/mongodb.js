@@ -103,7 +103,8 @@ exports.createTournament = (guild_id) => {
 			if (!guild_obj){
 				Guild.create({
 					guild_id: guild_id,
-					tourney_state: constants.INIT_TOURNEY
+					tourney_state: constants.INIT_TOURNEY,
+					tourney_sub_state: constants.STATE_DISPUTE
 				}).then( () => {
 					Console.log('Guild with guild_id:' + guild_id + ' created');
 					fulfill(constants.CREATE_SUCCESS);

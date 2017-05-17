@@ -5,33 +5,36 @@ This handler delegates responsibility to the handlers
 in handlers.
 
 */
-// eslint-disable-next-line
-var Console = require('../../util/console');
-var constants = require('../../util/constants');
+
+
+const db = require('../../webservices/mongodb');
+const constants = require('../../util/constants');
+const Console = require('../../util/console');
 var timer = require('./resolvers/timer');
 
-var handler = {};
+var handlers = {};
+handlers[constants.STATE_MATCH] = require('./handlers/match/handler');
+handlers[constants.STATE_ADV_MATCH] = require('./handlers/advance/handler');
+handlers[constants.STATE_DISPUTE] = require('./handlers/dispute/handler');
+handlers[constants.STATE_ADV_DISPUTE] = require('./handlers/advance/handler');
 
-var subhandlers = {};
-var dir = './handlers/';
-subhandlers[constants.RECEIVING_MATCH_REPORTS] = require(dir + 'match/handler');
-subhandlers[constants.RESOLVING_DISPUTES] = require(dir + 'dispute/handler');
-subhandlers[constants.ADVANCING] = require(dir + 'advance/handler');
 
-handler.handleMsg = (msg) => {
-	msg.reply('run tourney handler handling');
-
-	// TODO: determine state from db
-	var state = constants.RECEIVING_MATCH_REPORTS;
-	subhandlers[state].handleMsg && subhandlers[state].handleMsg(msg);
+var manager = {};
+manager.handleMsg = (msg) => {
+	Console.debug('Manager for run-tourney checking in');
+	db.getTournamentRunState(msg.guild.id).then((status) => {
+		Console.log('manager status ret:' + status);
+		var handler = handlers[status];
+		//check that handler has function before acting
+		handler.handleMsg && handler.handleMsg(msg);
+	});
 
 	// TODO: remove this bs and make real
 	if(msg.content.includes('done')){
 		Console.log('tripping?');
 		timer.trip(msg.guild.id);
 	}
+
 };
 
-// TODO: add other event handler passers (like reaction)
-
-module.exports = handler;
+module.exports = manager;

@@ -8,10 +8,12 @@ var prep = (guild, round) => {
 // TODO: set handler to match-resolving
 	Console.log('Preparing round ' + round);
 	getMatches(guild, round).then((matches) => {
+		// if no matches (i.e. the end of the tourney), end
 		if(matches.length == 0) {
 			Console.log('END: tournament at round ' + round);
 			db.advanceTournamentState(guild.id);
 		} else {
+			// otherwise keep round-ing and such!
 			timer.set(guild.id, () => {check_in_resolver(guild, round);});
 		}
 	}).catch();

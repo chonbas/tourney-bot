@@ -18,6 +18,7 @@ var prepare_round = null; //must break circular dependency
 var resolveUnfinishedDisputes = require('./resolve_unfinished_disputes');
 var resolveUnfinishedMatches = require('./resolve_unfinished_matches');
 var getMatches = require('../match_list_from_challonge');
+var db = require('../../../../webservices/mongodb');
 
 var resolver = (guild, round) => {
 	// fix circular dependence
@@ -26,17 +27,21 @@ var resolver = (guild, round) => {
 	var log_me = 'disputes resolver resolving';
 	Console.log(log_me);
 
-	// TODO: set handler to advancing
-
-	//resolve the disputes
-	resolveUnfinishedDisputes(guild).then(() => {
+	// set handler to advancing
+	db.advanceTournamentRunState(guild.id).then(() => {
+		return resolveUnfinishedDisputes(guild);
+	}).then(() => {
 	//retrieve the matches for round
 		return getMatches(guild, round);
 	}).then((matches) => {
 		return resolveUnfinishedMatches(guild, matches, round);
 	}).then(() => {
+		return db.advanceTournamentRunState(guild.id);
+	}).then(() => {
 		prepare_round(guild, round + 1);
 	}).catch((err) => {Console.log(err);});
+
+	//resolve the disputes
 };
 
 module.exports = resolver;
