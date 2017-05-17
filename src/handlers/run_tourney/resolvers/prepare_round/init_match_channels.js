@@ -7,6 +7,7 @@ var init_match_channels = (guild, matches) => {
 		Console.log('  Init-ing match channels for ' + guild.id);
 
 		// TODO: for each match, make a channel and add the right ppl
+		// also send a greeting
 		matches.forEach((match) => {
 			Console.log('    Init dispute ' + match);
 		});

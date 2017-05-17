@@ -17,6 +17,7 @@ var prep = (guild, round) => {
 			} else {
 				// otherwise keep round-ing and such!
 				initMatchChannels(guild, matches)
+				//TODO: are there other tasks? announce alert? etc.
 				.then(() => {
 					timer.set(guild.id, () => {check_in_resolver(guild, round);});
 					fulfill();
