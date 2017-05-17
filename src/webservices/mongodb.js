@@ -1,33 +1,3 @@
-var mongoose = require('mongoose');
-var constants = require('../util/constants');
-const Console = require('../util/console');
-var Guild = require('./schemas/guildSchema.js');
-// eslint-disable-next-line
-var challongeclient = require('./challonge');
-
-var exports = {};
-
-
-//initialize database, and report access
-mongoose.connect(constants['DATABASE_ADDRESS']);
-var db = mongoose.connection;
-
-mongoose.set('debug', constants.MONGO_DEBUG);
-
-db.on('error', (err) =>{
-	Console.error.bind(Console, 'connection error:');
-	Console.log(err);
-	Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
-});
-db.once('open', () => {
-	Console.log('Connected to MongoDB.');
-	if (constants.MONGO_DEBUG){
-		Guild.remove({}, () => {
-			Console.log('Cleared!');
-		});
-	}
-});
-
 /* AVAILABLE FUNCTIONS:
  * --------------------------------------------------------
  * TOURNAMENTS:
@@ -75,6 +45,38 @@ db.once('open', () => {
  * getChannelType(guild_id, channel_id)
  * deleteChannel(guild_id, channel_id)
  * deleteChannesByTypel(guild_id, channel_type)
+ */
+var mongoose = require('mongoose');
+var constants = require('../util/constants');
+const Console = require('../util/console');
+var Guild = require('./schemas/guildSchema.js');
+// eslint-disable-next-line
+var challongeclient = require('./challonge');
+
+var exports = {};
+
+
+//initialize database, and report access
+mongoose.connect(constants.DATABASE_ADDRESS);
+var db = mongoose.connection;
+
+mongoose.set('debug', constants.MONGO_DEBUG);
+
+db.on('error', (err) =>{
+	Console.error.bind(Console, 'connection error:');
+	Console.log(err);
+	Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
+});
+db.once('open', () => {
+	Console.log('Connected to MongoDB.');
+	if (constants.MONGO_DEBUG){
+		Guild.remove({}, () => {
+			Console.log('Cleared!');
+		});
+	}
+});
+
+
 
 /* createTournament(guild_id)
  * -------------------------------------------------------
@@ -101,7 +103,8 @@ exports.createTournament = (guild_id) => {
 			if (!guild_obj){
 				Guild.create({
 					guild_id: guild_id,
-					tourney_state: constants.INIT_TOURNEY
+					tourney_state: constants.INIT_TOURNEY,
+					tourney_sub_state: constants.STATE_DISPUTE
 				}).then( () => {
 					Console.log('Guild with guild_id:' + guild_id + ' created');
 					fulfill(constants.CREATE_SUCCESS);
