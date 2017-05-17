@@ -11,9 +11,9 @@ var advanceTournamentStatus = (msg) => {
 	advanceTournamentChallonge(msg).then(() => {
 		return advanceTournamentDiscord(msg);
 	}).then(() => {
-		return db.advanceTournamentState(guild_id);
+		return prepare_round(msg.guild, 1);
 	}).then(() => {
-		prepare_round(msg.guild, 1);
+		return db.advanceTournamentState(guild_id);
 	}).catch((err) => Console.log(err));
 };
 

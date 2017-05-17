@@ -36,9 +36,9 @@ var resolver = (guild, round) => {
 	}).then((matches) => {
 		return resolveUnfinishedMatches(guild, matches, round);
 	}).then(() => {
-		return db.advanceTournamentRunState(guild.id);
+		return prepare_round(guild, round + 1);
 	}).then(() => {
-		prepare_round(guild, round + 1);
+		return db.advanceTournamentRunState(guild.id);
 	}).catch((err) => {Console.log(err);});
 
 	//resolve the disputes

@@ -2,6 +2,7 @@
 var mongo = require('../../../../webservices/mongodb');
 var Console = require('../../../../util/console');
 var resolveMatchChallonge = require('./resolve_unfinished_match_challonge');
+var resolveMatchDiscord = require('./resolve_unfinished_match_discord');
 
 var resolve_matches = (guild, matches) => {
 	return new Promise((fulfill, reject) => {
@@ -9,8 +10,17 @@ var resolve_matches = (guild, matches) => {
 
 		//promise array
 		var actions = matches.map((match) => {
-			return resolveMatchChallonge(guild, match);
+			// each action is a promise to resolve in challonge then discord
+			return new Promise((fulfill, reject) => {
+				resolveMatchChallonge(guild, match)
+				.then(() => {
+					resolveMatchDiscord(guild, match);
+				})
+				.catch(err => reject(err));
+			});
 		});
+
+		//perform all promises before reporting we're done.
 		Promise.all(actions)
 		.then(()=>{
 			fulfill();
