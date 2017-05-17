@@ -22,7 +22,7 @@ var db = require('../../../../webservices/mongodb');
 
 var resolver = (guild, round) => {
 	// fix circular dependence
-	if(prepare_round == null) {prepare_round = require('./prepare_round');}
+	if(prepare_round == null) {prepare_round = require('../prepare_round/prepare_round');}
 
 	var log_me = 'disputes resolver resolving';
 	Console.log(log_me);
