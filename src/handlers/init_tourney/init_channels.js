@@ -3,18 +3,27 @@ var Console = require('../../util/console');
 // eslint-disable-next-line
 var db = require('../../webservices/mongodb');
 
+var constants = require('../../util/constants');
+
 // eslint-disable-next-line
-var createChannels = (msg) => {
+var initChannels = (msg) => {
 	return new Promise((fulfill, reject) => {
-
-		// TODO: make channels for tournament
-		// note: be sure to update DB with channel id types, etc
-		// note: db currently does not have function to do this
-		Console.log('Created channels for setup (not implemented)');
-
-		fulfill(); // once channels are made, call this
-		reject(); // if error, reject
+        msg.guild.createChannel('tourney-general', 'text').then((channel) => {
+            return channel.sendMessage('Welcome to the tournament!');
+        }).then((message)=> {
+            return db.createChannel(message.guild.id, message.channel.id, constants.GENERAL_CHANNEL);
+        }).then((ret_val) => {
+            if (ret_val === constants.CREATE_SUCCESS) {
+                Console.log('Created channels for setup (not implemented)');
+                fulfill();
+            } else {
+                reject();
+            }
+        }).catch(err => {
+            Console.log(err);
+            reject();
+        });
 	});
 };
 
-module.exports = createChannels;
+module.exports = initChannels;
