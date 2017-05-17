@@ -11,7 +11,7 @@ var timer = {};
 
 timer.timeouts = {};
 
-timer.set = (guild_id, cb, time=8000) => {
+timer.set = (guild_id, cb, time=800000) => {
 	var log_me = 'timer set!';
 	Console.log(log_me);
 	var t = setTimeout(cb, time);

@@ -12,8 +12,8 @@ var handler = {};
 
 // eslint-disable-next-line
 handler.handleMsg = (msg) => {
-	msg.reply('run-tourney-court handler handling');
-	Console.log('Run-tourney/court handling (not implemented/stubbed)');
+	msg.reply('Run-tourney/match handler handling');
+	Console.log('Run-tourney/match handling (not implemented/stubbed)');
 	// TODO: implement jury system kek
 	// TODO: in the meantime just advance matches
 };
