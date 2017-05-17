@@ -23,26 +23,29 @@ db.once('open', () => {
 client.tournaments.index({
 	callback: (err, data) => {
 		if(err){
-			Console.log(err);
+			Console.log('Index failed: ' + err);
 			//reject();
 		}
 		else{
-			Console.log(data.length);
-			for(let tourney of data){
-				if(tourney.tournament.createdByApi == false){
+			for(var p in data){
+				if (!data.hasOwnProperty(p)) {
 					continue;
 				}
-				client.tournaments.destroy({
-					id: tourney.tournament.id,
-					callback: (err, data)=> {
-						if(err){
-							Console.log(err);
+				var t = data[p].tournament;
+				if(t.createdByApi){
+					Console.log(p + ' was made by API');
+					client.tournaments.destroy({
+						id: t.id,
+						callback: (err)=> {
+							if(err){
+								Console.log('Delete failed! for T' + err);
+							}
+							else{
+								Console.log('Delete success: '+t.name);
+							}
 						}
-						else{
-							Console.log(err,data);
-						}
-					}
-				});
+					});
+				}
 			}
 		}
 	}
@@ -65,5 +68,3 @@ db.getChallongeID(msg.guild.id).then((t_url)=>{
 	});
 });
 */
-
-

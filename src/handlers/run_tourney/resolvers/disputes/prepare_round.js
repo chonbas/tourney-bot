@@ -5,7 +5,6 @@ var getMatches = require('../match_list_from_challonge');
 var db = require('../../../../webservices/mongodb');
 
 var prep = (guild, round) => {
-// TODO: set handler to match-resolving
 	Console.log('Preparing round ' + round);
 	getMatches(guild, round).then((matches) => {
 		// if no matches (i.e. the end of the tourney), end

@@ -24,7 +24,6 @@ var resolver = (guild, round) => {
 	var log_me = 'matches resolver resolving';
 	Console.log(log_me);
 
-	//TODO: set state in DB to advancing
 	//get the matches
 	db.advanceTournamentRunState(guild.id).then(() => {
 		return getMatches(guild);
@@ -38,9 +37,8 @@ var resolver = (guild, round) => {
 	//advance
 		return db.advanceTournamentRunState(guild.id);
 	}).then(() => {
-
+		//call next
 		timer.set(guild.id, () => {dispute_resolver(guild, round);});
-		//TODO: set state in DB to disputing
 	}).catch((err) => {Console.log(err);});
 };
 
