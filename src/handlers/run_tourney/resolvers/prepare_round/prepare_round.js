@@ -3,7 +3,7 @@ var check_in_resolver = require('../check_in/resolver');
 var timer = require('../timer');
 var getMatches = require('../match_list_from_challonge');
 var db = require('../../../../webservices/mongodb');
-var initMatchChannels = require('./init_match_channels');
+const discord = require('../../../../webservices/discord');
 
 var prep = (guild, round) => {
 	return new Promise((fulfill, reject) => {
@@ -16,7 +16,7 @@ var prep = (guild, round) => {
 				db.advanceTournamentState(guild.id);
 			} else {
 				// otherwise keep round-ing and such!
-				initMatchChannels(guild, matches)
+				discord.runInitMatchChannels(guild, matches)
 				//TODO: are there other tasks? announce alert? etc.
 				.then(() => {
 					timer.set(guild.id, () => {check_in_resolver(guild, round);});

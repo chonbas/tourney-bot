@@ -16,8 +16,7 @@ var Console = require('../../../../util/console');
 var timer = require('../timer');
 var dispute_resolver = require('../disputes/resolver');
 var getMatches = require('../match_list_from_challonge');
-var notifyEndMatches = require('./notify_end_matches');
-var initDisputeChannels = require('./init_dispute_channels');
+const discord = require('../../../../webservices/discord');
 var db = require('../../../../webservices/mongodb');
 
 var resolver = (guild, round) => {
@@ -29,10 +28,10 @@ var resolver = (guild, round) => {
 		return getMatches(guild);
 	}).then((matches) => {
 	//tell matches it's over
-		return notifyEndMatches(guild, matches);
+		return discord.runNotifyEndMatches(guild, matches);
 	}).then(() => {
 	//init disputes
-		return initDisputeChannels(guild);
+		return discord.runInitDisputeChannels(guild);
 	}).then(() => {
 	//advance
 		return db.advanceTournamentRunState(guild.id);

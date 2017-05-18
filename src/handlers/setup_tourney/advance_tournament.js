@@ -2,14 +2,14 @@ var Console = require('../../util/console');
 // eslint-disable-next-line
 const db = require('../../webservices/mongodb');
 var advanceTournamentChallonge = require('./advance_tournament_challonge');
-var advanceTournamentDiscord = require('./advance_tournament_discord');
+const discord = require('../../webservices/discord');
 var prepare_round = require('../run_tourney/resolvers/prepare_round/prepare_round');
 
 // actually run tournament!!
 var advanceTournamentStatus = (msg) => {
 	var guild_id = msg.guild.id;
 	advanceTournamentChallonge(msg).then(() => {
-		return advanceTournamentDiscord(msg);
+		return discord.transitionSetupToRun(msg.guild);
 	}).then(() => {
 		return prepare_round(msg.guild, 1);
 	}).then(() => {

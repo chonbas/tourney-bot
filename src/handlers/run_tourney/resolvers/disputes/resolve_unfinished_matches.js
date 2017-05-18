@@ -2,7 +2,7 @@
 var mongo = require('../../../../webservices/mongodb');
 var Console = require('../../../../util/console');
 var resolveMatchChallonge = require('./resolve_unfinished_match_challonge');
-var resolveMatchDiscord = require('./resolve_unfinished_match_discord');
+const discord = require('../../../../webservices/discord');
 
 var resolve_matches = (guild, matches) => {
 	return new Promise((fulfill, reject) => {
@@ -14,7 +14,7 @@ var resolve_matches = (guild, matches) => {
 			return new Promise((fulfill, reject) => {
 				resolveMatchChallonge(guild, match)
 				.then(() => {
-					resolveMatchDiscord(guild, match);
+					discord.runResolveMatch(guild, match);
 				})
 				.catch(err => reject(err));
 			});
