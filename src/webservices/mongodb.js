@@ -1,5 +1,6 @@
 /* AVAILABLE FUNCTIONS:
  * --------------------------------------------------------
+ * clearDB()
  * TOURNAMENTS:
  * createTournament(guild_id)
  * deleteTournament(guild_id)
@@ -69,14 +70,16 @@ db.on('error', (err) =>{
 });
 db.once('open', () => {
 	Console.log('Connected to MongoDB.');
-	if (constants.MONGO_DEBUG){
-		Guild.remove({}, () => {
-			Console.log('Cleared!');
-		});
-	}
 });
 
-
+exports.clearDB = () =>{
+	return new Promise((fulfill, reject) => {
+		Guild.remove({}, (err)=>{
+			if (err) { reject(err);	}
+			fulfill(constants.REMOVE_SUCCESS);
+		});
+	});
+};
 
 /* createTournament(guild_id)
  * -------------------------------------------------------
@@ -466,7 +469,7 @@ exports.getTournamentParticipants = (guild_id) => {
 			if (!guild_obj) { fulfill(constants.NO_TOURNEY);}
 			var teams = guild_obj.teams;
 			var participants = [];
-			for (let team of teams){
+			for (var team in teams){
 				participants.concat(team.participants);
 			}
 			fulfill(participants);
@@ -951,7 +954,7 @@ exports.setTeamRoleID = (guild_id, team_id, role_id) => {
 			var team_obj = guild_obj.teams.find(findTeam);
 			if (!team_obj){ fulfill(constants.NO_TEAM);}
 			team_obj.role_id = role_id;
-			for (let member of team_obj.members){
+			for (var member in team_obj.members){
 				member.ids.role_id = role_id;
 			}
 			guild_obj.save( () => {
@@ -1154,7 +1157,7 @@ exports.createParticipant = (guild_id, name, discord_id, team_id) => {
 				return team.id === team_id;
 			});
 			if (!team_obj) { fulfill(constants.NO_TEAM); }
-			for (let team of guild_obj.teams){
+			for (var team in guild_obj.teams){
 				var participant = team.members.find( (member) => {
 					return member.ids.discord_id === discord_id;
 				});
@@ -1257,7 +1260,7 @@ exports.getParticipantDiscordID = (guild_id, name) => {
 		}).then( (guild_obj) => {
 			if (!guild_obj){ fulfill(constants.NO_TOURNEY);}
 			if (guild_obj.teams.length > 0){
-				for (let team of guild_obj.teams){
+				for (var team in guild_obj.teams){
 					var participant = team.members.find(findParticipant);
 					if (participant) {fulfill(participant.ids.discord_id);}
 				}
@@ -1298,7 +1301,7 @@ exports.getParticipantTeamID = (guild_id, discord_id) => {
 		}).then( (guild_obj) => {
 			if (!guild_obj){ fulfill(constants.NO_TOURNEY);}
 			if (guild_obj.teams.length > 0){
-				for (let team of guild_obj.teams){
+				for (var team in guild_obj.teams){
 					var participant = team.members.find(findParticipant);
 					if (participant) {fulfill(team._id);}
 				}

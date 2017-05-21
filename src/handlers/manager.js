@@ -12,6 +12,7 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
 
 var manager = {};
+
 manager.distributeMsg = (msg) => {
 	// never reply to bots
 	// TODO: Add this check before release!!

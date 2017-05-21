@@ -1,14 +1,14 @@
 const Console = require('./util/console');
-const constants = require('./util/constants');
+// const constants = require('./util/constants');
 
 
-if (constants.DEBUG){
-	var db_tests = require('./tests/dbTests');
-	// db_tests.testTourneyCreation();
-	// db_tests.testTourneyChallongeSetGet();
-	db_tests.testParticipantCreateGet();
-	// db_tests.resetDB();
-}
+// // if (constants.DEBUG){
+// 	var db_tests = require('./tests/dbTests');
+// 	// db_tests.testTourneyCreation();
+// 	// db_tests.testTourneyChallongeSetGet();
+// 	db_tests.testParticipantCreateGet();
+// 	// db_tests.resetDB();
+// }
 
 var credentials;
 try {

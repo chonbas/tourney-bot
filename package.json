@@ -9,7 +9,7 @@
     "cleardb": "node src/webservices/schemas/clear_database_util.js",
     "lint": "node node_modules/eslint/bin/eslint.js credentials.js.TEMPLATE *.js src/** test/**",
     "lintfix": "node node_modules/eslint/bin/eslint.js --fix credentials.js.TEMPLATE *.js src/** test/**",
-		"bots": "node src/tests/fake_bots/entry.js"
+    "bots": "node src/tests/fake_bots/entry.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/chonbas/194#readme",
   "dependencies": {
+    "async": "^2.4.0",
     "challonge": "^2.1.0",
     "discord.js": "^11.0.0",
     "mongodb": "^2.2.25",
