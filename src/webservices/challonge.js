@@ -19,20 +19,13 @@ var getGuildIDFromURL = (url) => {
 	return url.substring(3);
 };
 
-var getGuildIDFromName = (url) => {
-	return url.substring(11);
-};
-
 exports.createTourney = (guild_id, parameters) => {
 	return new Promise((fulfill, reject) => {
+		var tournament =  parameters;
+		tournament['name'] = getTourneyName(guild_id);
+		tournament['url'] = getChallongeURL(guild_id);
 		client.tournaments.create({
-			tournament: {
-				name: getTourneyName(guild_id),
-				url: getChallongeURL(guild_id),
-				//ADD EXTRA PARAMS HERE
-				// tournamentType: parameters['type'],
-				// start_at: parameters['start_time'],
-			},
+			tournament: tournament,
 			callback: (err, response) => {
 				if(err){
 					Console.log(err);
@@ -182,12 +175,13 @@ exports.removeAllTourneys = () => {
 						exports.deleteTourney(clean_id).then( (status) => {
 							return status;
 						}).catch( (err) => {
+							Console.log(index);
 							Console.log(err);
 							return -1;
 						});
 					});
 					Console.log('done mappin.');
-					var remove_issue = remove_states.find( (e)=> {return e === -1;})
+					var remove_issue = remove_states.find( (e)=> {return e === -1;});
 					if (!remove_issue){
 						fulfill(constants.REMOVE_SUCCESS);
 					} else {
@@ -202,19 +196,162 @@ exports.removeAllTourneys = () => {
 
 exports.getMatchList = (guild_id) => {
 	return new Promise( (fulfill, reject) => {
-		
-	});
-};
-
-exports.updateMatch = (guild_id, match_id, winner_id, scores) => {
-	return new Promise( (fulfill, reject) => {
-		
+		client.matches.index({
+			id: getChallongeURL(guild_id),
+			callback: (err, matches) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					fulfill(matches);
+				}
+			}
+		});
 	});
 };
 
 exports.getMatch = (guild_id, match_id) => {
 	return new Promise( (fulfill, reject) => {
-		
+		client.matches.show({
+			id: getChallongeURL(guild_id),
+			matchId: match_id,
+			callback: (err, match) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					fulfill(match);
+				}
+			}
+		});
+	});
+};
+
+exports.updateMatch = (guild_id, match_id, winner_id, scores) => {
+	return new Promise( (fulfill, reject) => {
+		client.matches.update({
+			id: getChallongeURL(guild_id),
+			matchId: match_id,
+			match: {
+				scoresCsv: scores,
+				winnerId: winner_id,
+			},
+			callback: (err, data) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					Console.log(data);
+					fulfill(constants.UPDATE_SUCCESS);
+				}
+			}
+		});
+	});
+};
+
+exports.createParticipant = (guild_id, name) => {
+	return new Promise( (fulfill, reject) => {
+		client.participants.create({
+			id: getChallongeURL(guild_id),
+			participant: {
+				name: name
+			},
+			callback: (err, participant) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					fulfill(participant.id);
+				}
+			}
+		});
+	});
+};
+
+exports.removeParticipant = (guild_id, part_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.participants.destroy({
+			id: getChallongeURL(guild_id),
+			participantId: part_id,
+			callback: (err, data) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					Console.log(data);
+					fulfill(constants.REMOVE_SUCCESS);
+				}
+			}
+		});
+	});
+};
+
+exports.getParticipant = (guild_id, part_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.participants.show({
+			id: getChallongeURL(guild_id),
+			participantId: part_id,
+			callback: (err, participant) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					fulfill(participant);
+				}
+			}
+		});
+	});
+};
+
+exports.updateParticipant = (guild_id, part_id, params) => {
+	return new Promise( (fulfill, reject) => {
+		client.participant.update({
+			id: getChallongeURL(guild_id),
+			participantId: part_id,
+			participant:params,
+			callback: (err, response) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					Console.log(response);
+					fulfill(constants.UPDATE_SUCCESS);
+				}
+			}
+		});
+	});
+};
+
+exports.randomizeParticipantSeeds = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.participants.randomize({
+			id: getChallongeURL(guild_id),
+			callback: (err, response) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					Console.log(response);
+					fulfill(constants.UPDATE_SUCCESS);
+				}
+			}
+		});
+	});
+};
+
+exports.getTourneyParticipants = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.participants.index({
+			id: getChallongeURL(guild_id),
+			callback: (err, participants) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					fulfill(participants);
+				}
+			}
+		});
 	});
 };
 
