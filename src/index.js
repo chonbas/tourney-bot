@@ -1,5 +1,12 @@
 const Console = require('./util/console');
+const Constants = require('./util/constants');
+const dbTests = require('./tests/dbTests.js');
 
+if (Constants.DEBUG){
+	dbTests.runDBTests().then( () => {
+		Console.log('Tests Run');
+	});
+}
 var credentials;
 try {
 	//check that credentials file exists
