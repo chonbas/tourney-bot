@@ -1,8 +1,6 @@
 // eslint-disable-next-line
 var mongo = require('../../../../webservices/mongodb');
 var Console = require('../../../../util/console');
-// eslint-disable-next-line
-const discord = require('../../../../webservices/discord');
 
 /**
 Forces resolution of an match.
