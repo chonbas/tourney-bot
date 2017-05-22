@@ -734,10 +734,8 @@ var runTeamGetSetChallonge = (t_id, team_ids) => {
 	});
 };
 
-exports.runDBTests = () => {
+var runDBTestsA = (t_id,c_id) => {
 	return new Promise((fulfill, reject) => {
-		var t_id = '1234';
-		var c_id = 'c1234';
 		runTourneyCreateDeleteTest(t_id).then( (result) => {
 			Console.log(result);
 			runTourneyPropertiesGetSetTest(t_id, c_id).then( (result) => {
@@ -754,7 +752,8 @@ exports.runDBTests = () => {
 							Console.log(result);
 							runTeamGetSetChallonge(t_id, team_ids).then( (data) => {
 								var challonge_ids = data;
-								fulfill(challonge_ids);
+								var results = [role_ids, team_ids, challonge_ids];
+								fulfill(results);
 							}).catch( (err) => {
 								testFailed(reject, 'TeamGetSetChallonge', err);
 							});
@@ -772,6 +771,170 @@ exports.runDBTests = () => {
 			});
 		}).catch( (err) => {
 			testFailed(reject, 'TestTourneyCreateDelete', err);
+		});
+	});
+};
+
+var runSetGetTeamRoleTests = (t_id, role_ids, team_ids) => {
+	return new Promise((fulfill, reject) => {
+		var i = 0;
+		var cur_test = printTestName('Get Team Role ID ' + i.toString());
+		testGetTeamRoleID(t_id, team_ids[i], role_ids[i]).then( () => {
+			i = 1;
+			cur_test = printTestName('Get Team Role ID ' + i.toString());
+			testGetTeamRoleID(t_id, team_ids[i], role_ids[i]).then( () => {
+				i = 2;
+				cur_test = printTestName('Get Team Role ID ' + i.toString());
+				testGetTeamRoleID(t_id, team_ids[i], role_ids[i]).then( () => {
+					i = 3;
+					cur_test = printTestName('Get Team Role ID ' + i.toString());
+					testGetTeamRoleID(t_id, team_ids[i], role_ids[i]).then( () => {
+						i = 0;
+						var upd_roles = ['role0','role1','role2','role3'];
+						cur_test = printTestName('Set Team Role ID ' + i.toString());
+						testSetTeamRoleID('0', team_ids[i], upd_roles[i], Constants.NO_TOURNEY).then( () => {
+							cur_test = printTestName('Set Team Role ID ' + i.toString());
+							testSetTeamRoleID(t_id, team_ids[i], upd_roles[i], Constants.UPDATE_SUCCESS).then( () => {
+								i = 1;
+								cur_test = printTestName('Set Team Role ID ' + i.toString());
+								testSetTeamRoleID(t_id, team_ids[i], upd_roles[i], Constants.UPDATE_SUCCESS).then( () => {
+									i = 2;
+									cur_test = printTestName('Set Team Role ID ' + i.toString());
+									testSetTeamRoleID(t_id, team_ids[i], upd_roles[i], Constants.UPDATE_SUCCESS).then( () => {
+										i = 3;
+										cur_test = printTestName('Set Team Role ID ' + i.toString());
+										testSetTeamRoleID(t_id, team_ids[i], upd_roles[i], Constants.UPDATE_SUCCESS).then( () => {
+											fulfill(upd_roles);
+										}).catch( (err) => {
+											testFailed(reject, cur_test, err);
+										});
+									}).catch( (err) => {
+										testFailed(reject, cur_test, err);
+									});
+								}).catch( (err) => {
+									testFailed(reject, cur_test, err);
+								});
+							}).catch( (err) => {
+								testFailed(reject, cur_test, err);
+							});
+						}).catch( (err) => {
+							testFailed(reject, cur_test, err);
+						});
+					}).catch( (err) => {
+						testFailed(reject, cur_test, err);
+					});
+				}).catch( (err) => {
+					testFailed(reject, cur_test, err);
+				});
+			}).catch( (err) => {
+				testFailed(reject, cur_test, err);
+			});
+		}).catch( (err) => {
+			testFailed(reject, cur_test, err);
+		});
+	});
+};
+
+var runTestCreateGetParticipants = (t_id, team_ids) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runTestCreateDisputes = (t_id, team_ids, teams) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runTestCreateGetChannels = (t_id, role_ids) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runTestResolveDisputes = (t_id, team_ids, teams, defendants) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runTestDeleteChannels = (t_id, channels) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runTestRemoveParticipant = (t_id, team_ids, teams) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runTestRemoveTeams = (t_id, team_ids) => {
+	return new Promise((fulfill, reject) => {
+		
+	});
+};
+
+var runDBTestsB = (t_id,c_id, data) => {
+	return new Promise((fulfill, reject) => {
+		var role_ids = data[0];
+		var team_ids = data[1];
+		runSetGetTeamRoleTests(t_id, role_ids, team_ids).then( (upd_roles) => {
+			role_ids = upd_roles;
+			runTestCreateGetParticipants(t_id, team_ids).then( (teams) => {
+				runTestCreateGetChannels(t_id, role_ids).then( (channels) => {
+					runTestCreateDisputes(t_id, team_ids, teams).then( (defendants) => {
+						runTestResolveDisputes(t_id, team_ids, teams, defendants).then( () => {
+							runTestDeleteChannels(t_id, channels).then( () => {
+								runTestRemoveParticipant(t_id, team_ids, teams).then( () => {
+									runTestRemoveTeams(t_id, team_ids).then( () => {
+										testTourneyDeletion(t_id).then( (status)=> {
+											fulfill(status);
+										}).catch( (err) => {
+											testFailed(reject, 'TestTourneyDelete', err);
+										});
+									}).catch( (err) => {
+										testFailed(reject, 'TestRemoveTeams', err);
+									});
+								}).catch( (err) => {
+									testFailed(reject, 'TestRemoveParticipant', err);
+								});
+							}).catch( (err) => {
+								testFailed(reject, 'TestChannelDelete', err);
+							});
+						}).catch( (err) => {
+							testFailed(reject, 'TestResolveDisputes', err);
+						});
+					}).catch( (err) => {
+						testFailed(reject, 'TestDisputeCreate', err);
+					});
+				}).catch( (err) => {
+					testFailed(reject, 'TestChannelCreate', err);
+				});
+			}).catch( (err) => {
+				testFailed(reject, 'TestParticipantCreate', err);
+			});
+		}).catch( (err) => {
+			testFailed(reject, 'TestTourneySetGetRole', err);
+		});
+	});
+};
+
+exports.runDBTests = () => {
+	return new Promise((fulfill, reject) => {
+		var t_id = '1234';
+		var c_id = 'c1234';
+		runDBTestsA(t_id,c_id).then( (result) => {
+			runDBTestsB(t_id, c_id, result).then( (result)=> {
+				Console.log(result === Constants.REMOVE_SUCCESS);
+				fulfill('Test Passed');
+			}).catch( (err) => {
+				testFailed(reject, 'RunDBTestsB', err);
+			});
+		}).catch( (err) => {
+			testFailed(reject, 'RunDBTestsA', err);
 		});
 	});
 };
