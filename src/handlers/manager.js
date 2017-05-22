@@ -12,6 +12,7 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
 
 var manager = {};
+
 manager.distributeMsg = (msg) => {
 	db.getTournamentStatus(msg.guild.id).then((status) => {
 		var handler = handlers[status];
