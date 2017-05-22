@@ -1,50 +1,50 @@
 /* AVAILABLE FUNCTIONS:
  * --------------------------------------------------------
+ * clearDB()
  * TOURNAMENTS:
- * createTournament(guild_id)
- * deleteTournament(guild_id)
- * setTournamentChallongeID(guild_id, challonge_id)
- * getTournamentChallongeID(guild_id)
- * getTournamentStatus(guild_id)
- * getTournamentRunState(guild_id)
- * advanceTournamentState(guild_id)
- * advanceTournamentRunState(guild_id)
- * getTournamentTeams(guild_id)
- * getTournamentParticipants(guild_id)
- * getTournamentChannels(guild_id)
+ * createTournament(guild_id) *
+ * deleteTournament(guild_id) *
+ * setTournamentChallongeID(guild_id, challonge_id) *
+ * getTournamentChallongeID(guild_id) *
+ * getTournamentStatus(guild_id) *
+ * getTournamentRunState(guild_id) *
+ * advanceTournamentState(guild_id) *
+ * advanceTournamentRunState(guild_id) *
+ * getTournamentTeams(guild_id) *
+ * getTournamentParticipants(guild_id) *
+ * getTournamentChannels(guild_id) *
  * getTournamentDisputes(guild_id)
  * getTournamentDisputesByOriginator(guild_id, discord_id)
  * getTournamentDisputesByType(guild_id, dispute_type)
  * TEAMS:
- * createTeam(guild_id, role_id, name)
- * removeTeam(guild_id, role_id)
- * getTeamIDByRoleID(guild_id, role_id)
- * getTeamIDByName(guild_id, name)
- * getTeamCreatorByTeamID(guild_id, team_id)
- * getTeamCreatorByRoleID(guild_id, role_id)
- * setTeamChallongeID(guild_id, team_id, challonge_id)
- * getTeamChallongeID(guild_id, team_id)
- * setTeamRoleID(guild_id, team_id, role_id)
- * getTeamRoleID(guild_id, team_id)
+ * createTeam(guild_id, role_id, name) *
+ * removeTeam(guild_id, role_id) *
+ * getTeamIDByRoleID(guild_id, role_id) *
+ * getTeamIDByName(guild_id, name) *
+ * getTeamCreatorByTeamID(guild_id, team_id) *
+ * getTeamCreatorByRoleID(guild_id, role_id) *
+ * setTeamChallongeID(guild_id, team_id, challonge_id) *
+ * getTeamChallongeID(guild_id, team_id) *
+ * setTeamRoleID(guild_id, team_id, role_id) *
+ * getTeamRoleID(guild_id, team_id) *
  * getTeamMembersByID(guild_id, team_id)
  * getTeamMembersByRoleID(guild_id, role_id)
  * PARTICIPANTS:
- * createParticipant(guild_id, name, discord_id, team_id)
- * removeParticipant(guild_id, discord_id)
- * getParticipantDiscordID(guild_id, name)
- * getParticipantTeamID(guild_id, name)
- * getParticipantsByRoleID(guild_id, role_id)
+ * createParticipant(guild_id, name, discord_id, team_id) *
+ * removeParticipant(guild_id, discord_id) *
+ * getParticipantDiscordID(guild_id, name) *
+ * getParticipantTeamID(guild_id, name) *
  * DISPUTES:
- * createDispute(guild_id, originator_id, defendant_id, dispute_type, add_info)
- * resolveDispute(guild_id, dispute_id)
- * resolveDisputesByType(guild_id, dispute_type)
- * getDisputeID(guild_id, defendant_id)
- * getDisputeByID(guild_id, dispute_id)
+ * createDispute(guild_id, originator_id, defendant_id, dispute_type, add_info) *
+ * resolveDispute(guild_id, dispute_id) *
+ * resolveDisputesByType(guild_id, dispute_type) *
+ * getDisputeID(guild_id, defendant_id) *
+ * getDisputeByID(guild_id, dispute_id) *
  * CHANNELS:
- * createChannel(guild_id, channel_id, channel_type)
- * getChannelType(guild_id, channel_id)
- * deleteChannel(guild_id, channel_id)
- * deleteChannesByTypel(guild_id, channel_type)
+ * createChannel(guild_id, channel_id, channel_type) *
+ * getChannelType(guild_id, channel_id) *
+ * deleteChannel(guild_id, channel_id) *
+ * deleteChannesByTypel(guild_id, channel_type) *
  */
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
@@ -69,14 +69,16 @@ db.on('error', (err) =>{
 });
 db.once('open', () => {
 	Console.log('Connected to MongoDB.');
-	if (constants.MONGO_DEBUG){
-		Guild.remove({}, () => {
-			Console.log('Cleared!');
-		});
-	}
 });
 
-
+exports.clearDB = () =>{
+	return new Promise((fulfill, reject) => {
+		Guild.remove({}, (err)=>{
+			if (err) { reject(err);	}
+			fulfill(constants.REMOVE_SUCCESS);
+		});
+	});
+};
 
 /* createTournament(guild_id)
  * -------------------------------------------------------
@@ -466,7 +468,7 @@ exports.getTournamentParticipants = (guild_id) => {
 			if (!guild_obj) { fulfill(constants.NO_TOURNEY);}
 			var teams = guild_obj.teams;
 			var participants = [];
-			for (let team of teams){
+			for (var team in teams){
 				participants.concat(team.participants);
 			}
 			fulfill(participants);
@@ -951,7 +953,7 @@ exports.setTeamRoleID = (guild_id, team_id, role_id) => {
 			var team_obj = guild_obj.teams.find(findTeam);
 			if (!team_obj){ fulfill(constants.NO_TEAM);}
 			team_obj.role_id = role_id;
-			for (let member of team_obj.members){
+			for (var member in team_obj.members){
 				member.ids.role_id = role_id;
 			}
 			guild_obj.save( () => {
@@ -1154,7 +1156,7 @@ exports.createParticipant = (guild_id, name, discord_id, team_id) => {
 				return team.id === team_id;
 			});
 			if (!team_obj) { fulfill(constants.NO_TEAM); }
-			for (let team of guild_obj.teams){
+			for (var team in guild_obj.teams){
 				var participant = team.members.find( (member) => {
 					return member.ids.discord_id === discord_id;
 				});
@@ -1257,7 +1259,7 @@ exports.getParticipantDiscordID = (guild_id, name) => {
 		}).then( (guild_obj) => {
 			if (!guild_obj){ fulfill(constants.NO_TOURNEY);}
 			if (guild_obj.teams.length > 0){
-				for (let team of guild_obj.teams){
+				for (var team in guild_obj.teams){
 					var participant = team.members.find(findParticipant);
 					if (participant) {fulfill(participant.ids.discord_id);}
 				}
@@ -1298,7 +1300,7 @@ exports.getParticipantTeamID = (guild_id, discord_id) => {
 		}).then( (guild_obj) => {
 			if (!guild_obj){ fulfill(constants.NO_TOURNEY);}
 			if (guild_obj.teams.length > 0){
-				for (let team of guild_obj.teams){
+				for (var team in guild_obj.teams){
 					var participant = team.members.find(findParticipant);
 					if (participant) {fulfill(team._id);}
 				}
@@ -1311,43 +1313,6 @@ exports.getParticipantTeamID = (guild_id, discord_id) => {
 	});
 };
 
-/* getParticipantsByRoleID(guild_id, role_id)
- * -------------------------------------------------------
- *  Attempts to retrieve guild with given id, look up participants
- * with the given role_id and return an array of matching
- * participants.
- *
- * If guild not found fulfill with NO TOURNEY
- * If participants not found fulfill with NO_PARTICIPANT
- * If errors occur during lookup or update, Reject with error
- *
- * Returns: Promise -- On Success fulfills with Array of participants
- * Usage:
- * db.getParticipantsByRoleID(guild_id, role_id).then( (participants)=> {
- * 		//DO STUFF
- * }).catch( (err) => {
- * 		//ERROR HANDLING
- * });
- * -------------------------------------------------------
-*/
-exports.getParticipantsByRoleID = (guild_id, role_id) => {
-	return new Promise((fulfill, reject) => {
-		var findParticipant = (participant) =>{
-			return participant.ids.role_id === role_id;
-		};
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			if (!guild_obj){ fulfill(constants.NO_TOURNEY); }
-			var participants = guild_obj.teams.filter(findParticipant);
-			if (participants.length === 0) {fulfill(constants.NO_PARTICIPANT); }
-			fulfill(participants);
-		}).catch( (err) => {
-			Console.log(err);
-			reject(err);
-		});
-	});
-};
 
 /* createDispute(guild_id, originator_id, defendant_id, dispute_type, add_info)
  * -------------------------------------------------------
@@ -1387,7 +1352,7 @@ exports.createDispute = (guild_id, originator_id, defendant_id, dispute_type, ad
 				reject('Must Provide a dispute type.');
 			}
 			var findDispute = (dispute) => {
-				return ((dispute.defendant === defendant_id));
+				return (dispute.defendant === defendant_id);
 			};
 			var existing_dispute = guild_obj.disputes.find(findDispute);
 			if (existing_dispute){
