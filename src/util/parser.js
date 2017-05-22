@@ -6,11 +6,8 @@
 //handler: the handler to deliver the message to (string)
 
 //requires natural
-<<<<<<< HEAD
 var parse_constants = require('./parse_constants');
 
-=======
->>>>>>> 4d46a9211ffb4c3d7d3ceaa423567a288ed39251
 var Console = require('../../util/console');
 
 var parseMessage = (msg) => {
@@ -76,11 +73,9 @@ var parseMessage = (msg) => {
 		handler='all';
 	}
 	Console.log(parse);
-<<<<<<< HEAD
+
 	return {parse: parse_constants[parse], message: msg, handler: handler};
-=======
-	return {parse: parse, message: msg, handler: handler};
->>>>>>> 4d46a9211ffb4c3d7d3ceaa423567a288ed39251
+
 };
 
 module.exports = parseMessage;
