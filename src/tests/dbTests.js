@@ -182,9 +182,9 @@ var testRemoveTeam = (t_id, role_id, t_status) => {
 	});
 };
 
-var testGetTeamIDByRoleID = (t_id, r_id, t_status) => {
+var testGetTeamIDByRoleID = (t_id, r_id) => {
 	return new Promise( (fulfill, reject) =>{
-		db.getTeamIDByRoleID(t_id, r_id).then( (status) => {
+		db.getTeamIDByRoleID(t_id, r_id).then( () => {
 			fulfill(true);
 		}).catch( (err) => {
 			Console.log(err);
@@ -193,9 +193,9 @@ var testGetTeamIDByRoleID = (t_id, r_id, t_status) => {
 	});
 };
 
-var testGetTeamIDByName = (t_id, name, t_status) => {
+var testGetTeamIDByName = (t_id, name) => {
 	return new Promise( (fulfill, reject) =>{
-		db.getTeamIDByName(t_id, name).then( (status) => {
+		db.getTeamIDByName(t_id, name).then( () => {
 			fulfill(true);
 		}).catch( (err) => {
 			Console.log(err);
@@ -522,34 +522,34 @@ var runTourneyPropertiesGetSetTest = (t_id, c_id) => {
 var runTourneyAdvanceTests = (t_id) => {
 	return new Promise( (fulfill, reject) => {
 		var cur_test = printTestName('Tourney Advance Status 1');
-		testTourneyAdv(t_id, Constants.UPDATE_SUCCESS).then( (result) => {
+		testTourneyAdv(t_id, Constants.UPDATE_SUCCESS).then( () => {
 			cur_test = printTestName('Tourney Advance Status 2');
-			testTourneyAdv('0', Constants.NO_TOURNEY).then( (result) => {
+			testTourneyAdv('0', Constants.NO_TOURNEY).then( () => {
 				cur_test = printTestName('Tourney Advance Status 3');
-				testTourneyAdv(t_id, Constants.UPDATE_SUCCESS).then( (result) => {
+				testTourneyAdv(t_id, Constants.UPDATE_SUCCESS).then( () => {
 					cur_test = printTestName('Tourney Get Run Status 2');
 					var cur_state = Constants.STATE_MATCH;
-					testTourneyGetRunStatus(t_id, cur_state).then ( (result) => {
+					testTourneyGetRunStatus(t_id, cur_state).then ( () => {
 						cur_test = printTestName('Tourney Advance Run Status 1');
-						testTourneyAdvRunState(t_id).then( (result) => {
+						testTourneyAdvRunState(t_id).then( () => {
 							cur_test = printTestName('Tourney Get Run Status 3');
 							cur_state = Constants.STATE_ADV_MATCH;
-							testTourneyGetRunStatus(t_id, cur_state).then ( (result) => {
+							testTourneyGetRunStatus(t_id, cur_state).then ( () => {
 								cur_test = printTestName('Tourney Advance Run Status 2');
-								testTourneyAdvRunState(t_id).then( (result) => {
+								testTourneyAdvRunState(t_id).then( () => {
 									cur_test = printTestName('Tourney Get Run Status 4');
 									cur_state = Constants.STATE_DISPUTE;
-									testTourneyGetRunStatus(t_id, cur_state).then ( (result) => {
+									testTourneyGetRunStatus(t_id, cur_state).then ( () => {
 										cur_test = printTestName('Tourney Advance Run Status 3');
-										testTourneyAdvRunState(t_id).then( (result) => {
+										testTourneyAdvRunState(t_id).then( () => {
 											cur_test = printTestName('Tourney Get Run Status 5');
 											cur_state = Constants.STATE_ADV_DISPUTE;
-											testTourneyGetRunStatus(t_id, cur_state).then ( (result) => {
+											testTourneyGetRunStatus(t_id, cur_state).then ( () => {
 												cur_test = printTestName('Tourney Advance Run Status 4');
-												testTourneyAdvRunState(t_id).then( (result) => {
+												testTourneyAdvRunState(t_id).then( () => {
 													cur_test = printTestName('Tourney Get Run Status 6');
 													cur_state = Constants.STATE_MATCH;
-													testTourneyGetRunStatus(t_id, cur_state).then ( (result) => {
+													testTourneyGetRunStatus(t_id, cur_state).then ( () => {
 														fulfill(true);
 													}).catch( (err) =>{
 														testFailed(reject, cur_test, err);
@@ -606,33 +606,33 @@ var runTeamCreationSetGetTests = (t_id) => {
 		testCreateTeam(t_id, role_ids[i], names[i]).then( (tm_id) => {
 			team_ids.push(tm_id);
 			cur_test = printTestName('Get Team ID By Role ID ' + i.toString());
-			testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( (tm_id) => {
+			testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( () => {
 				cur_test = printTestName('Get Team ID By Name ' + i.toString());
-				testGetTeamIDByName(t_id, names[i], team_ids[i]).then( (tm_id) => {
+				testGetTeamIDByName(t_id, names[i], team_ids[i]).then( () => {
 					i = 1;
 					cur_test = printTestName('Tourney Team Creation ' + i.toString());
 					testCreateTeam(t_id, role_ids[i], names[i]).then( (tm_id) => {
 						team_ids.push(tm_id);
 						cur_test = printTestName('Get Team ID By Role ID ' + i.toString());
-						testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( (tm_id) => {
+						testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( () => {
 							cur_test = printTestName('Get Team ID By Name ' + i.toString());
-							testGetTeamIDByName(t_id, names[i], team_ids[i]).then( (tm_id) => {
+							testGetTeamIDByName(t_id, names[i], team_ids[i]).then( () => {
 								i = 2;
 								cur_test = printTestName('Tourney Team Creation ' + i.toString());
 								testCreateTeam(t_id, role_ids[i], names[i]).then( (tm_id) => {
 									team_ids.push(tm_id);
 									cur_test = printTestName('Get Team ID By Role ID ' + i.toString());
-									testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( (tm_id) => {
+									testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( () => {
 										cur_test = printTestName('Get Team ID By Name ' + i.toString());
-										testGetTeamIDByName(t_id, names[i], team_ids[i]).then( (tm_id) => {
+										testGetTeamIDByName(t_id, names[i], team_ids[i]).then( () => {
 											i = 3;
 											cur_test = printTestName('Tourney Team Creation ' + i.toString());
 											testCreateTeam(t_id, role_ids[i], names[i]).then( (tm_id) => {
 												team_ids.push(tm_id);
 												cur_test = printTestName('Get Team ID By Role ID ' + i.toString());
-												testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( (tm_id) => {
+												testGetTeamIDByRoleID(t_id, role_ids[i], team_ids[i]).then( () => {
 													cur_test = printTestName('Get Team ID By Name ' + i.toString());
-													testGetTeamIDByName(t_id, names[i], team_ids[i]).then( (tm_id) => {
+													testGetTeamIDByName(t_id, names[i], team_ids[i]).then( () => {
 														var data = [role_ids, team_ids, names];
 														Console.log(team_ids);
 														fulfill(data);
@@ -684,28 +684,28 @@ var runTeamGetSetChallonge = (t_id, team_ids) => {
 		}
 		i = 0;
 		var cur_test = printTestName('Team Set Challonge ID ' + i.toString());
-		testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( (result) => {
+		testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( () => {
 			i = 1;
 			cur_test = printTestName('Team Set Challonge ID ' + i.toString());
-			testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( (result) => {
+			testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( () => {
 				i = 2;
 				cur_test = printTestName('Team Set Challonge ID ' + i.toString());
-				testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( (result) => {
+				testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( () => {
 					i = 3;
 					cur_test = printTestName('Team Set Challonge ID ' + i.toString());
-					testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( (result) => {
+					testSetTeamChallongeID(t_id, team_ids[i], chall_ids[i], Constants.UPDATE_SUCCESS).then( () => {
 						i = 0;
 						cur_test = printTestName('Team Get Challonge ID ' + i.toString());
-						testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( (result) => {
+						testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( () => {
 							i = 1;
 							cur_test = printTestName('Team Get Challonge ID ' + i.toString());
-							testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( (result) => {
+							testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( () => {
 								i = 2;
 								cur_test = printTestName('Team Get Challonge ID ' + i.toString());
-								testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( (result) => {
+								testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( () => {
 									i = 3;
 									cur_test = printTestName('Team Get Challonge ID ' + i.toString());
-									testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( (result) => {
+									testGetTeamChallongeID(t_id, team_ids[i], chall_ids[i]).then( () => {
 										fulfill(chall_ids);
 									}).catch( (err) => {
 										testFailed(reject, cur_test, err);
