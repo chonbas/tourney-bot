@@ -48,6 +48,7 @@ handler.handleReaction = (msgRxn, user) => {
 	Console.log('Run-tourney/dispute handler: emoji reaction detected');*/
 };
 
+//eslint-disable-next-line
 var newDispute = () => {
 	// put in database
 	// discord: pm the defendant with details
