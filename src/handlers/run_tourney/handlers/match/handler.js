@@ -7,8 +7,11 @@ examines message to detect disputes
 */
 
 var Console = require('../../../../util/console');
+// eslint-disable-next-line
 var constants = require('../../../../util/constants');
+// eslint-disable-next-line
 var challonge = require('../../../../webservices/challonge');
+// eslint-disable-next-line
 var db = require('../../../../webservices/mongodb');
 
 var handler = {};
