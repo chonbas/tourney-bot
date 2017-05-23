@@ -26,7 +26,10 @@ var participant_schema = new mongoose.Schema({
 var team_schema = new mongoose.Schema({
 	members:[participant_schema],
 	name:String,
-	role_id:String,
+	role_id:{ //Role ID within Discord server
+		type: String,
+		index: true
+	},
 	owner:String,
 	challonge_id:String
 });

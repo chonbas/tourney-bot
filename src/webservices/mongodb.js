@@ -36,7 +36,7 @@
  * getParticipantTeamID(guild_id, name) *
  * DISPUTES:
  * createDispute(guild_id, originator_id, defendant_id, dispute_type, add_info) *
- * resolveDispute(guild_id, dispute_id) *
+ * resolveDispute(guild_id, defendant_id) *
  * resolveDisputesByType(guild_id, dispute_type) *
  * getDisputeID(guild_id, defendant_id) *
  * getDisputeByID(guild_id, dispute_id) *
@@ -477,11 +477,17 @@ exports.getTournamentParticipants = (guild_id) => {
 		Guild.findOne({
 			guild_id:guild_id
 		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return;}
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY);return;}
 			var teams = guild_obj.teams;
 			var participants = [];
-			for (var team in teams){
-				participants.concat(team.participants);
+			for (var i in teams){
+				var team = teams[i];
+				for (var j in team.members){
+					var member = team.members[j];
+					if (member.ids){
+						participants.push(member);
+					}
+				}
 			}
 			fulfill(participants);
 		}).catch( (err) => {
@@ -515,7 +521,7 @@ exports.getTournamentChannels = (guild_id) => {
 		Guild.findOne({
 			guild_id:guild_id
 		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return;}
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY);return;}
 			var channels = guild_obj.channels;
 			fulfill(channels);
 		}).catch( (err) => {
@@ -725,9 +731,16 @@ exports.removeTeam = (guild_id, role_id) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
 			var teamIndex = guild_obj.teams.findIndex(findTeam);
 			if (teamIndex === -1) {fulfill(constants.NO_TEAM);return;}
-			guild_obj.members.splice(teamIndex,1);
+			var oldGuildTeams = guild_obj.teams;
+			var teamID = oldGuildTeams[teamIndex]._id;
+			guild_obj.teams.splice(teamIndex,1);
 			guild_obj.save( () => {
-				fulfill(constants.REMOVE_SUCCESS);
+				Team.remove({_id:teamID}).then( ()=>{
+					fulfill(constants.REMOVE_SUCCESS);
+				}).catch((err)=> {
+					Console.log(err);
+					reject(err);
+				});
 			}).catch( (err) => {
 				Console.log(err);
 				reject(err);
@@ -839,19 +852,9 @@ exports.getTeamIDByName = (guild_id, name) => {
 */
 exports.getTeamCreatorByTeamID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			var findTeam = (team) =>{
-				return team._id === team_id;
-			};
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var team_obj = guild_obj.teams.find(findTeam);
-			if (team_obj === null) {fulfill(constants.NO_TEAM);return;}
-			if (team_obj.creator === null || team_obj.creator.length === 0){
-				fulfill(null);
-			}
-			fulfill(team_obj.creator);
+		Team.findById(team_id).then( (team_obj) => {
+			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
+			fulfill(team_obj.owner);
 		}).catch( (err) => {
 			Console.log(err);
 			reject(err);
@@ -882,19 +885,9 @@ exports.getTeamCreatorByTeamID = (guild_id, team_id) => {
 */
 exports.getTeamCreatorByRoleID = (guild_id, role_id) => {
 	return new Promise((fulfill, reject) => {
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			var findTeam = (team) =>{
-				return team.role_id === role_id;
-			};
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var team_obj = guild_obj.teams.find(findTeam);
-			if (team_obj === null) {fulfill(constants.NO_TEAM);return;}
-			if (team_obj.creator === null || team_obj.creator.length === 0){
-				fulfill(null);
-			}
-			fulfill(team_obj.creator);
+		Team.findOne({role_id:role_id}).then( (team_obj) => {
+			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
+			fulfill(team_obj.owner);
 		}).catch( (err) => {
 			Console.log(err);
 			reject(err);
@@ -922,14 +915,25 @@ exports.getTeamCreatorByRoleID = (guild_id, role_id) => {
 */
 exports.setTeamChallongeID = (guild_id, team_id, challonge_id) => {
 	return new Promise((fulfill, reject) => {
-		// var findTeam = (team) =>{
-		// 	return team._id === team_id;
-		// };
 		Team.findById(team_id).then( (team_obj) => {
 			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
 			team_obj.challonge_id = challonge_id;
-			team_obj.save( () => {
-				fulfill(constants.UPDATE_SUCCESS);
+			Guild.findOne({guild_id:guild_id}).then( (guild_obj) => {
+				if (!guild_obj) {fulfill(constants.NO_TOURNEY);return;}
+				team_obj.save( () => {
+					var guild_old_teams = guild_obj.teams;
+					var team_index = guild_old_teams.findIndex((e)=>{return e._id === team_id;});
+					guild_old_teams[team_index] = team_obj;
+					guild_obj.update({$set: {teams:guild_old_teams}}).then( () =>{
+						fulfill(constants.UPDATE_SUCCESS);
+					}).catch( (err) => {
+						Console.log(err);
+						reject(err);
+					});
+				}).catch( (err) => {
+					Console.log(err);
+					reject(err);
+				});
 			}).catch( (err) => {
 				Console.log(err);
 				reject(err);
@@ -964,8 +968,22 @@ exports.setTeamRoleID = (guild_id, team_id, role_id) => {
 		Team.findById(team_id).then( (team_obj) => {
 			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
 			team_obj.role_id = role_id;
-			team_obj.save( () => {
-				fulfill(constants.UPDATE_SUCCESS);
+			Guild.findOne({guild_id:guild_id}).then( (guild_obj) => {
+				if (!guild_obj) {fulfill(constants.NO_TOURNEY);return;}
+				team_obj.save( () => {
+					var guild_old_teams = guild_obj.teams;
+					var team_index = guild_old_teams.findIndex((e)=>{return e._id === team_id;});
+					guild_old_teams[team_index] = team_obj;
+					guild_obj.update({$set: {teams:guild_old_teams}}).then( () =>{
+						fulfill(constants.UPDATE_SUCCESS);
+					}).catch( (err) => {
+						Console.log(err);
+						reject(err);
+					});
+				}).catch( (err) => {
+					Console.log(err);
+					reject(err);
+				});
 			}).catch( (err) => {
 				Console.log(err);
 				reject(err);
@@ -1029,15 +1047,8 @@ exports.getTeamChallongeID = (guild_id, team_id) => {
 */
 exports.getTeamRoleID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		var findTeam = (team) =>{
-			return team._id === team_id;
-		};
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var team_obj = guild_obj.teams.find(findTeam);
-			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
+		Team.findById(team_id).then( (team_obj) => {
+			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.role_id);
 		}).catch( (err) => {
 			Console.log(err);
@@ -1066,15 +1077,8 @@ exports.getTeamRoleID = (guild_id, team_id) => {
 */
 exports.getTeamMembersByID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		var findTeam = (team) =>{
-			return team._id === team_id;
-		};
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var team_obj = guild_obj.teams.find(findTeam);
-			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
+		Team.findById(team_id).then( (team_obj) => {
+			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.members);
 		}).catch( (err) => {
 			Console.log(err);
@@ -1112,7 +1116,7 @@ exports.getTeamMembersByRoleID = (guild_id, role_id) => {
 		}).then( (guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
 			var team_obj = guild_obj.teams.find(findTeam);
-			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
+			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.members);
 		}).catch( (err) => {
 			Console.log(err);
@@ -1138,12 +1142,13 @@ exports.getTeamMembersByRoleID = (guild_id, role_id) => {
  * })
  * -------------------------------------------------------
 */
+
 exports.createParticipant = (guild_id, name, discord_id, team_id) => {
 	return new Promise((fulfill, reject) => {
 		Guild.findOne({
 			guild_id:guild_id
 		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY);return; }
 			if (!name || 0 === name.length){
 				Console.log('Must Provide a name for participant.');
 				reject('Must provide a name for participant');
@@ -1152,24 +1157,40 @@ exports.createParticipant = (guild_id, name, discord_id, team_id) => {
 				Console.log('Must Provide a discord id for participant.');
 				reject('Must provide a discord id for participant');
 			}
-			var team_obj = guild_obj.teams.find( (team) => {
-				return team.id === team_id;
-			});
-			if (team_obj === null) { fulfill(constants.NO_TEAM); return;}
-			for (var team in guild_obj.teams){
-				var participant = team.members.find( (member) => {
-					return member.ids.discord_id === discord_id;
+			Team.findById(team_id).then( (team_obj) => {
+				if (!team_obj) { fulfill(constants.NO_TEAM); return;}
+				var team_index = -1;
+				for (var i in guild_obj.teams){
+					var team = guild_obj.teams[i];
+					if (team.name === team_obj.name){
+						team_index = i;
+					}
+					if (team.members){
+						var participant = team.members.find( (member) => {
+							return member.ids.discord_id === discord_id;
+						});
+						if (participant) {fulfill(constants.PARTICIPANT_IN_TEAM);return;}
+					}
+				}
+				var new_participant = {name:name, ids:{discord_id:discord_id, role_id:team_obj.role_id}};
+				if (team_obj.members.length === 0){
+					team_obj.owner = discord_id;
+				}
+				team_obj.members.push(new_participant);
+				team_obj.save().then( () => {
+					var guild_old_teams = guild_obj.teams;
+					guild_old_teams[team_index] = team_obj;
+					guild_obj.update({$set: {teams:guild_old_teams}}).then( () =>{
+						fulfill(constants.CREATE_SUCCESS);
+					}).catch( (err) => {
+						Console.log(err);
+						reject(err);
+					});
+				}).catch( (err) => {
+					Console.log(err);
+					reject(err);
 				});
-				if (participant) {fulfill(constants.PARTICIPANT_IN_TEAM);}
-			}
-			var new_participant = {name:name, ids:{discord_id:discord_id, role_id:team_obj.role_id}};
-			if (team_obj.members.length === 0){
-				team_obj.owner = discord_id;
-			}
-			team_obj.members.push(new_participant);
-			guild_obj.save().then( () => {
-				fulfill(constants.CREATE_SUCCESS);
-			}).catch( (err) => {
+			}).catch( (err) =>{
 				Console.log(err);
 				reject(err);
 			});
@@ -1207,19 +1228,27 @@ exports.removeParticipant = (guild_id, team_id, discord_id) => {
 		var findParticipant = (participant) =>{
 			return participant.ids.discord_id === discord_id;
 		};
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var team_obj = guild_obj.teams.find( (team) => {
-				return team.id === team_id;
-			});
-			if (team_obj === null) { fulfill(constants.NO_TEAM); return;}
+		Team.findById(team_id).then( (team_obj) => {
+			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			var participantIndex = team_obj.members.findIndex(findParticipant);
 			if (participantIndex === -1) {fulfill(constants.NO_PARTICIPANT);return;}
 			team_obj.members.splice(participantIndex,1);
-			guild_obj.save( () => {
-				fulfill(constants.REMOVE_SUCCESS);
+			Guild.findOne({guild_id:guild_id}).then( (guild_obj) => {
+				if (!guild_obj) {fulfill(constants.NO_TOURNEY);return;}
+				team_obj.save( () => {
+					var guild_old_teams = guild_obj.teams;
+					var team_index = guild_old_teams.findIndex((e)=>{return e._id === team_id;});
+					guild_old_teams[team_index] = team_obj;
+					guild_obj.update({$set: {teams:guild_old_teams}}).then( () =>{
+						fulfill(constants.REMOVE_SUCCESS);
+					}).catch( (err) => {
+						Console.log(err);
+						reject(err);
+					});
+				}).catch( (err) => {
+					Console.log(err);
+					reject(err);
+				});
 			}).catch( (err) => {
 				Console.log(err);
 				reject(err);
@@ -1259,9 +1288,12 @@ exports.getParticipantDiscordID = (guild_id, name) => {
 		}).then( (guild_obj) => {
 			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return;}
 			if (guild_obj.teams.length > 0){
-				for (var team in guild_obj.teams){
-					var participant = team.members.find(findParticipant);
-					if (participant) {fulfill(participant.ids.discord_id);return;}
+				for (var i in guild_obj.teams){
+					var team = guild_obj.teams[i];
+					if(team.members){
+						var participant = team.members.find(findParticipant);
+						if (participant) {fulfill(participant.ids.discord_id);return;}
+					}
 				}
 			}
 			fulfill(constants.NO_PARTICIPANT);
@@ -1300,7 +1332,8 @@ exports.getParticipantTeamID = (guild_id, discord_id) => {
 		}).then( (guild_obj) => {
 			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return;}
 			if (guild_obj.teams.length > 0){
-				for (var team in guild_obj.teams){
+				for (var i in guild_obj.teams){
+					var team = guild_obj.teams[i];
 					var participant = team.members.find(findParticipant);
 					if (participant) {fulfill(team._id);return;}
 				}
@@ -1347,10 +1380,6 @@ exports.createDispute = (guild_id, originator_id, defendant_id, dispute_type, ad
 				Console.log('Must Provide an defendant id.');
 				reject('Must Provide an defendant id.');
 			}
-			if (!dispute_type){
-				Console.log('Must Provide a dispute type.');
-				reject('Must Provide a dispute type.');
-			}
 			var findDispute = (dispute) => {
 				return (dispute.defendant === defendant_id);
 			};
@@ -1373,7 +1402,7 @@ exports.createDispute = (guild_id, originator_id, defendant_id, dispute_type, ad
 	});
 };
 
-/* resolveDispute(guild_id, dispute_id)
+/* resolveDispute(guild_id, defendant_id)
  * -------------------------------------------------------
  * Attempts to look up guild with given id, then looks up
  * given dispute and removes it.
@@ -1391,16 +1420,16 @@ exports.createDispute = (guild_id, originator_id, defendant_id, dispute_type, ad
  * });
  * -------------------------------------------------------
 */
-exports.resolveDispute = (guild_id, dispute_id) => {
+exports.resolveDispute = (guild_id, defendant_id) => {
 	return new Promise((fulfill, reject) => {
 		var findDispute = (dispute) =>{
-			return dispute._id === dispute_id;
+			return dispute.defendant === defendant_id;
 		};
 		Guild.findOne({
 			guild_id:guild_id
 		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var disputeIndex = guild_obj.channels.findIndex(findDispute);
+			if (!guild_obj) { fulfill(constants.NO_TOURNEY);return; }
+			var disputeIndex = guild_obj.disputes.findIndex(findDispute);
 			if (disputeIndex === -1) {fulfill(constants.NO_DISPUTE);return;}
 			guild_obj.disputes.splice(disputeIndex,1);
 			guild_obj.save( () => {
@@ -1489,7 +1518,7 @@ exports.getDisputeID = (guild_id, defendant_id) => {
 			guild_id:guild_id
 		}).then( (guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var dispute = guild_obj.channels.find(findDispute);
+			var dispute = guild_obj.disputes.find(findDispute);
 			if (!dispute) {fulfill(constants.NO_DISPUTE);return;}
 			fulfill(dispute._id);
 		}).catch( (err) =>{
@@ -1526,7 +1555,7 @@ exports.getDisputeByID = (guild_id, dispute_id) => {
 			guild_id:guild_id
 		}).then( (guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var dispute = guild_obj.channels.find(findDispute);
+			var dispute = guild_obj.disputes.find(findDispute);
 			if (!dispute) {fulfill(constants.NO_DISPUTE);return;}
 			fulfill(dispute);
 		}).catch( (err) =>{
@@ -1561,14 +1590,6 @@ exports.createChannel = (guild_id, channel_id, channel_type, ref_id) => {
 			guild_id:guild_id
 		}).then( (guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			if (!channel_type){
-				Console.log('Must Provide a channel type.');
-				reject('Must Provide a channel type.');
-			}
-			if (!channel_id || 0 === channel_id.length){
-				Console.log('Must Provide a channel id.');
-				reject('Must Provide a channel id.');
-			}
 			var new_channel = {channel_type: channel_type, channel_id:channel_id, ref_id:ref_id};
 			guild_obj.channels.push(new_channel);
 			guild_obj.save().then( () => {
@@ -1648,6 +1669,7 @@ exports.deleteChannel = (guild_id, channel_id) => {
 			guild_id:guild_id
 		}).then( (guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			Console.log(guild_obj.channels);
 			var channelIndex = guild_obj.channels.findIndex(findChannel);
 			if (channelIndex === -1) {fulfill(constants.NO_CHANNEL);return;}
 			guild_obj.channels.splice(channelIndex,1);
