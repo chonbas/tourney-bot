@@ -3,7 +3,6 @@
 var mongoose = require('mongoose');
 
 var dispute_schema = new mongoose.Schema({
-	_id : mongoose.Schema.Types.ObjectId,
 	originator: String, //discord_id for originator
 	defendant: String,
 	type: Number,
@@ -25,10 +24,12 @@ var participant_schema = new mongoose.Schema({
 });
 
 var team_schema = new mongoose.Schema({
-	_id : mongoose.Schema.Types.ObjectId,
 	members:[participant_schema],
 	name:String,
-	role_id:String,
+	role_id:{ //Role ID within Discord server
+		type: String,
+		index: true
+	},
 	owner:String,
 	challonge_id:String
 });
@@ -70,6 +71,7 @@ var guild_schema = new mongoose.Schema({
 	disputes: [dispute_schema]
 });
 
+var Team = mongoose.model('Team', team_schema);
 var Guild = mongoose.model('Guild', guild_schema);
 
-module.exports = Guild;
+module.exports = {'Guild':Guild, 'Team':Team};

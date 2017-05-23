@@ -1,15 +1,13 @@
+// eslint-disable-next-line
 const Console = require('./util/console');
-const constants = require('./util/constants');
+const Constants = require('./util/constants');
+const dbTests = require('./tests/dbTests.js');
 
-
-if (constants.DEBUG){
-	var db_tests = require('./tests/dbTests');
-	// db_tests.testTourneyCreation();
-	// db_tests.testTourneyChallongeSetGet();
-	db_tests.testParticipantCreateGet();
-	// db_tests.resetDB();
+if (Constants.DEBUG){
+	dbTests.runDBTests().then( () => {
+		Console.log('Tests Run');
+	});
 }
-
 var credentials;
 try {
 	//check that credentials file exists

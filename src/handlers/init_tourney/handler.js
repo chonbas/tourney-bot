@@ -12,7 +12,7 @@ var Console = require('../../util/console');
 var db = require('../../webservices/mongodb');
 
 var chat = require('./chat_state_handle');
-var channel_init = require('./init_channels');
+const discord = require('../../webservices/discord');
 var challonge_init = require('./challonge_make');
 
 
@@ -25,7 +25,7 @@ var advanceTournamentStatus = (msg) => {
 		Console.log('challonge_id: ' + challonge_id);
 		db.setTournamentChallongeID(msg.guild.id, challonge_id);
 		db.advanceTournamentState(msg.guild.id);
-		channel_init(msg);
+		discord.transitionInitToSetup(msg.guild);
 	}).catch();
 };
 
