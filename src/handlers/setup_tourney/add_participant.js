@@ -3,9 +3,9 @@ This file is like the grand-poppy of all the add participant stuff.
 */
 
 var Console = require('../../util/console');
-var db = require('../../webservices/mongodb');
-var challonge = require('../webservices/challonge');
-var discordAddParticipant = require('./add_participant_discord');
+const db = require('../../webservices/mongodb');
+const challonge = require('../../webservices/challonge');
+const discord = require('../../webservices/discord');
 
 // eslint-disable-next-line
 var addParticipant = (msg, participant_name) => {
@@ -23,7 +23,7 @@ var addParticipant = (msg, participant_name) => {
 			return challonge.addParticipant(msg, participant_name);
 		})
 		.then(() => {
-			return discordAddParticipant(msg);
+			return discord.setupAddParticipant(msg, participant_name);
 		})
 		.then(() => {
 			Console.log('Added participant (not implemented)');

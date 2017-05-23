@@ -1,7 +1,6 @@
 // eslint-disable-next-line
 var mongo = require('../../../../webservices/mongodb');
 var Console = require('../../../../util/console');
-var resolveMatchDiscord = require('./resolve_unfinished_match_discord');
 
 /**
 Forces resolution of an match.
@@ -16,17 +15,12 @@ var resolve_match = (guild, match) => {
 		Console.log('      Resolving match in Challonge  ' + match + ' for ' + guild.id);
 		// TODO: get match in Challonge
 		// TODO: if match isn't resolved, resolve it.
-
 		// TODO: actually set these variables
+
+        // eslint-disable-next-line
 		var had_to_resolve_match = true;
-		if (had_to_resolve_match) {
-			//this just
-			resolveMatchDiscord(guild, match)
-			.then(() => { fulfill(); })
-			.catch(err => reject(err));
-		} else {
-			fulfill();
-		}
+		fulfill();
+		reject();
 	});
 };
 
