@@ -49,7 +49,7 @@ client.on('message', msg => {
 	manager.distributeMsg(msg);
 });
 
-//
+// emojis
 client.on('messageReactionAdd', (msgReaction, user) => {
     // TODO: Only manage if our bot message was liked
 	manager.distributeReaction(msgReaction, user);
