@@ -180,7 +180,6 @@ exports.removeAllTourneys = () => {
 							return -1;
 						});
 					});
-					Console.log('done mappin.');
 					var remove_issue = remove_states.find( (e)=> {return e === -1;});
 					if (!remove_issue){
 						fulfill(constants.REMOVE_SUCCESS);

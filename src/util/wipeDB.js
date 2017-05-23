@@ -4,10 +4,8 @@ var Challonge = require('../webservices/challonge');
 
 var wipeDB = () => {
 	return new Promise((fulfill, reject) => {
-		db.clearDB().then( (status) => {
-			Console.log(status);
-			Challonge.removeAllTourneys().then( (c_status) => {
-				Console.log(c_status);
+		db.clearDB().then( () => {
+			Challonge.removeAllTourneys().then( () => {
 				fulfill();
 			}). catch(( err) => {
 				Console.log(err);
