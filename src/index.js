@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 const Console = require('./util/console');
 const Constants = require('./util/constants');
 const dbTests = require('./tests/dbTests.js');

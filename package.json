@@ -32,9 +32,11 @@
   "dependencies": {
     "async": "^2.4.0",
     "challonge": "^2.1.0",
+    "compromise": "^10.3.0",
     "discord.js": "^11.0.0",
     "mongodb": "^2.2.25",
-    "mongoose": "^4.9.5"
+    "mongoose": "^4.9.5",
+    "natural": "^0.5.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",

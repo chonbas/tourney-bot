@@ -1,3 +1,6 @@
+/*
+*TODO::: Write combined api between mongo/discord/challonge for common tasks
+*/
 // var Console = require('../../util/console');
 // // eslint-disable-next-line
 // const db = require('../../webservices/mongodb');
