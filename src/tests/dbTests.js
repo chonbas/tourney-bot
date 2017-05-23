@@ -810,7 +810,7 @@ var runSetGetTeamRoleTests = (t_id, role_ids, team_ids) => {
 	});
 };
 
-var runTestCreateGetParticipants = (t_id, team_ids, role_ids) => {
+var runTestCreateGetParticipants = (t_id, team_ids) => {
 	return new Promise((fulfill, reject) => {
 		var teams = {};
 		var participants = [];
@@ -1273,7 +1273,7 @@ var runDBTestsB = (t_id,c_id, data) => {
 		var team_ids = data[1];
 		runSetGetTeamRoleTests(t_id, role_ids, team_ids).then( (upd_roles) => {
 			role_ids = upd_roles;
-			runTestCreateGetParticipants(t_id, team_ids, role_ids).then( (teams) => {
+			runTestCreateGetParticipants(t_id, team_ids).then( (teams) => {
 				runTestCreateGetChannels(t_id).then( (channels) => {
 					runTestCreateDisputes(t_id, team_ids, teams).then( (defendants) => {
 						runTestResolveDisputes(t_id, team_ids, teams, defendants).then( () => {
