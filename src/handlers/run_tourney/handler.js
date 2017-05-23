@@ -6,7 +6,6 @@ in handlers.
 
 */
 
-
 const db = require('../../webservices/mongodb');
 const constants = require('../../util/constants');
 const Console = require('../../util/console');
@@ -35,6 +34,14 @@ manager.handleMsg = (msg) => {
 		timer.trip(msg.guild.id);
 	}
 
+};
+manager.handleReaction = (msgRxn, user) => {
+	Console.debug('Manager for run-tourney: reaction detected!');
+	db.getTournamentRunState(msgRxn.message.guild.id).then((status) => {
+		var handler = handlers[status];
+		//check that handler has function before acting
+		handler.handleReaction && handler.handleReaction(msgRxn, user);
+	});
 };
 
 module.exports = manager;
