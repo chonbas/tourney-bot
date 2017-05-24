@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cleardb": "node src/webservices/schemas/clear_database_util.js",
+    "cleardb": "node src/util/wipeDB",
     "lint": "node node_modules/eslint/bin/eslint.js credentials.js.TEMPLATE *.js src/** test/**",
     "lintfix": "node node_modules/eslint/bin/eslint.js --fix credentials.js.TEMPLATE *.js src/** test/**",
     "bots": "node src/tests/fake_bots/entry.js"
