@@ -50,8 +50,7 @@ exports.deleteTourney = (guild_id) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					Console.log('Tournament at: challonge.com/' + getChallongeURL(guild_id));
-					Console.log(response);
+					Console.log('Deleting tournament at: challonge.com/' + response.tournament.url);
 					fulfill(constants.REMOVE_SUCCESS);
 				}
 			}
@@ -168,26 +167,22 @@ exports.removeAllTourneys = () => {
 				if(err){
 					Console.log(err);
 					reject(err);
-				} else{
-					var remove_states = Object.keys(tourneys).map( (key, index)=>{
-						var tourney = tourneys[key].tournament;
-						var clean_id = getGuildIDFromURL(tourney.url);
-						exports.deleteTourney(clean_id).then( (status) => {
-							return status;
-						}).catch( (err) => {
-							Console.log(index);
-							Console.log(err);
-							return -1;
-						});
-					});
-					var remove_issue = remove_states.find( (e)=> {return e === -1;});
-					if (!remove_issue){
-						fulfill(constants.REMOVE_SUCCESS);
-					} else {
-						reject('Error occured during tourney removal.');
-					}
-
 				}
+				//get array of tournaments
+				var arr = Object.keys(tourneys).map(key => tourneys[key] );
+				//filter out not-api-made tournaments (Emily has tournaments to keep)
+				var delete_mes = arr.filter(t => {return t.tournament.createdByApi;} );
+				//get promises to delete all tournaments
+				var promises = delete_mes.map(t => {
+					return exports.deleteTourney(t.tournament.url.split('_')[1]);
+				});
+
+				//get promise based on when all deletes are done
+				var result = Promise.all(promises);
+				// return with a status message
+				result
+				.then(() => fulfill('Deleted all API-made tournaments.'))
+				.catch(() => reject('Error deleting all API-made tournaments.'));
 			}
 		});
 	});
