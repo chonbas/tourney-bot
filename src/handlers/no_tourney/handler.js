@@ -10,6 +10,7 @@ so server admin can control who sets up tournaments
 */
 
 var Console = require('../../util/console');
+var parser_constants = require('../../util/parse_constants');
 const db = require('../../webservices/mongodb');
 var handler = {};
 
@@ -23,7 +24,7 @@ var advanceTournamentStatus = (msg) => {
 handler.handleMsg = (msg) => {
 	msg.reply('no tourney handler handling');
 	// TODO: detect if someone wants to create a tournament
-	var done = msg.content.includes('done');
+	var done = (msg.parsed_msg.parse == parser_constants['CREATE_TOURNEY']);
 	if (done) {
 		Console.log('no tourney handler heard "done", advancing to next');
 		advanceTournamentStatus(msg);

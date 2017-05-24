@@ -8,7 +8,7 @@
 //requires natural
 var parse_constants = require('./parse_constants');
 
-var Console = require('../../util/console');
+var Console = require('./console');
 
 var parseMessage = (msg) => {
 
@@ -16,6 +16,7 @@ var parseMessage = (msg) => {
 
 	var parse;
 	var handler;
+	var data_object = {};
 
 	var words = tokenizer.tokenize(msg);
 	for(var i = 0; i < words.length; i++){
@@ -40,6 +41,12 @@ var parseMessage = (msg) => {
 	} else if(words.includes('init') || words.includes('initialize') || words.includes('create') || words.includes('make')){
 		parse = 'CREATE_TOURNEY';
 		handler = 'no_tourney';
+	} else if(words.includes('done') || words.includes('doneski')){
+		parse = 'INIT_TOURNEY';
+		handler = 'init_tourney';
+		// data_object is the tournament object that will be passed to createTournament
+		// tournamentType is camelCase because Challonge API requires it
+		data_object.tournamentType = 'single elimination';
 	} else if(words.includes('start') || words.includes('begin')){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';
@@ -74,7 +81,7 @@ var parseMessage = (msg) => {
 	}
 	Console.log(parse);
 
-	return {parse: parse_constants[parse], message: msg, handler: handler};
+	return {parse: parse_constants[parse], message: msg, handler: handler, data_object: data_object};
 
 };
 

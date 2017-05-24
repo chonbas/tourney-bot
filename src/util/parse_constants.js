@@ -5,6 +5,7 @@ var parse_constants = {
 	'MATCH_REPORT_AMBIGUOUS': 3,
 	'JOIN_TOURNEY': 4,
 	'CREATE_TOURNEY': 5,
+	'INIT_TOURNEY' : 42,
 	'START_TOURNEY': 6,
 	'END_TOURNEY': 7,
 	'DROP_TOURNEY': 8,
