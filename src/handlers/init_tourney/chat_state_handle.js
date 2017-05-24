@@ -2,6 +2,7 @@
 var Console = require('../../util/console');
 // eslint-disable-next-line
 var db = require('../../webservices/mongodb');
+var parser_constants = require('../../util/parse_constants');
 
 var updateChatState = (msg) => {
 	return new Promise((fulfill, reject) => {
@@ -10,7 +11,7 @@ var updateChatState = (msg) => {
 		// TODO: if done, set done to true
 
 		msg.reply('init-tourney handler handling');
-		if (msg.content.includes('done')){
+		if (msg.parsed_msg.parse == parser_constants['INIT_TOURNEY']){
 			fulfill(true);
 		}
 		fulfill(false);

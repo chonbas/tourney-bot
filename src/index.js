@@ -8,6 +8,7 @@ if (Constants.DEBUG){
 		Console.log('Tests Run');
 	});
 }
+// eslint-disable-next-line
 var credentials;
 try {
 	//check that credentials file exists
@@ -17,15 +18,5 @@ try {
 	Console.log('You must provide a credentials file with API tokens, etc.');
 	process.exit();
 }
+// eslint-disable-next-line
 const discordclient = require('./webservices/discord');
-const manager_listeners = require('./handlers/manager_listeners');
-
-
-manager_listeners.addListeners(discordclient);
-discordclient.login(credentials.DISCORD_TOKEN).catch((err) => {
-	Console.log(err);
-	Console.log('\n\nYou must provide a proper Discord API token in credentials.js.');
-	process.exit();
-}).then(() => {
-	Console.log('Logged in');
-});
