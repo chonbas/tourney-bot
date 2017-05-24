@@ -15,7 +15,6 @@ var getTourneyName = (guild_id) => {
 	return 'TB_Tourney_' + guild_id;
 };
 
-//eslint-disable-next-line
 var getGuildIDFromURL = (url) => {
 	return url.substring(3);
 };
@@ -175,7 +174,7 @@ exports.removeAllTourneys = () => {
 				var delete_mes = arr.filter(t => {return t.tournament.createdByApi;} );
 				//get promises to delete all tournaments
 				var promises = delete_mes.map(t => {
-					return exports.deleteTourney(t.tournament.url.split('_')[1]);
+					return exports.deleteTourney(getGuildIDFromURL(t.tournament.url));
 				});
 
 				//get promise based on when all deletes are done
