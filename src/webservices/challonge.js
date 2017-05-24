@@ -15,6 +15,7 @@ var getTourneyName = (guild_id) => {
 	return 'TB_Tourney_' + guild_id;
 };
 
+//eslint-disable-next-line
 var getGuildIDFromURL = (url) => {
 	return url.substring(3);
 };
