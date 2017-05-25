@@ -21,14 +21,30 @@ var constants = {
 	'ADVANCING': 2,
 
 	// channel types
-	'NO_CHANNEL': 91, //channel does not exist
-	'INIT_CHANNEL': 97, //where init-er tells bot about tourney params
-	'JOIN_CHANNEL': 98, //where people say they want to join
-	'JURY_CHANNEL': 92, //channel used for dispute resolution
-	'GENERAL_CHANNEL': 93, //used for general tourney chat
-	'MATCH_CHANNEL': 94, //individual match channels
-	'TEAM_CHANNEL': 95, //individual team channels
-	'ANNOUNCE_CHANNEL':96, //individual channel for announcements, only bot can talk here
+	'NO_CHANNEL': 901, //channel does not exist
+	'INIT_CHANNEL': 907, //where init-er tells bot about tourney params
+	'JOIN_CHANNEL': 908, //where people say they want to join
+	'JURY_CHANNEL': 902, //channel used for dispute resolution
+	'GENERAL_CHANNEL': 903, //used for general tourney chat
+	'MATCH_CHANNEL': 904, //individual match channels
+	'TEAM_CHANNEL': 905, //individual team channels
+	'ANNOUNCE_CHANNEL':906, //individual channel for announcements, only bot can talk here
+
+	// emoji confirmation types
+	'EMOJI_YES': 509,
+	'EMOJI_MAYBE': 510,
+	'EMOJI_NO': 512,
+	'EMOJI_INVALID': 513, //ignore
+
+	// kinds of messages that can require a confirmation
+	// ask people who say init if they're sure (not implemented)
+	'INIT_MESSAGE': 'confirm-init',
+	//ask team leader if player can join
+	'TEAM_LEADER_JOIN_MESSAGE': 'confirm-team-join',
+	//ask opponents if correct
+	'MATCH_REPORT_MESSAGE': 'match-report-confirmation',
+	//get vote counts
+	'VOTEKICK_MESSAGE': 'votekick-counter-message',
 
 	//Dispute Types
 	'DISPUTE_CHEAT':0,

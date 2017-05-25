@@ -5,6 +5,14 @@ Do not require this file - use discord.js.
 */
 var exports = {};
 const Console = require('../../util/console');
+//eslint-disable-next-line
+const universals = require('../../util/constants');
+//eslint-disable-next-line
+const locals = require('./constants');
+
+var wrap = (txt, mentions='') => {
+	return `*Note to self: [${txt}] ${mentions}`;
+};
 
 /*
 Stub is for temporary place-holding.
@@ -25,6 +33,12 @@ exports.tourney_init_channel = (user) => {
 exports.tourney_general_channel = () => {
 	return `Hi everyone!\n
 	This is the general tourney channel.`;
+};
+
+exports.tourney_announce_channel = () => {
+	return `Hi everyone!\n
+	This is the general tourney channel.
+	${wrap(universals.ANNOUNCE_CHANNEL)}`;
 };
 
 module.exports = exports;

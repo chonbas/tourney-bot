@@ -69,4 +69,25 @@ exports.permissPermissionsForOnly = (channel, permissions, allowed) => {
 		}).catch(err => reject(err));
 	});
 };
+
+/*
+Gives only the allowed roles or users (use an array)
+permission to write.
+
+allowed is an array!!
+
+Returns the pinned message in a promise.
+*/
+exports.confirmMessage = (msgRxn) => {
+	return new Promise((fulfill, reject) => {
+		var content = msgRxn.message.content;
+		var matches = content.match(/\[(.*?)\]/);
+
+		if (matches) {
+			var submatch = matches[1];
+		}
+		fulfill(submatch);
+		reject();
+	});
+};
 module.exports = exports;

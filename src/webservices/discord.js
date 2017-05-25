@@ -54,7 +54,7 @@ exports.transitionNoToInit = (guild, init_user) => {
 */
 
 /*
-transitionInitToSetup
+transitionInitToSetup(guild)
 Creates a general channel.
 Creates an announce channel.
 Creates a join channel.
@@ -66,7 +66,7 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'announce',
 				constants.ANNOUNCE_CHANNEL,
-				str_gen.stub('announce message', 'announce message')
+				str_gen.tourney_announce_channel()
 			).then((message) => {
 				return util.permissPermissionsForOnly(
 					message.channel,
