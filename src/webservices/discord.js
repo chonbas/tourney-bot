@@ -1,64 +1,102 @@
 //
 const Discord = require('discord.js');
 const Console = require('../util/console');
-const credentials = require('../../credentials.js');
-var db = require('./mongodb');
+const util = require('./discord_util/util');
+const str_gen = require('./discord_util/message_generator');
+// var db = require('./mongodb');
 var constants = require('../util/constants');
 
 var client = new Discord.Client();
 
 var exports = {};
 
-/*
-This is exported so another file can add the Listeners
-to break the circular dependency where discord must
-require the managers but the things requierd by the handlers
-need discord.
-*/
-exports._client = client;
-
 // Stub
-exports.stub = (object, msg) => {
+exports.stub = (obj1, obj2, obj3, obj4, obj5, msg) => {
 	return new Promise((fulfill, reject) => {
-		fulfill(object); // if ok, fulfill - next piece needs message
+		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
 		Console.log(msg);
 		reject(); // if fail, reject
 	});
 };
 
-
-
 /*
-/
-/ Stage: Initialize
-/
+███████████████████████████████████████████████████████
+  STAGE: NO TOURNAMENT
+███████████████████████████████████████████████████████
 */
 
-// Transition from Init to Setup
-exports.transitionInitToSetup = (guild) => {
+/*
+Does:
+creates channel
+sets permission to only init-user
+*/
+exports.transitionNoToInit = (guild, init_user) => {
 	return new Promise((fulfill, reject) => {
-		guild.createChannel('tourney-general', 'text').then((channel) => {
-			return channel.sendMessage('Welcome to the tournament!');
-		}).then((message)=> {
-			return db.createChannel(message.guild.id, message.channel.id, constants.GENERAL_CHANNEL);
-		}).then((ret_val) => {
-			if (ret_val === constants.CREATE_SUCCESS) {
-				Console.log('Created channels for setup (not implemented)');
-				fulfill();
-			} else {
-				reject();
-			}
-		}).catch(err => {
-			Console.log(err);
-			reject();
-		});
+		util.createChannelPinMessage(
+			guild,
+			'init',
+			constants.INIT_CHANNEL,
+			str_gen.tourney_init_channel(init_user)
+		).then((message) => {
+			return util.setPermissions(
+				message.channel,
+				['SEND_MESSAGES'],
+				[init_user]);
+		}).then(() => {fulfill();})
+		.catch(err => reject(err));
 	});
 };
 
 /*
-/
-/ Stage: Setup
-/
+███████████████████████████████████████████████████████
+  STAGE: INITIALIZE
+███████████████████████████████████████████████████████
+*/
+
+/*
+transitionInitToSetup(guild)
+Creates a general channel.
+Creates an announce channel.
+Creates a join channel.
+*/
+exports.transitionInitToSetup = (guild) => {
+	return new Promise((fulfill, reject) => {
+		var ps = [
+			util.createChannelPinMessage(
+				guild,
+				'announce',
+				constants.ANNOUNCE_CHANNEL,
+				str_gen.tourney_announce_channel()
+			).then((message) => {
+				return util.setPermissions(
+					message.channel,
+					['SEND_MESSAGES'],
+					[]);
+			}),
+			util.createChannelPinMessage(
+				guild,
+				'join',
+				constants.JOIN_CHANNEL,
+				str_gen.stub('join message', 'join message')
+			),
+			util.createChannelPinMessage(
+				guild,
+				'general',
+				constants.GENERAL_CHANNEL,
+				str_gen.tourney_general_channel()
+			)
+		];
+		Promise.all(ps)
+		.then(() => fulfill())
+		.catch(() => reject());
+	});
+};
+
+
+/*
+███████████████████████████████████████████████████████
+  Stage: Setup
+███████████████████████████████████████████████████████
 */
 
 // eslint-disable-next-line
@@ -95,9 +133,9 @@ exports.transitionSetupToRun = (guild) => {
 };
 
 /*
-/
-/ Stage: Run
-/
+███████████████████████████████████████████████████████
+  Stage: Run
+███████████████████████████████████████████████████████
 */
 
 // Match Channels
@@ -161,13 +199,24 @@ exports.runResolveMatch = (guild, match) => {
 	});
 };
 
-// Logs in client
-client.login(credentials.DISCORD_TOKEN).catch((err) => {
-	Console.log(err);
-	Console.log('\n\nYou must provide a proper Discord API token in credentials.js.');
-	process.exit();
-}).then(() => {
-	Console.log('Logged in');
-});
+/*
+███████████████████████████████████████████████████████
+  Stage: Close
+███████████████████████████████████████████████████████
+*/
+
+exports.deleteAllTourneyChannels = (guild) => {
+	guild.channels
+	.filter(c => {return c.name.includes('tourney-');})
+	.deleteAll();
+};
+
+/*
+This is exported so another file can add the Listeners
+to break the circular dependency where discord must
+require the managers but the things requierd by the handlers
+need discord.
+*/
+exports._client = client;
 
 module.exports = exports;

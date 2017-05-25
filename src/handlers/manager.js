@@ -16,6 +16,10 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 var manager = {};
 
 manager.distributeMsg = (msg) => {
+	if(msg.content.includes('PURGE')) {
+		require('../webservices/discord').deleteAllTourneyChannels(msg.guild);
+		return;
+	}
 	var tournament_status = null;
 	// retrieve tournament status
 	db.getTournamentStatus(msg.guild.id).then((status) => {
