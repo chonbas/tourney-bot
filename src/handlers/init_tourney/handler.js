@@ -12,14 +12,13 @@ var Console = require('../../util/console');
 var db = require('../../webservices/mongodb');
 
 var chat = require('./chat_state_handle');
-var discord = null;
+var discord = require('../../webservices/discord');
 const challonge = require('../../webservices/challonge');
 
 
 var handler = {};
 
 var advanceTournamentStatus = (msg) => {
-	if (discord == null) { discord = require('../../webservices/discord'); }
 	Console.log('Init tourney handler "done"; advancing to setup');
 	// tournament and use db.setChallongeID() to set challonge ID
 	challonge.createTourney(msg.guild.id, msg.parsed_msg.data_object)

@@ -4,11 +4,18 @@ const Console = require('../util/console');
 const credentials = require('../../credentials.js');
 var db = require('./mongodb');
 var constants = require('../util/constants');
-const manager = require('../handlers/manager');
 
 var client = new Discord.Client();
 
 var exports = {};
+
+/*
+This is exported so another file can add the Listeners
+to break the circular dependency where discord must
+require the managers but the things requierd by the handlers
+need discord.
+*/
+exports._client = client;
 
 // Stub
 exports.stub = (object, msg) => {
@@ -19,41 +26,7 @@ exports.stub = (object, msg) => {
 	});
 };
 
-// Listeners
-//
-client.on('ready', () => {
-	Console.log(`Logged in as ${client.user.username}!`);
-});
 
-//
-client.on('warn', (info) => {
-	Console.log(info);
-});
-
-//
-client.on('error', (err) => {
-	Console.error(err);
-	process.exit();
-});
-
-//
-client.on('message', msg => {
-    // never reply to bots
-    // TODO: Add this check before release!!
-    // if (msg.author.bot) return;
-    // only respond to @bot mentions
-	if (!msg.isMentioned(client.user)) {
-		Console.debug('Message heard, but no @bot so not replying.');
-		return;
-	}
-	manager.distributeMsg(msg);
-});
-
-// emojis
-client.on('messageReactionAdd', (msgReaction, user) => {
-    // TODO: Only manage if our bot message was liked
-	manager.distributeReaction(msgReaction, user);
-});
 
 /*
 /
