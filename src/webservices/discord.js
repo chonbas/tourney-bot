@@ -2,94 +2,23 @@
 const Discord = require('discord.js');
 const Console = require('../util/console');
 const credentials = require('../../credentials.js');
-var db = require('./mongodb');
+const util = require('./discord_util/util');
+const str_gen = require('./discord_util/message_generator');
+// var db = require('./mongodb');
 var constants = require('../util/constants');
 
 var client = new Discord.Client();
 
 var exports = {};
 
-/*
-This is exported so another file can add the Listeners
-to break the circular dependency where discord must
-require the managers but the things requierd by the handlers
-need discord.
-*/
-exports._client = client;
-
 // Stub
-exports.stub = (object, msg) => {
+exports.stub = (obj1, obj2, obj3, obj4, obj5, msg) => {
 	return new Promise((fulfill, reject) => {
-		fulfill(object); // if ok, fulfill - next piece needs message
+		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
 		Console.log(msg);
 		reject(); // if fail, reject
 	});
 };
-/*
-███████████████████████████████████████████████████████
-  UTILS
-███████████████████████████████████████████████████████
-*/
-/*
-Creates a channel and pins a message to the top.
-Returns the pinned message in a promise.
-*/
-var createChannelPinMessage = (guild, channel_name, channel_type, welcome_msg) => {
-	return new Promise((fulfill, reject) => {
-		var channel_created;
-		var message_created;
-		guild.createChannel('tourney-' + channel_name, 'text').then((channel) => {
-			channel_created = channel;
-			return channel.send(welcome_msg);
-		}).then((message)=> {
-			message_created = message;
-			return message.pin();
-		}).then(()=> {
-			return db.createChannel(guild.id, channel_created.id, channel_type);
-		}).then((ret_val) => {
-			if (ret_val == constants.CREATE_SUCCESS) {
-				Console.log('DISCORD: in ' + guild.id + ' created tourney-' + channel_name);
-				fulfill(message_created);
-			}
-			reject();
-		}).catch(err => {
-			Console.log(err);
-			reject(err);
-		});
-	});
-};
-
-/*
-Gives only the allowed roles or users (use an array)
-permission to write.
-
-allowed is an array!!
-
-Returns the pinned message in a promise.
-*/
-var permissWritesForOnly = (channel, allowed) => {
-	return new Promise((fulfill, reject) => {
-		//remove all permissions
-		var everyone_role = channel.guild.roles.find('name', '@everyone');
-		channel.overwritePermissions(
-			everyone_role,
-			{ 'SEND_MESSAGES': false }
-		)
-		.then(() => {
-			var promise_array = allowed.map((allowee) => {
-				return channel.overwritePermissions(
-					allowee,
-					{ 'SEND_MESSAGES': true }
-				);
-			});
-			var all_set = Promise.all(promise_array);
-			return all_set;
-		}).then(() => {
-			fulfill(channel);
-		}).catch(err => reject(err));
-	});
-};
-
 
 /*
 ███████████████████████████████████████████████████████
@@ -97,16 +26,20 @@ var permissWritesForOnly = (channel, allowed) => {
 ███████████████████████████████████████████████████████
 */
 
+/*
+Does:
+creates channel
+sets permission to only init-user
+*/
 exports.transitionNoToInit = (guild, init_user) => {
-	//create a channel for the bot to talk to the initer in
 	return new Promise((fulfill, reject) => {
-		createChannelPinMessage(
+		util.createChannelPinMessage(
 			guild,
 			'init',
 			constants.INIT_CHANNEL,
-			'Init tourney welcome message: write something here')
-		.then((message) => {
-			return permissWritesForOnly(message.channel, [init_user]);
+			str_gen.tourney_init_channel(init_user)
+		).then((message) => {
+			return util.permissWritesForOnly(message.channel, [init_user]);
 		}).then(() => {fulfill();})
 		.catch(err => reject(err));
 	});
@@ -121,12 +54,12 @@ exports.transitionNoToInit = (guild, init_user) => {
 // Transition from Init to Setup
 exports.transitionInitToSetup = (guild) => {
 	return new Promise((fulfill, reject) => {
-		createChannelPinMessage(
+		util.createChannelPinMessage(
 			guild,
 			'general',
 			constants.GENERAL_CHANNEL,
-			'Welcome to the tournament!')
-		.then(() => {fulfill();})
+			str_gen.tourney_general_channel()
+		).then(() => {fulfill();})
 		.catch(err => reject(err));
 	});
 };
@@ -246,5 +179,13 @@ client.login(credentials.DISCORD_TOKEN).catch((err) => {
 }).then(() => {
 	Console.log('Logged in');
 });
+
+/*
+This is exported so another file can add the Listeners
+to break the circular dependency where discord must
+require the managers but the things requierd by the handlers
+need discord.
+*/
+exports._client = client;
 
 module.exports = exports;
