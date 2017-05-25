@@ -38,7 +38,10 @@ exports.transitionNoToInit = (guild, init_user) => {
 			constants.INIT_CHANNEL,
 			str_gen.tourney_init_channel(init_user)
 		).then((message) => {
-			return util.permissWritesForOnly(message.channel, [init_user]);
+			return util.permissPermissionsForOnly(
+				message.channel,
+				['SEND_MESSAGES'],
+				[init_user]);
 		}).then(() => {fulfill();})
 		.catch(err => reject(err));
 	});

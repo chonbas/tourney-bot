@@ -44,19 +44,22 @@ allowed is an array!!
 
 Returns the pinned message in a promise.
 */
-exports.permissWritesForOnly = (channel, allowed) => {
+exports.permissPermissionsForOnly = (channel, permissions, allowed) => {
 	return new Promise((fulfill, reject) => {
+		var p_obj = {'SEND_MESSAGES': false};
+		permissions.forEach(p => p_obj[p] = false);
 		//remove all permissions
 		var everyone_role = channel.guild.roles.find('name', '@everyone');
 		channel.overwritePermissions(
 			everyone_role,
-			{ 'SEND_MESSAGES': false }
+			p_obj
 		)
 		.then(() => {
+			permissions.forEach(p => p_obj[p] = true);
 			var promise_array = allowed.map((allowee) => {
 				return channel.overwritePermissions(
 					allowee,
-					{ 'SEND_MESSAGES': true }
+					p_obj
 				);
 			});
 			var all_set = Promise.all(promise_array);
