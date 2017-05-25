@@ -21,12 +21,13 @@ var constants = {
 	'ADVANCING': 2,
 
 	// channel types
-	'NO_CHANNEL': 0, //channel does not exist
-	'JURY_CHANNEL': 0, //channel used for dispute resolution
-	'GENERAL_CHANNEL': 1, //used for general tourney chat
-	'MATCH_CHANNEL': 2, //individual match channels
-	'TEAM_CHANNEL': 3, //individual team channels
-	'ANNOUNCE_CHANNEL':4, //individual channel for announcements, only bot can talk here
+	'NO_CHANNEL': 91, //channel does not exist
+	'INIT_CHANNEL': 97,
+	'JURY_CHANNEL': 92, //channel used for dispute resolution
+	'GENERAL_CHANNEL': 93, //used for general tourney chat
+	'MATCH_CHANNEL': 94, //individual match channels
+	'TEAM_CHANNEL': 95, //individual team channels
+	'ANNOUNCE_CHANNEL':96, //individual channel for announcements, only bot can talk here
 
 	//Dispute Types
 	'DISPUTE_CHEAT':0,

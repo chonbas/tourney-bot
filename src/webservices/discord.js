@@ -25,40 +25,117 @@ exports.stub = (object, msg) => {
 		reject(); // if fail, reject
 	});
 };
-
-
-
 /*
-/
-/ Stage: Initialize
-/
+███████████████████████████████████████████████████████
+  UTILS
+███████████████████████████████████████████████████████
 */
-
-// Transition from Init to Setup
-exports.transitionInitToSetup = (guild) => {
+/*
+Creates a channel and pins a message to the top.
+Returns the pinned message in a promise.
+*/
+var createChannelPinMessage = (guild, channel_name, channel_type, welcome_msg) => {
 	return new Promise((fulfill, reject) => {
-		guild.createChannel('tourney-general', 'text').then((channel) => {
-			return channel.sendMessage('Welcome to the tournament!');
+		var channel_created;
+		var message_created;
+		guild.createChannel('tourney-' + channel_name, 'text').then((channel) => {
+			channel_created = channel;
+			return channel.send(welcome_msg);
 		}).then((message)=> {
-			return db.createChannel(message.guild.id, message.channel.id, constants.GENERAL_CHANNEL);
+			message_created = message;
+			return message.pin();
+		}).then(()=> {
+			return db.createChannel(guild.id, channel_created.id, channel_type);
 		}).then((ret_val) => {
-			if (ret_val === constants.CREATE_SUCCESS) {
-				Console.log('Created channels for setup (not implemented)');
-				fulfill();
-			} else {
-				reject();
+			if (ret_val == constants.CREATE_SUCCESS) {
+				Console.log('DISCORD: in ' + guild.id + ' created tourney-' + channel_name);
+				fulfill(message_created);
 			}
+			reject();
 		}).catch(err => {
 			Console.log(err);
-			reject();
+			reject(err);
 		});
 	});
 };
 
 /*
-/
-/ Stage: Setup
-/
+Gives only the allowed roles or users (use an array)
+permission to write.
+
+allowed is an array!!
+
+Returns the pinned message in a promise.
+*/
+var permissWritesForOnly = (channel, allowed) => {
+	return new Promise((fulfill, reject) => {
+		//remove all permissions
+		var everyone_role = channel.guild.roles.find('name', '@everyone');
+		channel.overwritePermissions(
+			everyone_role,
+			{ 'SEND_MESSAGES': false }
+		)
+		.then(() => {
+			var promise_array = allowed.map((allowee) => {
+				return channel.overwritePermissions(
+					allowee,
+					{ 'SEND_MESSAGES': true }
+				);
+			});
+			var all_set = Promise.all(promise_array);
+			return all_set;
+		}).then(() => {
+			fulfill(channel);
+		}).catch(err => reject(err));
+	});
+};
+
+
+/*
+███████████████████████████████████████████████████████
+  STAGE: NO TOURNAMENT
+███████████████████████████████████████████████████████
+*/
+
+exports.transitionNoToInit = (guild, init_user) => {
+	//create a channel for the bot to talk to the initer in
+	return new Promise((fulfill, reject) => {
+		createChannelPinMessage(
+			guild,
+			'init',
+			constants.INIT_CHANNEL,
+			'Init tourney welcome message: write something here')
+		.then((message) => {
+			return permissWritesForOnly(message.channel, [init_user]);
+		}).then(() => {fulfill();})
+		.catch(err => reject(err));
+	});
+};
+
+/*
+███████████████████████████████████████████████████████
+  STAGE: INITIALIZE
+███████████████████████████████████████████████████████
+*/
+
+// Transition from Init to Setup
+exports.transitionInitToSetup = (guild) => {
+	return new Promise((fulfill, reject) => {
+		createChannelPinMessage(
+			guild,
+			'general',
+			constants.GENERAL_CHANNEL,
+			'Welcome to the tournament!')
+		.then(() => {fulfill();})
+		.catch(err => reject(err));
+	});
+};
+
+
+/*
+███████████████████████████████████████████████████████
+  Stage: Setup
+███████████████████████████████████████████████████████
 */
 
 // eslint-disable-next-line
