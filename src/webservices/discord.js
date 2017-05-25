@@ -99,6 +99,28 @@ exports.transitionInitToSetup = (guild) => {
 ███████████████████████████████████████████████████████
 */
 
+exports.setupNewTeam = (guild, team_name) => {
+	return new Promise((fulfill, reject) => {
+		guild.createRole({
+			name: team_name,
+			color: 'BLUE'
+		})
+		.then((role) => {fulfill(role.id);})
+		.catch((err) => {reject(err);});
+	});
+};
+
+exports.setupAddToTeam = (guild, user, role_id) => {
+	return new Promise((fulfill, reject) => {
+		var role = guild.roles.get(role_id);
+		user.addRole(role)
+		.then(() => {fulfill();})
+		.catch(() => {reject();});
+	});
+};
+
+
+
 // eslint-disable-next-line
 exports.setupAddParticipant = (msg, participant_name) => {
 	return new Promise((fulfill, reject) => {
