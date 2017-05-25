@@ -1,7 +1,6 @@
 //
 const Discord = require('discord.js');
 const Console = require('../util/console');
-const credentials = require('../../credentials.js');
 const util = require('./discord_util/util');
 const str_gen = require('./discord_util/message_generator');
 // var db = require('./mongodb');
@@ -170,15 +169,6 @@ exports.runResolveMatch = (guild, match) => {
 		reject();
 	});
 };
-
-// Logs in client
-client.login(credentials.DISCORD_TOKEN).catch((err) => {
-	Console.log(err);
-	Console.log('\n\nYou must provide a proper Discord API token in credentials.js.');
-	process.exit();
-}).then(() => {
-	Console.log('Logged in');
-});
 
 /*
 This is exported so another file can add the Listeners
