@@ -38,7 +38,7 @@ exports.transitionNoToInit = (guild, init_user) => {
 			constants.INIT_CHANNEL,
 			str_gen.tourney_init_channel(init_user)
 		).then((message) => {
-			return util.permissPermissionsForOnly(
+			return util.setPermissions(
 				message.channel,
 				['SEND_MESSAGES'],
 				[init_user]);
@@ -68,7 +68,7 @@ exports.transitionInitToSetup = (guild) => {
 				constants.ANNOUNCE_CHANNEL,
 				str_gen.tourney_announce_channel()
 			).then((message) => {
-				return util.permissPermissionsForOnly(
+				return util.setPermissions(
 					message.channel,
 					['SEND_MESSAGES'],
 					[]);

@@ -44,7 +44,7 @@ allowed is an array!!
 
 Returns the pinned message in a promise.
 */
-exports.permissPermissionsForOnly = (channel, permissions, allowed) => {
+exports.setPermissions = (channel, permissions, allowed) => {
 	return new Promise((fulfill, reject) => {
 		var p_obj = {'SEND_MESSAGES': false};
 		permissions.forEach(p => p_obj[p] = false);
