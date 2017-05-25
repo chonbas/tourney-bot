@@ -22,7 +22,8 @@ var constants = {
 
 	// channel types
 	'NO_CHANNEL': 91, //channel does not exist
-	'INIT_CHANNEL': 97,
+	'INIT_CHANNEL': 97, //where init-er tells bot about tourney params
+	'JOIN_CHANNEL': 98, //where people say they want to join
 	'JURY_CHANNEL': 92, //channel used for dispute resolution
 	'GENERAL_CHANNEL': 93, //used for general tourney chat
 	'MATCH_CHANNEL': 94, //individual match channels

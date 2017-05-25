@@ -53,16 +53,42 @@ exports.transitionNoToInit = (guild, init_user) => {
 ███████████████████████████████████████████████████████
 */
 
-// Transition from Init to Setup
+/*
+transitionInitToSetup
+Creates a general channel.
+Creates an announce channel.
+Creates a join channel.
+*/
 exports.transitionInitToSetup = (guild) => {
 	return new Promise((fulfill, reject) => {
-		util.createChannelPinMessage(
-			guild,
-			'general',
-			constants.GENERAL_CHANNEL,
-			str_gen.tourney_general_channel()
-		).then(() => {fulfill();})
-		.catch(err => reject(err));
+		var ps = [
+			util.createChannelPinMessage(
+				guild,
+				'announce',
+				constants.ANNOUNCE_CHANNEL,
+				str_gen.stub('announce message', 'announce message')
+			).then((message) => {
+				return util.permissPermissionsForOnly(
+					message.channel,
+					['SEND_MESSAGES'],
+					[]);
+			}),
+			util.createChannelPinMessage(
+				guild,
+				'join',
+				constants.JOIN_CHANNEL,
+				str_gen.stub('join message', 'join message')
+			),
+			util.createChannelPinMessage(
+				guild,
+				'general',
+				constants.GENERAL_CHANNEL,
+				str_gen.tourney_general_channel()
+			)
+		];
+		Promise.all(ps)
+		.then(() => fulfill())
+		.catch(() => reject());
 	});
 };
 
@@ -107,9 +133,9 @@ exports.transitionSetupToRun = (guild) => {
 };
 
 /*
-/
-/ Stage: Run
-/
+███████████████████████████████████████████████████████
+  Stage: Run
+███████████████████████████████████████████████████████
 */
 
 // Match Channels
@@ -171,6 +197,18 @@ exports.runResolveMatch = (guild, match) => {
 		fulfill();
 		reject();
 	});
+};
+
+/*
+███████████████████████████████████████████████████████
+  Stage: Close
+███████████████████████████████████████████████████████
+*/
+
+exports.deleteAllTourneyChannels = (guild) => {
+	guild.channels
+	.filter(c => {return c.name.includes('tourney-');})
+	.deleteAll();
 };
 
 /*
