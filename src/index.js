@@ -18,5 +18,8 @@ try {
 	Console.log('You must provide a credentials file with API tokens, etc.');
 	process.exit();
 }
-// eslint-disable-next-line
+
 const discordclient = require('./webservices/discord');
+var add_listeners = require('./webservices/add_listeners');
+
+add_listeners(discordclient._client);
