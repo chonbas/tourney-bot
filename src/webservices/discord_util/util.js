@@ -7,6 +7,10 @@ const Console = require('../../util/console');
 var db = require('../mongodb');
 var constants = require('../../util/constants');
 var exports = {};
+
+var getChannelName = (txt) => {
+	return 'tourney-'+txt;
+};
 /*
 Creates a channel and pins a message to the top.
 Returns the pinned message in a promise.
@@ -15,7 +19,7 @@ exports.createChannelPinMessage = (guild, channel_name, channel_type, welcome_ms
 	return new Promise((fulfill, reject) => {
 		var channel_created;
 		var message_created;
-		guild.createChannel('tourney-' + channel_name, 'text').then((channel) => {
+		guild.createChannel(getChannelName(channel_name), 'text').then((channel) => {
 			channel_created = channel;
 			return channel.send(welcome_msg);
 		}).then((message)=> {
@@ -90,4 +94,29 @@ exports.confirmMessage = (msgRxn) => {
 		reject();
 	});
 };
+
+
+exports.editAnnounce = (guild, text) => {
+	return new Promise ((fulfill, reject) => {
+		var announce_channel = guild.channels.find('name','tourney-announce');
+		announce_channel.fetchPinnedMessages()
+		.then((msgs) => {
+			var announce_msg = msgs.first;
+			return announce_msg.edit(text);
+		})
+		.then(msg => fulfill(msg))
+		.catch((err) => {reject(err);});
+	});
+};
+
+//fulfills with sent message
+exports.sendToChannel = (guild, channel_name, text) => {
+	return new Promise((fulfill, reject) => {
+		var channel = guild.channels.find('name', getChannelName(channel_name));
+		channel.send(text)
+		.then(msg => fulfill(msg))
+		.catch((err) => {reject(err);});
+	});
+};
+
 module.exports = exports;

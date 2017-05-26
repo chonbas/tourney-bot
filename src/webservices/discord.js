@@ -133,15 +133,25 @@ Sends message to Join channel indicating you can't join.
 exports.transitionSetupToRun = (guild) => {
 	return new Promise((fulfill, reject) => {
 		Console.log('Started running Discord tournament (not implemented)');
-
-        // TODO: create channels? not sure
-        // TODO: update announce to say tournament is running
-        // TODO: message to join channel - can't accept new users
-        // maybe also remove permissions
-
-
-		fulfill(); // once channels are made, call this
-		reject(); // if error, reject
+		var promises = [
+			util.editAnnounce(
+				guild,
+				str_gen.tourney_announce_channel(discord_constants.MATCH_PHASE)
+			),
+			util.sendToChannel(
+				guild,
+				'join',
+				str_gen.stub('setup phase over, cannot join anymore','TODO HERE 1831')
+			).then((msg) => {
+				return util.setPermissions(msg.channel,
+				['SEND_MESSAGES'],
+				[]);
+			})
+		];
+		var finish_p = Promise.all(promises);
+		finish_p
+		.then(() => fulfill())
+		.catch(() => reject());
 	});
 };
 
