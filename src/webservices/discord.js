@@ -125,26 +125,10 @@ exports.setupAddToTeam = (guild, user, role_id) => {
 	});
 };
 
-
-
-// eslint-disable-next-line
-exports.setupAddParticipant = (msg, participant_name) => {
-	return new Promise((fulfill, reject) => {
-        // TODO: give user role, insert in db etc.
-		Console.log('Added participant to Discord (not implemented)');
-
-        // TODO: put role_id in db
-
-        // pseudo-join: type "join"
-		fulfill(msg); // if ok, fulfill - next piece needs message
-
-		var err = 'Add to Discord failed because XYZ.';
-		reject(err); // if fail, reject
-	});
-};
-
-// Transition from set-up to run
-// eslint-disable-next-line
+/*
+Edits announce message to indicate new tournament states.
+Sends message to Join channel indicating you can't join.
+*/
 exports.transitionSetupToRun = (guild) => {
 	return new Promise((fulfill, reject) => {
 		Console.log('Started running Discord tournament (not implemented)');
