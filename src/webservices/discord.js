@@ -99,6 +99,9 @@ exports.transitionInitToSetup = (guild) => {
 ███████████████████████████████████████████████████████
 */
 
+/*
+Fulfills with role_id
+*/
 exports.setupNewTeam = (guild, team_name) => {
 	return new Promise((fulfill, reject) => {
 		guild.createRole({
@@ -110,6 +113,9 @@ exports.setupNewTeam = (guild, team_name) => {
 	});
 };
 
+/*
+Fulfills with nothing. Rejects on error.
+*/
 exports.setupAddToTeam = (guild, user, role_id) => {
 	return new Promise((fulfill, reject) => {
 		var role = guild.roles.get(role_id);
