@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const Console = require('../util/console');
 const util = require('./discord_util/util');
 const str_gen = require('./discord_util/message_generator');
+const discord_constants = require('./discord_util/constants');
 // var db = require('./mongodb');
 var constants = require('../util/constants');
 
@@ -66,7 +67,7 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'announce',
 				constants.ANNOUNCE_CHANNEL,
-				str_gen.tourney_announce_channel()
+				str_gen.tourney_announce_channel(discord_constants.SETUP_PHASE)
 			).then((message) => {
 				return util.setPermissions(
 					message.channel,
