@@ -20,6 +20,14 @@ try {
 }
 
 const discordclient = require('./webservices/discord');
-var add_listeners = require('./webservices/add_listeners');
+var add_listeners = null;
+
+//so emily can test manually
+var dev = false;
+if (dev) {
+	add_listeners = require('./tests/discord_fxns_test_bot');
+} else {
+	add_listeners = require('./webservices/add_listeners');
+}
 
 add_listeners(discordclient._client);

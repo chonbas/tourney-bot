@@ -12,7 +12,7 @@ var client = new Discord.Client();
 var exports = {};
 
 // Stub
-exports.stub = (obj1, obj2, obj3, obj4, obj5, msg) => {
+exports.stub = (msg, obj1, obj2, obj3, obj4, obj5) => {
 	return new Promise((fulfill, reject) => {
 		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
 		Console.log(msg);
