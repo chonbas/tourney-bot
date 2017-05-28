@@ -44,12 +44,12 @@ var exportme = (client) => {
 		case 'tnti':
 			discord.transitionNoToInit(msg.guild, msg.author);
 			break;
-		case 'confirmCreateTeam':
-			discord.confirmCreateTeam(msg.channel, msg.author.id, 'TEAM_NAME');
+		case 'sendConfirmCreateTeam':
+			discord.sendConfirmCreateTeam(msg.channel, msg.author, 'TEAM_NAME');
 			break;
 		default:
 			discord.stub('message came in', cmd, dat)
-			.then((cmd, dat) => {
+			.then(() => {
 				Console.log(cmd);
 				Console.log(dat);
 			});
@@ -60,7 +60,10 @@ var exportme = (client) => {
 	client.on('messageReactionAdd', (msgReaction, user) => {
 		// TODO: Only manage if our bot message was liked
 		discord.receiveConfirmInit(msgReaction, user)
-		.then(response => Console.log(response));
+		.then((response) => {
+			Console.log('receiveConfirmInit:');
+			Console.log(response);
+		});
 	});
 
 	// Logs in client

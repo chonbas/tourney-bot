@@ -7,7 +7,8 @@ var message_schema = new mongoose.Schema({
 	},
 	msg_type: String,
 	msg_creator: String,
-	msg_recipients: String
+	msg_recipients: String,
+	msg_payload: mongoose.Schema.Types.Mixed
 });
 
 var Message = mongoose.model('Message', message_schema);

@@ -31,13 +31,14 @@ exports.clearDB = () =>{
  * });
  * -------------------------------------------------------
 */
-exports.setMessage = (id, type, creator, recipients) => {
+exports.setMessage = (id, type, creator, recipients, payload) => {
 	return new Promise((fulfill, reject) => {
 		Message.create({
 			msg_id: id,
 			msg_type: type,
 			msg_creator: creator,
-			msg_recipients: recipients
+			msg_recipients: recipients,
+			msg_payload: payload
 		}).then( () => {
 			Console.log('Message with msg_id:' + id + ' created');
 			fulfill(constants.CREATE_SUCCESS);

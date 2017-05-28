@@ -7,6 +7,7 @@ const Console = require('../../util/console');
 var db = require('../mongodb');
 var db_m = require('../mongodb_messages');
 var constants = require('../../util/constants');
+var discord_constants = require('./constants');
 var exports = {};
 
 var getChannelName = (txt) => {
@@ -89,7 +90,8 @@ exports.sendConfirmMessage = (
 	type,
 	creator,
 	recipients,
-	emojis
+	emojis,
+	payload='no payload'
 ) => {
 	return new Promise((fulfill, reject) => {
 		var sent_msg;
@@ -99,10 +101,62 @@ exports.sendConfirmMessage = (
 			return Promise.all(emojis.map(e => {return msg.react(e);}));
 		})
 		.then(() => {
-			return db_m.setMessage(sent_msg.id, type, creator, recipients);
+			return db_m.setMessage(sent_msg.id, type, creator, recipients, payload);
 		})
 		.then((sent_msg) => fulfill(sent_msg))
 		.catch(err => reject(err));
+	});
+};
+
+exports.receiveYNConfirmMessage = (
+	msgRxn,
+	user,
+	type,
+	uses_maybe=false
+) => {
+	return new Promise((fulfill, reject) => {
+		db_m.getMessage(msgRxn.message.id)
+		.then((msg_data) => {
+			var ret = {};
+			ret.status = constants.EMOJI_INVALID;
+			// if message is an irrelevant message, ignore
+			if(!msg_data) {
+				ret.payload = 'irrelevant message';
+				fulfill(ret);
+				return;
+			}
+			if(msg_data.msg_type != type) {
+				ret.payload = 'irrelevant type';
+				fulfill(ret);
+				return;
+			}
+			// if our recipient, get answer
+			if(user.id == msg_data.msg_recipients){
+				ret.payload = msg_data.msg_payload;
+				switch (msgRxn.emoji.name) {
+				case discord_constants.EMOJI_YES_RAW:
+					ret.status = constants.EMOJI_YES;
+					break;
+				case discord_constants.EMOJI_NO_RAW:
+					ret.status = constants.EMOJI_NO;
+					break;
+				case discord_constants.EMOJI_MAYBE_RAW:
+					if(uses_maybe){
+						ret.status = constants.EMOJI_MAYBE;
+					}
+					break;
+				//fall through if no maybe - isn't valid
+				//eslint-disable-next-line
+				default: //unknown emoji
+					ret.payload = 'unknown emoji';
+				}
+				fulfill(ret);
+				return;
+			}
+			// not recipient
+			fulfill(constants.EMOJI_INVALID, 'not recipient'); //wrong user
+		})
+		.catch((err) => reject(err));
 	});
 };
 

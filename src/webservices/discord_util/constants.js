@@ -18,6 +18,8 @@ var constants = {
 	// kinds of messages that can require a confirmation
 	// ask people who say init if they're sure (not implemented)
 	'INIT_MESSAGE': 'confirm-init',
+	//double check that they want to make a team
+	'TEAM_CREATE': 'confirm-team-create',
 	//ask team leader if player can join
 	'TEAM_LEADER_JOIN_MESSAGE': 'confirm-team-join',
 	//ask opponents if correct
