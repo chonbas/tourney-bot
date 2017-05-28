@@ -57,11 +57,16 @@ user who created the reaction said yes or no.
 channel: channel object to send the message
 init_user: user object
 
-Returns: Promise
-Fulfills:
+Returns: Promise<object>
+Fulfills: with object like this:
+{ status: STATUS, payload: 'no payload'}
+
+Status is one of a few things:
 EMOJI_YES: user said yes
 EMOJI_NO: user said no
 EMOJI_INVALID: wrong user, message, or emoji, so ignore.
+  If invalid, payload is an error message containing details
+	about why the reaction was invalid.
 */
 exports.receiveConfirmInit = (msgRxn, user) => {
 	return util.receiveYNConfirmMessage(
