@@ -5,7 +5,7 @@ const util = require('./discord_util/util');
 const str_gen = require('./discord_util/message_generator');
 const discord_constants = require('./discord_util/constants');
 
-var db_m = require('./mongodb_messages');
+// var db_m = require('./mongodb_messages');
 // var db = require('./mongodb');
 var constants = require('../util/constants');
 
@@ -165,6 +165,59 @@ exports.sendConfirmCreateTeam = (channel, init_user, team_name) => {
 		init_user.id,
 		discord_constants.EMOJI_YN,
 		team_name
+	);
+};
+
+/*
+Receive Confirm Create Team
+On failure, returns object with obj.status=EMOJI_INVALID
+On succes, returns {
+ status: [status],
+ payload: team_name
+}
+*/
+exports.receiveConfirmCreateTeam = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.TEAM_CREATE
+	);
+};
+
+/*
+Send Confirm Join Team
+Asks team creator if they want to let joiner join.
+channel: object
+joiner: user object
+team_creator_id: just the user ID
+team_name: string
+*/
+exports.sendConfirmJoinTeam = (channel, joiner, team_creator_id, team_name) => {
+	return util.sendConfirmMessage(
+		channel,
+		str_gen.stub(`Hey <@${team_creator_id}>], can <@${joiner.id}> join ${team_name}?`, 'join team confirm'),
+		discord_constants.TEAM_LEADER_JOIN_MESSAGE,
+		joiner.id,
+		team_creator_id,
+		discord_constants.EMOJI_YN,
+		{//payload
+			new_teammate_id: joiner.id,
+			team_name: team_name
+		}
+	);
+};
+
+/*
+Receive Join Confirm
+
+Returns: Promise<object>
+see payload from sendConfirmJoinTeam for properties, etc.
+*/
+exports.receiveConfirmJoinTeam = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.TEAM_LEADER_JOIN_MESSAGE
 	);
 };
 

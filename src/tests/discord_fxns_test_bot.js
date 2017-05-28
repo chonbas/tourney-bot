@@ -32,7 +32,6 @@ var exportme = (client) => {
 			Console.debug('Message heard, but no @bot so not replying.');
 			return;
 		}
-
 		//LOGIC FOR COMMANDS
 		var cmd = msg.content.split(' ')[1];
 		var dat = msg.content.split(' ')[2];
@@ -46,6 +45,9 @@ var exportme = (client) => {
 			break;
 		case 'sendConfirmCreateTeam':
 			discord.sendConfirmCreateTeam(msg.channel, msg.author, 'TEAM_NAME');
+			break;
+		case 'sendConfirmJoinTeam': // the "team creator" is emily's t1 bot
+			discord.sendConfirmJoinTeam(msg.channel, msg.author, dat.slice(2,-1),'TEAM_NAME');
 			break;
 		default:
 			discord.stub('message came in', cmd, dat)
@@ -62,6 +64,16 @@ var exportme = (client) => {
 		discord.receiveConfirmInit(msgReaction, user)
 		.then((response) => {
 			Console.log('receiveConfirmInit:');
+			Console.log(response);
+		});
+		discord.receiveConfirmCreateTeam(msgReaction, user)
+		.then((response) => {
+			Console.log('receiveConfirmCreateTeam:');
+			Console.log(response);
+		});
+		discord.receiveConfirmJoinTeam(msgReaction, user)
+		.then((response) => {
+			Console.log('receiveConfirmJoinTeam:');
 			Console.log(response);
 		});
 	});

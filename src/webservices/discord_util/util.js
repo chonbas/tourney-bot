@@ -108,6 +108,26 @@ exports.sendConfirmMessage = (
 	});
 };
 
+exports.isRelevantReaction = (msgRxn, type, msg_data, user, ret) => {
+	// if message is an irrelevant message, ignore
+	if(!msg_data) {
+		ret.payload = 'irrelevant message';
+		return false;
+	}
+	if(msg_data.msg_type != type) {
+		ret.payload = 'irrelevant type';
+		return false;
+	}
+	//get user roles
+	var roles = msgRxn.message.guild.members.get(user.id).roles;
+	if(user.id != msg_data.msg_recipients
+	&& !roles.get(msg_data.msg_recipients)){
+		ret.payload = 'irrelevant reacting user';
+		return false;
+	}
+	return true;
+};
+
 exports.receiveYNConfirmMessage = (
 	msgRxn,
 	user,
@@ -119,42 +139,30 @@ exports.receiveYNConfirmMessage = (
 		.then((msg_data) => {
 			var ret = {};
 			ret.status = constants.EMOJI_INVALID;
-			// if message is an irrelevant message, ignore
-			if(!msg_data) {
-				ret.payload = 'irrelevant message';
-				fulfill(ret);
-				return;
-			}
-			if(msg_data.msg_type != type) {
-				ret.payload = 'irrelevant type';
+			if (!exports.isRelevantReaction(msgRxn, type, msg_data, user, ret)) {
 				fulfill(ret);
 				return;
 			}
 			// if our recipient, get answer
-			if(user.id == msg_data.msg_recipients){
-				ret.payload = msg_data.msg_payload;
-				switch (msgRxn.emoji.name) {
-				case discord_constants.EMOJI_YES_RAW:
-					ret.status = constants.EMOJI_YES;
-					break;
-				case discord_constants.EMOJI_NO_RAW:
-					ret.status = constants.EMOJI_NO;
-					break;
-				case discord_constants.EMOJI_MAYBE_RAW:
-					if(uses_maybe){
-						ret.status = constants.EMOJI_MAYBE;
-					}
-					break;
-				//fall through if no maybe - isn't valid
-				//eslint-disable-next-line
-				default: //unknown emoji
-					ret.payload = 'unknown emoji';
+			switch (msgRxn.emoji.name) {
+			case discord_constants.EMOJI_YES_RAW:
+				ret.status = constants.EMOJI_YES;
+				break;
+			case discord_constants.EMOJI_NO_RAW:
+				ret.status = constants.EMOJI_NO;
+				break;
+			case discord_constants.EMOJI_MAYBE_RAW:
+				if(uses_maybe){
+					ret.status = constants.EMOJI_MAYBE;
 				}
+				break;
+			default: //unknown emoji
+				ret.payload = 'unknown emoji';
 				fulfill(ret);
 				return;
 			}
-			// not recipient
-			fulfill(constants.EMOJI_INVALID, 'not recipient'); //wrong user
+			ret.payload = msg_data.msg_payload;
+			fulfill(ret);
 		})
 		.catch((err) => reject(err));
 	});
