@@ -32,19 +32,35 @@ var exportme = (client) => {
 			Console.debug('Message heard, but no @bot so not replying.');
 			return;
 		}
-		discord.stub('message came in', msg)
-		.then((msg) => {
-			Console.log(msg);
-		});
+
+		//LOGIC FOR COMMANDS
+		var cmd = msg.content.split(' ')[1];
+		var dat = msg.content.split(' ')[2];
+
+		switch (cmd) {
+		case 'sendConfirmInit':
+			discord.sendConfirmInit(msg.channel, msg.author);
+			break;
+		case 'tnti':
+			discord.transitionNoToInit(msg.guild, msg.author);
+			break;
+		case 'confirmCreateTeam':
+			discord.confirmCreateTeam(msg.channel, msg.author.id, 'TEAM_NAME');
+			break;
+		default:
+			discord.stub('message came in', cmd, dat)
+			.then((cmd, dat) => {
+				Console.log(cmd);
+				Console.log(dat);
+			});
+		}
 	});
 
 	// emojis
 	client.on('messageReactionAdd', (msgReaction, user) => {
 		// TODO: Only manage if our bot message was liked
-		discord.stub('rxn came in\n\n', msgReaction, user)
-		.then((msgReaction) => {
-			Console.log(msgReaction);
-		});
+		discord.receiveConfirmInit(msgReaction, user)
+		.then(response => Console.log(response));
 	});
 
 	// Logs in client

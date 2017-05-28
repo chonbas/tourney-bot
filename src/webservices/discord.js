@@ -4,6 +4,8 @@ const Console = require('../util/console');
 const util = require('./discord_util/util');
 const str_gen = require('./discord_util/message_generator');
 const discord_constants = require('./discord_util/constants');
+
+var db_m = require('./mongodb_messages');
 // var db = require('./mongodb');
 var constants = require('../util/constants');
 
@@ -25,6 +27,71 @@ exports.stub = (msg, obj1, obj2, obj3, obj4, obj5) => {
   STAGE: NO TOURNAMENT
 ███████████████████████████████████████████████████████
 */
+
+/*
+Send Confirm Init
+Sends a question asking if a user wants to init a tournament.
+channel: channel object to send the message
+init_user: user object
+*/
+exports.sendConfirmInit = (channel, init_user) => {
+	return new Promise((fulfill, reject) => {
+		util.sendConfirmMessage(
+			channel,
+			str_gen.stub(`Sure you want to make a tourney, <@${init_user.id}>?`, 'init tourney confirm'),
+			discord_constants.INIT_MESSAGE,
+			init_user.id,
+			init_user.id,
+			discord_constants.EMOJI_YN
+		)
+		.then(() => fulfill())
+		.catch((err) => reject(err));
+	});
+};
+
+/*
+Receive Confirm Init
+Examines a message reaction to determine if the
+user who created the reaction said yes or no.
+
+channel: channel object to send the message
+init_user: user object
+
+Returns: Promise
+Fulfills:
+EMOJI_YES: user said yes
+EMOJI_NO: user said no
+EMOJI_INVALID: wrong user, message, or emoji, so ignore.
+*/
+exports.receiveConfirmInit = (msgRxn, user) => {
+	return new Promise((fulfill, reject) => {
+		db_m.getMessage(msgRxn.message.id)
+		.then((msg_data) => {
+			// if message is an irrelevant message, ignore
+			if(!msg_data) {
+				fulfill(constants.EMOJI_INVALID);// irrelevant message
+				return;
+			}
+			// if our recipient, get answer
+			if(user.id == msg_data.msg_recipients){
+				switch (msgRxn.emoji.name) {
+				case discord_constants.EMOJI_YES_RAW:
+					fulfill(constants.EMOJI_YES);
+					return;
+				case discord_constants.EMOJI_NO_RAW:
+					fulfill(constants.EMOJI_NO);
+					return;
+				default: //unknown emoji
+					fulfill(constants.EMOJI_INVALID); // wrong emoji
+					return;
+				}
+			}
+			// not recipient
+			fulfill(constants.EMOJI_INVALID); //wrong user
+		})
+		.catch((err) => reject(err));
+	});
+};
 
 /*
 Does:

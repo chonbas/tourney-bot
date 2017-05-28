@@ -5,6 +5,7 @@ Do not require this file - use discord.js.
 */
 const Console = require('../../util/console');
 var db = require('../mongodb');
+var db_m = require('../mongodb_messages');
 var constants = require('../../util/constants');
 var exports = {};
 
@@ -82,16 +83,26 @@ allowed is an array!!
 
 Returns the pinned message in a promise.
 */
-exports.confirmMessage = (msgRxn) => {
+exports.sendConfirmMessage = (
+	channel,
+	txt,
+	type,
+	creator,
+	recipients,
+	emojis
+) => {
 	return new Promise((fulfill, reject) => {
-		var content = msgRxn.message.content;
-		var matches = content.match(/\[(.*?)\]/);
-
-		if (matches) {
-			var submatch = matches[1];
-		}
-		fulfill(submatch);
-		reject();
+		var sent_msg;
+		channel.send(txt)
+		.then((msg) => {
+			sent_msg = msg;
+			return Promise.all(emojis.map(e => {return msg.react(e);}));
+		})
+		.then(() => {
+			return db_m.setMessage(sent_msg.id, type, creator, recipients);
+		})
+		.then((sent_msg) => fulfill(sent_msg))
+		.catch(err => reject(err));
 	});
 };
 
