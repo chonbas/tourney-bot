@@ -10,7 +10,83 @@ var parse_constants = require('./parse_constants');
 
 var Console = require('./console');
 
+function processMessage(msg) {
+	var name = msg.replace(/<@\d+>/i,'');
+	return name;
+}
+
+//the msg is considered a command if it is preceded by a '+'
+//the space is automatically added to the me
+function parseCommand(msg){
+	var parse;
+	var handler;
+	var data_object = {};
+	if(msg == '+REQUEST_HELP'){
+		parse = 'REQUEST_HELP';
+		handler = 'all';
+	} else if(msg == '+MATCH_REPORT_WIN'){
+		parse = 'MATCH_REPORT_WIN';
+		handler = 'match';
+	} else if(msg == '+MATCH_REPORT_LOSE'){
+		parse = 'MATCH_REPORT_LOSE';
+		handler = 'match';
+	} else if(msg == '+MATCH_REPORT_AMBIGUOUS'){
+		parse = 'MATCH_REPORT_AMBIGUOUS';
+		handler = 'match';
+	} else if(msg == '+JOIN_TOURNEY'){
+		parse = 'JOIN_TOURNEY';
+		handler = 'setup_tourney';
+	} else if(msg == '+CREATE_TOURNEY'){
+		parse = 'CREATE_TOURNEY';
+		handler = 'no_tourney';
+	} else if(msg == '+INIT_TOURNEY'){
+		parse = 'INIT_TOURNEY';
+		handler = 'init_tourney';
+		// data_object is the tournament object that will be passed to createTournament
+		// tournamentType is camelCase because Challonge API requires it
+		data_object.tournamentType = 'single elimination';
+	} else if(msg == '+START_TOURNEY'){
+		parse = 'START_TOURNEY';
+		handler = 'setup_tourney';
+	} else if(msg == '+END_TOURNEY'){
+		parse = 'END_TOURNEY';
+		handler = 'all';
+	} else if(msg == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
+		parse = 'DROP_TOURNEY';
+		handler = 'all';
+	} else if(msg == '+REPORT'){
+		parse = 'REPORT';
+		handler='match';
+	} else if(msg == '+VOTE_GUILTY'){ //keeping these in just in case
+		parse = 'VOTE_GUILTY';
+		handler='dispute';
+	} else if(msg == '+VOTE_INNOCENT'){
+		parse = 'VOTE_INNOCENT';
+		handler='dispute';
+	} else if(msg == '+CHANGE_SETTINGS'){ //I realize this isn't useful yet
+		parse = 'CHANGE_SETTINGS';
+		handler='all';
+	} else if(msg == '+YES'){
+		parse = 'YES';
+		handler='all';
+	} else if(msg == '+NO'){
+		parse = 'NO';
+		handler='all';
+	} else{
+		parse = 'UNIDENTIFIED';
+		handler='all';
+	}
+	Console.log(parse);
+	return {parse: parse_constants[parse], message: msg, handler: handler, data_object: data_object};
+}
+
+
 var parseMessage = (msg) => {
+
+	msg = processMessage(msg);
+	if(msg[0]=='+'){
+		return parseCommand(msg);
+	}
 
 	var natural = require('natural'), tokenizer = new natural.WordTokenizer();
 
