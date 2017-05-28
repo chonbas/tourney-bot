@@ -200,7 +200,8 @@ exports.sendConfirmJoinTeam = (channel, joiner, team_creator_id, team_name) => {
 		joiner.id,
 		team_creator_id,
 		discord_constants.EMOJI_YN,
-		{//payload
+		//payload
+		{
 			new_teammate_id: joiner.id,
 			team_name: team_name
 		}
@@ -282,38 +283,52 @@ exports.transitionSetupToRun = (guild) => {
 ███████████████████████████████████████████████████████
 */
 
-// Match Channels
-exports.runInitMatchChannels = (guild, matches) => {
-	return new Promise((fulfill, reject) => {
-		Console.log('  Init-ing match channels for ' + guild.id);
+/*
 
-        // TODO: for each match, make a channel and add the right ppl
-        // also send a greeting
-		matches.forEach((match) => {
-			Console.log('    Init match ' + match);
-		});
-
-		fulfill();
-		reject();
+*/
+exports.runInitMatchChannel = (guild, players, match_number) => {
+	return util.createChannelPinMessage(
+		guild,
+		'match-' + match_number,
+		constants.MATCH_CHANNEL,
+		str_gen.stub(`Hi match ${match_number}.
+			please play: ${players.map(p => {return '<@'+p+'> ';})}`,
+			'match channel greeting')
+	).then((message) => {
+		return util.setPermissions(
+			message.channel,
+			['SEND_MESSAGES', 'READ_MESSAGES'],
+			players);
 	});
 };
 
 // Dispute Channels
-exports.runInitDisputeChannels = (guild) => {
-	return new Promise((fulfill, reject) => {
-		Console.log('  Init-ing disputes for ' + guild.id);
-
-        //TODO: get disputes from db
-		var disputes = ['GARBAGE_DISPUTE_1', 'GARBAGE_DISPUTE_2'];
-
-        // TODO: for each dispute, get a jury and make a channel
-		disputes.forEach((match) => {
-			Console.log('    Init dispute ' + match);
-		});
-
-		fulfill();
-		reject();
+exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_id) => {
+	return util.createChannel(
+		guild,
+		'dispute-' + dispute_name,
+		constants.JURY_CHANNEL
+	).then(channel => {
+		return util.sendConfirmMessage(
+			channel,
+			str_gen.stub(`Prosecutor: <@${prosecutor_id}>.
+				prosecutor: <@${defendant_id}>.`,
+				'jury channel greeting'),
+			discord_constants.VOTEKICK_MESSAGE,
+			defendant_id,
+			'@everyone',
+			discord_constants.EMOJI_YN,
+			//payload
+			{
+				new_teammate_id: defendant_id
+			},
+			true
+		);
 	});
+};
+
+exports.receiveDisputeChannelVote = (msgRxn, user) => {
+	return util.countReactions(msgRxn, user, discord_constants.VOTEKICK_MESSAGE);
 };
 
 exports.runNotifyEndMatches = (guild, matches) => {

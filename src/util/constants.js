@@ -34,6 +34,7 @@ var constants = {
 	'EMOJI_YES': 'EMOJI_YES',
 	'EMOJI_MAYBE': 'EMOJI_MAYBE',
 	'EMOJI_NO': 'EMOJI_NO',
+	'EMOJI_COUNTS': 'EMOJI_COUNTS',
 	'EMOJI_INVALID': 'EMOJI_INVALID', //ignore
 
 	//Dispute Types

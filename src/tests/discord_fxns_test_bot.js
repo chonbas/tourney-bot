@@ -32,6 +32,14 @@ var exportme = (client) => {
 			Console.debug('Message heard, but no @bot so not replying.');
 			return;
 		}
+		if(!client.has_received_a_message){
+			Console.log('Role IDs and Names:');
+			Console.log(msg.guild.roles.map(r => {return {id: r.id, name: r.name};}));
+			Console.log('User IDs and Names:');
+			Console.log(msg.guild.members.map(m => {return {id: m.user.id, name: m.user.username};}));
+			client.has_received_a_message = true;
+		}
+		//Console.log(msg.guild.members);
 		//LOGIC FOR COMMANDS
 		var cmd = msg.content.split(' ')[1];
 		var dat = msg.content.split(' ')[2];
@@ -48,6 +56,24 @@ var exportme = (client) => {
 			break;
 		case 'sendConfirmJoinTeam': // the "team creator" is emily's t1 bot
 			discord.sendConfirmJoinTeam(msg.channel, msg.author, dat.slice(2,-1),'TEAM_NAME');
+			break;
+		case 'initMatchChannel':
+			discord.runInitMatchChannel(
+				msg.guild,
+				['317512206281605120','317512564349075458'],
+				42
+			);
+			break;
+		case 'initDisputeChannel':
+			discord.runInitDisputeChannel(
+				msg.guild,
+				47,
+				msg.author.id,
+				'312120580956487681'
+			);
+			break;
+		case 'purge': // the "team creator" is emily's t1 bot
+			discord.deleteAllTourneyChannels(msg.guild);
 			break;
 		default:
 			discord.stub('message came in', cmd, dat)
@@ -74,6 +100,11 @@ var exportme = (client) => {
 		discord.receiveConfirmJoinTeam(msgReaction, user)
 		.then((response) => {
 			Console.log('receiveConfirmJoinTeam:');
+			Console.log(response);
+		});
+		discord.receiveDisputeChannelVote(msgReaction, user)
+		.then((response) => {
+			Console.log('receiveDisputeChannelVote:');
 			Console.log(response);
 		});
 	});

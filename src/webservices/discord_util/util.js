@@ -42,6 +42,25 @@ exports.createChannelPinMessage = (guild, channel_name, channel_type, welcome_ms
 	});
 };
 
+exports.createChannel = (guild, channel_name, channel_type) => {
+	return new Promise((fulfill, reject) => {
+		var channel_created;
+		guild.createChannel(getChannelName(channel_name), 'text').then((channel) => {
+			channel_created = channel;
+			return db.createChannel(guild.id, channel_created.id, channel_type);
+		}).then((ret_val) => {
+			if (ret_val == constants.CREATE_SUCCESS) {
+				Console.log('DISCORD: in ' + guild.id + ' created tourney-' + channel_name);
+				fulfill(channel_created);
+			}
+			reject();
+		}).catch(err => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 /*
 Gives only the allowed roles or users (use an array)
 permission to write.
@@ -91,14 +110,17 @@ exports.sendConfirmMessage = (
 	creator,
 	recipients,
 	emojis,
-	payload='no payload'
+	payload='no payload',
+	pin = false
 ) => {
 	return new Promise((fulfill, reject) => {
 		var sent_msg;
 		channel.send(txt)
 		.then((msg) => {
 			sent_msg = msg;
-			return Promise.all(emojis.map(e => {return msg.react(e);}));
+			var promises = emojis.map(e => {return msg.react(e);});
+			if(pin) promises.push(msg.pin());
+			return Promise.all(promises);
 		})
 		.then(() => {
 			return db_m.setMessage(sent_msg.id, type, creator, recipients, payload);
@@ -120,10 +142,12 @@ exports.isRelevantReaction = (msgRxn, type, msg_data, user, ret) => {
 	}
 	//get user roles
 	var roles = msgRxn.message.guild.members.get(user.id).roles;
-	if(user.id != msg_data.msg_recipients
-	&& !roles.get(msg_data.msg_recipients)){
-		ret.payload = 'irrelevant reacting user';
-		return false;
+	if(msg_data.msg_recipients != '@everyone'){
+		if(user.id != msg_data.msg_recipients
+		&& !roles.get(msg_data.msg_recipients)){
+			ret.payload = 'irrelevant reacting user';
+			return false;
+		}
 	}
 	return true;
 };
@@ -168,6 +192,42 @@ exports.receiveYNConfirmMessage = (
 	});
 };
 
+exports.countReactions = (
+	msgRxn,
+	user,
+	type,
+	uses_maybe=false
+) => {
+	return new Promise((fulfill, reject) => {
+		db_m.getMessage(msgRxn.message.id)
+		.then((msg_data) => {
+			var ret = {};
+			ret.status = constants.EMOJI_INVALID;
+			if (!exports.isRelevantReaction(msgRxn, type, msg_data, user, ret)) {
+				fulfill(ret);
+				return;
+			}
+			var counts = {};
+			msgRxn.message.reactions.array().forEach((r) => {
+				if(r.emoji.name == discord_constants.EMOJI_YES_RAW){
+					counts[constants.EMOJI_YES] = r.count -2;
+				}
+				else if(r.emoji.name == discord_constants.EMOJI_NO_RAW){
+					counts[constants.EMOJI_NO] = r.count -2;
+				}
+				else if(uses_maybe && r.emoji.name == discord_constants.EMOJI_MAYBE_RAW){
+					counts[constants.EMOJI_MAYBE] = r.count -2;
+				}
+			});
+			ret.status = constants.EMOJI_COUNTS;
+			ret.payload = {};
+			ret.payload.original_payload = msg_data.msg_payload;
+			ret.payload.counts = counts;
+			fulfill(ret);
+		})
+		.catch((err) => reject(err));
+	});
+};
 
 exports.editAnnounce = (guild, text) => {
 	return new Promise ((fulfill, reject) => {
