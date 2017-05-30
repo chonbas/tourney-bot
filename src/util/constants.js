@@ -31,20 +31,11 @@ var constants = {
 	'ANNOUNCE_CHANNEL':906, //individual channel for announcements, only bot can talk here
 
 	// emoji confirmation types
-	'EMOJI_YES': 509,
-	'EMOJI_MAYBE': 510,
-	'EMOJI_NO': 512,
-	'EMOJI_INVALID': 513, //ignore
-
-	// kinds of messages that can require a confirmation
-	// ask people who say init if they're sure (not implemented)
-	'INIT_MESSAGE': 'confirm-init',
-	//ask team leader if player can join
-	'TEAM_LEADER_JOIN_MESSAGE': 'confirm-team-join',
-	//ask opponents if correct
-	'MATCH_REPORT_MESSAGE': 'match-report-confirmation',
-	//get vote counts
-	'VOTEKICK_MESSAGE': 'votekick-counter-message',
+	'EMOJI_YES': 'EMOJI_YES',
+	'EMOJI_MAYBE': 'EMOJI_MAYBE',
+	'EMOJI_NO': 'EMOJI_NO',
+	'EMOJI_COUNTS': 'EMOJI_COUNTS',
+	'EMOJI_INVALID': 'EMOJI_INVALID', //ignore
 
 	//Dispute Types
 	'DISPUTE_CHEAT':0,

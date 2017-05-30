@@ -35,10 +35,11 @@ exports.tourney_general_channel = () => {
 	This is the general tourney channel.`;
 };
 
-exports.tourney_announce_channel = () => {
+exports.tourney_announce_channel = (status) => {
 	return `Hi everyone!\n
 	This is the general tourney channel.
-	${wrap(universals.ANNOUNCE_CHANNEL)}`;
+	${wrap(universals.ANNOUNCE_CHANNEL)}
+	Status: ${status}`;
 };
 
 module.exports = exports;
