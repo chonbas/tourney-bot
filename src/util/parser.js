@@ -22,7 +22,10 @@ function parseCommand(msg){
 	var parse;
 	var handler;
 	var data_object = {};
-	msg = msg.split(' ');
+	//msg = msg.split(' ');
+	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g)
+	Console.log(msg[0])
+	Console.log(msg[1])
 	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
 		handler = 'all';
@@ -35,15 +38,20 @@ function parseCommand(msg){
 	} else if(msg[0] == '+MATCH_REPORT_AMBIGUOUS'){
 		parse = 'MATCH_REPORT_AMBIGUOUS';
 		handler = 'match';
-	} else if(msg[0] == '+JOIN_TOURNEY'){
+	} else if(msg[0] == '+JOIN_TOURNEY' && msg[1].match(/\".+\"/i) != null){
+		data_object.team_name = msg[1].match(/\".+\"/i)[0];
 		parse = 'JOIN_TOURNEY';
 		handler = 'setup_tourney';
+		Console.log('team name = ' + data_object.team_name);
 	} else if(msg[0] == '+CREATE_TOURNEY'){
 		parse = 'CREATE_TOURNEY';
 		handler = 'no_tourney';
-	} else if(msg[0] == '+INIT_TOURNEY'){
+	} else if(msg[0] == '+INIT_TOURNEY' && msg[1].match(/\"[.+]\"/i) != null){
 		parse = 'INIT_TOURNEY';
 		handler = 'init_tourney';
+		data_object.tourney_name = msg[1].match(/\"[.+]\"/i)[0];
+		Console.log('tourney name = ' + data_object.tourney_name);
+
 		// data_object is the tournament object that will be passed to createTournament
 		// tournamentType is camelCase because Challonge API requires it
 		data_object.tournamentType = 'single elimination';
@@ -56,7 +64,7 @@ function parseCommand(msg){
 	} else if(msg[0] == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
-	} else if(msg[0] == '+REPORT' && msg[1].match(/<@\d+>/i) != null){ //To report some one, do REPORT 
+	} else if(msg[0] == '+REPORT' && msg[1].match(/<@\d+>/i) != null){ //To report some one, do REPORT
 		parse = 'REPORT';
 		data_object.reported_user = msg[1].match(/<@\d+>/i)[0];
 		Console.log('reported user = ' + data_object.reported_user);
@@ -86,17 +94,17 @@ function parseCommand(msg){
 
 //takes in an array of words, looks for the first user ID. (ex. for reporting)
 function findUserID(msg){
-	for(var i = 0; i < len(word_arr); i++){
-		if(msg[i].match(/<@\d+>/i) != null){
-			return msg[i].match(/<@\d+>/i)[0]
+	for(var i = 0; i < msg.length(); i++){
+		if(msg[i].match(/<@(\d|\!)+>/i) != null){
+			return msg[i].match(/<@(\d|\!)+>/i)[0];
 		}
 	}
-	return null
+	return null;
 }
 
 
 var parseMessage = (msg) => {
-	Console.log(msg)
+	Console.log(msg);
 
 	msg = processMessage(msg);
 	if(msg[0]=='+'){
