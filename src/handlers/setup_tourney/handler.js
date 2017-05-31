@@ -17,6 +17,7 @@ const constants = require('../../util/constants');
 var addTeam = require('./add_team');
 var addParticipant = require('./add_participant');
 const discord = require('../../webservices/discord');
+var prepare_open_matches = require('../run_tourney/prepare_open_matches');
 
 var handler = {};
 
@@ -70,6 +71,8 @@ handler.handleMsg = (msg) => {
 			return challonge.startTourney(msg.guild.id);
 		}).then(() =>{
 			return db.advanceTournamentState(guild_id);
+		}).then(() => {
+			return prepare_open_matches(msg.guild);
 		}).catch(err => Console.log(err));
 	}
 };

@@ -305,6 +305,33 @@ exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
 	});
 };
 
+exports.sendConfirmMatchReport = (channel, reporter_user_id, confirmer_role_id, report) => {
+	return util.sendConfirmMessage(
+		channel,
+		str_gen.stub(`Hey <@${confirmer_role_id}>], <@${reporter_user_id}> says ${report.txt}. Is that right?`, 'join team confirm'),
+		discord_constants.MATCH_REPORT_MESSAGE,
+		reporter_user_id,
+		confirmer_role_id,
+		discord_constants.EMOJI_YN,
+		//payload
+		report
+	);
+};
+
+/*
+Receive Join Confirm
+
+Returns: Promise<object>
+see payload from sendConfirmJoinTeam for properties, etc.
+*/
+exports.receiveConfirmMatchReport = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.MATCH_REPORT_MESSAGE
+	);
+};
+
 // Dispute Channels
 exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_id) => {
 	return util.createChannel(

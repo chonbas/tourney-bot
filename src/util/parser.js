@@ -25,7 +25,7 @@ function parseCommand(msg){
 
 	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
 
-  if(msg[0] == '+REQUEST_HELP'){
+	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
 		handler = 'all';
 	} else if(msg[0] == '+MATCH_REPORT_WIN'){
@@ -188,5 +188,3 @@ var parseMessage = (msg) => {
 };
 
 module.exports = parseMessage;
-
-
