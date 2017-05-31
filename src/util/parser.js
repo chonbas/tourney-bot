@@ -21,55 +21,58 @@ function parseCommand(msg){
 	var parse;
 	var handler;
 	var data_object = {};
-	if(msg == '+REQUEST_HELP'){
+	msg = msg.split(' ');
+	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
 		handler = 'all';
-	} else if(msg == '+MATCH_REPORT_WIN'){
+	} else if(msg[0] == '+MATCH_REPORT_WIN'){
 		parse = 'MATCH_REPORT_WIN';
 		handler = 'match';
-	} else if(msg == '+MATCH_REPORT_LOSE'){
+	} else if(msg[0] == '+MATCH_REPORT_LOSE'){
 		parse = 'MATCH_REPORT_LOSE';
 		handler = 'match';
-	} else if(msg == '+MATCH_REPORT_AMBIGUOUS'){
+	} else if(msg[0] == '+MATCH_REPORT_AMBIGUOUS'){
 		parse = 'MATCH_REPORT_AMBIGUOUS';
 		handler = 'match';
-	} else if(msg == '+JOIN_TOURNEY'){
+	} else if(msg[0] == '+JOIN_TOURNEY'){
 		parse = 'JOIN_TOURNEY';
 		handler = 'setup_tourney';
-	} else if(msg == '+CREATE_TOURNEY'){
+	} else if(msg[0] == '+CREATE_TOURNEY'){
 		parse = 'CREATE_TOURNEY';
 		handler = 'no_tourney';
-	} else if(msg == '+INIT_TOURNEY'){
+	} else if(msg[0] == '+INIT_TOURNEY'){
 		parse = 'INIT_TOURNEY';
 		handler = 'init_tourney';
 		// data_object is the tournament object that will be passed to createTournament
 		// tournamentType is camelCase because Challonge API requires it
 		data_object.tournamentType = 'single elimination';
-	} else if(msg == '+START_TOURNEY'){
+	} else if(msg[0] == '+START_TOURNEY'){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';
-	} else if(msg == '+END_TOURNEY'){
+	} else if(msg[0] == '+END_TOURNEY'){
 		parse = 'END_TOURNEY';
 		handler = 'all';
-	} else if(msg == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
+	} else if(msg[0] == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
-	} else if(msg == '+REPORT'){
+	} else if(msg[0] == '+REPORT' && msg[1].match(/<@\d+>/i) != null){ //To report some one, do REPORT 
 		parse = 'REPORT';
+		data_object.reported_user = msg[1].match(/<@\d+>/i)[0];
+		Console.log('reported user = ' + data_object.reported_user);
 		handler='match';
-	} else if(msg == '+VOTE_GUILTY'){ //keeping these in just in case
+	} else if(msg[0] == '+VOTE_GUILTY'){ //keeping these in just in case
 		parse = 'VOTE_GUILTY';
 		handler='dispute';
-	} else if(msg == '+VOTE_INNOCENT'){
+	} else if(msg[0] == '+VOTE_INNOCENT'){
 		parse = 'VOTE_INNOCENT';
 		handler='dispute';
-	} else if(msg == '+CHANGE_SETTINGS'){ //I realize this isn't useful yet
+	} else if(msg[0] == '+CHANGE_SETTINGS'){ //I realize this isn't useful yet
 		parse = 'CHANGE_SETTINGS';
 		handler='all';
-	} else if(msg == '+YES'){
+	} else if(msg[0] == '+YES'){
 		parse = 'YES';
 		handler='all';
-	} else if(msg == '+NO'){
+	} else if(msg[0] == '+NO'){
 		parse = 'NO';
 		handler='all';
 	} else{
@@ -80,8 +83,19 @@ function parseCommand(msg){
 	return {parse: parse_constants[parse], message: msg, handler: handler, data_object: data_object};
 }
 
+//takes in an array of words, looks for the first user ID. (ex. for reporting)
+function findUserID(msg){
+	for(var i = 0; i < len(word_arr); i++){
+		if(msg[i].match(/<@\d+>/i) != null){
+			return msg[i].match(/<@\d+>/i)[0]
+		}
+	}
+	return null
+}
+
 
 var parseMessage = (msg) => {
+	Console.log(msg)
 
 	msg = processMessage(msg);
 	if(msg[0]=='+'){
@@ -133,6 +147,8 @@ var parseMessage = (msg) => {
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
 	} else if(words.includes('report') || words.includes('cheat') || words.includes('ban')){
+		data_object.reported_user = findUserID(msg);
+		Console.log('reported user = ' + data_object.reported_user);
 		parse = 'REPORT';
 		handler='match';
 	} else if(words.includes('guilty')){ //HOW DOES JURY WORK??
