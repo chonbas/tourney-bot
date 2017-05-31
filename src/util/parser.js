@@ -138,7 +138,7 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 		parse = 'JOIN_TOURNEY';
 		handler = 'setup_tourney';
 		for(var i = 0; i < words.length; i++){
-			if(msg.match(/\".+\"/i) != null){
+			if(msg.match(/(\"|\').+(\"|\')/i) != null){
 				data_object.team_name = msg.match(/\".+\"/i)[0];
 				break;
 			}
@@ -147,19 +147,6 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 	} else if(words.includes('init') || words.includes('initialize') || words.includes('create') || words.includes('make')){
 		parse = 'CREATE_TOURNEY';
 		handler = 'no_tourney';
-	} else if(words.includes('name')){
-		parse = 'INIT_TOURNEY';
-		handler = 'init_tourney';
-		for(var i = 0; i < words.length; i++){
-			if(msg.match(/\".+\"/i) != null){
-				data_object.tourney_name = msg.match(/\".+\"/i)[0];
-				break;
-			}
-		}
-		Console.log("tourney name = " + data_object.tourney_name);
-		// data_object is the tournament object that will be passed to createTournament
-		// tournamentType is camelCase because Challonge API requires it
-		data_object.tournamentType = 'single elimination';
 	} else if(words.includes('start') || words.includes('begin')){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';
@@ -191,7 +178,30 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 		words.includes('change')){
 		parse = 'CHANGE_SETTINGS';
 		handler='all';
-	} else if(words.includes('yes') || words.includes('y') || words.includes('affirmative')){
+	} else if(tourney_state == 'INIT_TOURNEY'){
+		parse = 'INIT_TOURNEY';
+		handler = 'init_tourney';
+		for(var i = 0; i < words.length; i++){
+			if(msg.match(/(\"|\').+(\"|\')/i) != null){
+				data_object.tourney_name = msg.match(/\".+\"/i)[0];
+				break;
+			}
+		}
+		//if user didn't put anything in quotes, it treats the entire message as the tourney name
+		if(data_object.tourney_name==null){
+			t_name = "";
+			for(var i = 0; i < words.length; i++){
+				t_name = t_name+words[i];
+				if(i != words.length-1){
+					t_name = t_name+' ';
+				}
+			}
+		}
+		Console.log("tourney name = " + data_object.tourney_name);
+		// data_object is the tournament object that will be passed to createTournament
+		// tournamentType is camelCase because Challonge API requires it
+		data_object.tournamentType = 'single elimination';
+	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative')){
 		parse = 'YES';
 		handler='all';
 	} else if(words.includes('no') || words.includes('n') || words.includes('nope') || words.includes('negative')){
