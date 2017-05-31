@@ -11,7 +11,7 @@ var parse_constants = require('./parse_constants');
 var Console = require('./console');
 
 function processMessage(msg) {
-	var name = msg.replace(/<@\d+>/i,'');
+	var name = msg.replace(/<@(\d|\!)+>/i,'');
 	return name;
 }
 
