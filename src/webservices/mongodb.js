@@ -752,6 +752,39 @@ exports.removeTeam = (guild_id, role_id) => {
 	});
 };
 
+var getTeamBy = (guild_id, finder, getter) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			var team_obj = guild_obj.teams.find(finder);
+			if (!team_obj) {fulfill(constants.NO_TEAM);return;}
+			Console.log(team_obj);
+			fulfill(getter(team_obj));
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.getTeamNameByChallongeID = (guild_id, challonge_id) => {
+	return getTeamBy(
+		guild_id,
+		(t) => {return t.challonge_id == challonge_id;},
+		(t) => {return t.name;}
+	);
+};
+
+exports.getRoleIDByChallongeID = (guild_id, challonge_id) => {
+	return getTeamBy(
+		guild_id,
+		(t) => {return t.challonge_id == challonge_id;},
+		(t) => {return t.role_id;}
+	);
+};
+
 /* getTeamIDByRoleID(guild_id, role_id)
  * -------------------------------------------------------
  * Attempts to retrieve guild with given id, and then
@@ -1603,6 +1636,38 @@ exports.createChannel = (guild_id, channel_id, channel_type, ref_id) => {
 			reject(err);
 		});
 	});
+};
+
+var getChannel = (guild_id, finder, getter) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id:guild_id
+		}).then( (guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			var channel = guild_obj.channels.find(finder);
+			if (!channel) {fulfill(constants.NO_CHANNEL);return;}
+			fulfill(getter(channel));
+		}).catch( (err) =>{
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.getChannelRefIDByChannelID = (guild_id, channel_id) => {
+	return getChannel(
+		guild_id,
+		(channel) => {return channel.channel_id == channel_id;},
+		(channel) => {return channel.ref_id;}
+	);
+};
+
+exports.getChannelChannelIDByRefID = (guild_id, ref_id) => {
+	return getChannel(
+		guild_id,
+		(channel) => {return channel.ref_id == ref_id;},
+		(channel) => {return channel.channel_id;}
+	);
 };
 
 /* getChannelType(guild_id, channel_id)

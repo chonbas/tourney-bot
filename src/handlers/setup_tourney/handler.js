@@ -69,7 +69,7 @@ handler.handleMsg = (msg) => {
 		.then(() => {
 			return challonge.startTourney(msg.guild.id);
 		}).then(() =>{
-			return db.advanceTournamentStatus();
+			return db.advanceTournamentState(guild_id);
 		}).catch(err => Console.log(err));
 	}
 };

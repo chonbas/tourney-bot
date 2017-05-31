@@ -17,7 +17,7 @@ var getChannelName = (txt) => {
 Creates a channel and pins a message to the top.
 Returns the pinned message in a promise.
 */
-exports.createChannelPinMessage = (guild, channel_name, channel_type, welcome_msg) => {
+exports.createChannelPinMessage = (guild, channel_name, channel_type, welcome_msg, ref_id='NO_REF_ID') => {
 	return new Promise((fulfill, reject) => {
 		var channel_created;
 		var message_created;
@@ -28,7 +28,7 @@ exports.createChannelPinMessage = (guild, channel_name, channel_type, welcome_ms
 			message_created = message;
 			return message.pin();
 		}).then(()=> {
-			return db.createChannel(guild.id, channel_created.id, channel_type);
+			return db.createChannel(guild.id, channel_created.id, channel_type, ref_id);
 		}).then((ret_val) => {
 			if (ret_val == constants.CREATE_SUCCESS) {
 				Console.log('DISCORD: in ' + guild.id + ' created tourney-' + channel_name);

@@ -288,14 +288,15 @@ exports.transitionSetupToRun = (guild) => {
 /*
 
 */
-exports.runInitMatchChannel = (guild, players, match_number) => {
+exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
 	return util.createChannelPinMessage(
 		guild,
 		'match-' + match_number,
 		constants.MATCH_CHANNEL,
 		str_gen.stub(`Hi match ${match_number}.
 			please play: ${players.map(p => {return '<@'+p+'> ';})}`,
-			'match channel greeting')
+			'match channel greeting'),
+		ref_id
 	).then((message) => {
 		return util.setPermissions(
 			message.channel,
