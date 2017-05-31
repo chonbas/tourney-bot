@@ -852,7 +852,7 @@ exports.getTeamIDByName = (guild_id, name) => {
 */
 exports.getTeamCreatorByTeamID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.owner);
 		}).catch( (err) => {
@@ -915,7 +915,7 @@ exports.getTeamCreatorByRoleID = (guild_id, role_id) => {
 */
 exports.setTeamChallongeID = (guild_id, team_id, challonge_id) => {
 	return new Promise((fulfill, reject) => {
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
 			team_obj.challonge_id = challonge_id;
 			Guild.findOne({guild_id:guild_id}).then( (guild_obj) => {
@@ -965,7 +965,7 @@ exports.setTeamChallongeID = (guild_id, team_id, challonge_id) => {
 */
 exports.setTeamRoleID = (guild_id, team_id, role_id) => {
 	return new Promise((fulfill, reject) => {
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (team_obj === null){ fulfill(constants.NO_TEAM);return;}
 			team_obj.role_id = role_id;
 			Guild.findOne({guild_id:guild_id}).then( (guild_obj) => {
@@ -1016,7 +1016,7 @@ exports.setTeamRoleID = (guild_id, team_id, role_id) => {
 */
 exports.getTeamChallongeID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.challonge_id);
 		}).catch( (err) => {
@@ -1047,7 +1047,7 @@ exports.getTeamChallongeID = (guild_id, team_id) => {
 */
 exports.getTeamRoleID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.role_id);
 		}).catch( (err) => {
@@ -1077,7 +1077,7 @@ exports.getTeamRoleID = (guild_id, team_id) => {
 */
 exports.getTeamMembersByID = (guild_id, team_id) => {
 	return new Promise((fulfill, reject) => {
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			fulfill(team_obj.members);
 		}).catch( (err) => {
@@ -1157,7 +1157,7 @@ exports.createParticipant = (guild_id, name, discord_id, team_id) => {
 				Console.log('Must Provide a discord id for participant.');
 				reject('Must provide a discord id for participant');
 			}
-			Team.findById(team_id).then( (team_obj) => {
+			Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 				if (!team_obj) { fulfill(constants.NO_TEAM); return;}
 				var team_index = -1;
 				for (var i in guild_obj.teams){
@@ -1228,7 +1228,7 @@ exports.removeParticipant = (guild_id, team_id, discord_id) => {
 		var findParticipant = (participant) =>{
 			return participant.ids.discord_id === discord_id;
 		};
-		Team.findById(team_id).then( (team_obj) => {
+		Team.findById(mongoose.Types.ObjectId(team_id)).then( (team_obj) => {
 			if (!team_obj){ fulfill(constants.NO_TEAM);return;}
 			var participantIndex = team_obj.members.findIndex(findParticipant);
 			if (participantIndex === -1) {fulfill(constants.NO_PARTICIPANT);return;}

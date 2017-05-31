@@ -11,7 +11,7 @@ var parse_constants = require('./parse_constants');
 var Console = require('./console');
 
 function processMessage(msg) {
-	var name = msg.replace(/<@\d+>/i,'');
+	var name = msg.replace(/<@(\d|\!)+>/i,'');
 	return name;
 }
 
@@ -21,6 +21,7 @@ function parseCommand(msg){
 	var parse;
 	var handler;
 	var data_object = {};
+	Console.log('Parsing command!');
 	msg = msg.split(' ');
 	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
@@ -55,7 +56,7 @@ function parseCommand(msg){
 	} else if(msg[0] == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
-	} else if(msg[0] == '+REPORT' && msg[1].match(/<@\d+>/i) != null){ //To report some one, do REPORT 
+	} else if(msg[0] == '+REPORT' && msg[1].match(/<@\d+>/i) != null){ //To report some one, do REPORT
 		parse = 'REPORT';
 		data_object.reported_user = msg[1].match(/<@\d+>/i)[0];
 		Console.log('reported user = ' + data_object.reported_user);
@@ -85,19 +86,20 @@ function parseCommand(msg){
 
 //takes in an array of words, looks for the first user ID. (ex. for reporting)
 function findUserID(msg){
-	for(var i = 0; i < len(word_arr); i++){
-		if(msg[i].match(/<@\d+>/i) != null){
-			return msg[i].match(/<@\d+>/i)[0]
+	for(var i = 0; i < msg.length; i++){
+		if(msg[i].match(/<@(\d|\!)+>/i) != null){
+			return msg[i].match(/<@(\d|\!)+>/i)[0];
 		}
 	}
-	return null
+	return null;
 }
 
 
 var parseMessage = (msg) => {
-	Console.log(msg)
+	Console.log(msg);
 
 	msg = processMessage(msg);
+	Console.log(msg);
 	if(msg[0]=='+'){
 		return parseCommand(msg);
 	}

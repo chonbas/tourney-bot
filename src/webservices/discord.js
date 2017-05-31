@@ -228,8 +228,7 @@ Fulfills with role_id
 exports.setupNewTeam = (guild, team_name) => {
 	return new Promise((fulfill, reject) => {
 		guild.createRole({
-			name: team_name,
-			color: 'BLUE'
+			name: 'tourney-' + team_name
 		})
 		.then((role) => {fulfill(role.id);})
 		.catch((err) => {reject(err);});
@@ -241,8 +240,11 @@ Fulfills with nothing. Rejects on error.
 */
 exports.setupAddToTeam = (guild, user, role_id) => {
 	return new Promise((fulfill, reject) => {
+		var guild_user = guild.members.get(user.id);
+		Console.log('Discord role_id: ');
+		Console.log(role_id);
 		var role = guild.roles.get(role_id);
-		user.addRole(role)
+		guild_user.addRole(role)
 		.then(() => {fulfill();})
 		.catch(() => {reject();});
 	});
@@ -366,6 +368,9 @@ exports.runResolveMatch = (guild, match) => {
 
 exports.deleteAllTourneyChannels = (guild) => {
 	guild.channels
+	.filter(c => {return c.name.includes('tourney-');})
+	.deleteAll();
+	guild.roles
 	.filter(c => {return c.name.includes('tourney-');})
 	.deleteAll();
 };
