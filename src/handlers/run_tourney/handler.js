@@ -6,42 +6,51 @@ in handlers.
 
 */
 
-const db = require('../../webservices/mongodb');
+const discord = require('../../webservices/discord');
+const challonge = require('../../webservices/challonge');
 const constants = require('../../util/constants');
+const parse_constants = require('../../util/parse_constants');
 const Console = require('../../util/console');
-var timer = require('./resolvers/timer');
-
-var handlers = {};
-handlers[constants.STATE_MATCH] = require('./handlers/match/handler');
-handlers[constants.STATE_ADV_MATCH] = require('./handlers/advance/handler');
-handlers[constants.STATE_DISPUTE] = require('./handlers/dispute/handler');
-handlers[constants.STATE_ADV_DISPUTE] = require('./handlers/advance/handler');
+const prep_round = require('./prepare_open_matches');
+const handle_it = require('./handle_report_message');
 
 
-var manager = {};
-manager.handleMsg = (msg) => {
-	Console.debug('Manager for run-tourney checking in');
-	db.getTournamentRunState(msg.guild.id).then((status) => {
-		Console.log('manager status ret:' + status);
-		var handler = handlers[status];
-		//check that handler has function before acting
-		handler.handleMsg && handler.handleMsg(msg);
-	});
 
-	// TODO: remove this bs and make real
-	if(msg.content.includes('done')){
-		Console.log('tripping?');
-		timer.trip(msg.guild.id);
+var handler = {};
+handler.handleMsg = (msg) => {
+	Console.debug('handler for run-tourney checking in');
+	if(msg.parsed_msg.parse == parse_constants.MATCH_REPORT_WIN){
+		handle_it(msg, true);
+	}else if (msg.parsed_msg.parse == parse_constants.MATCH_REPORT_LOSE) {
+		handle_it(msg, false);
+	}else if (msg.parsed_msg.parse == parse_constants.MATCH_REPORT_AMBIGUOUS){
+		msg.reply('I think you\'re trying to report a match but i don\'t understand');
 	}
-
-};
-manager.handleReaction = (msgRxn, user) => {
-	Console.debug('Manager for run-tourney: reaction detected!');
-	db.getTournamentRunState(msgRxn.message.guild.id).then((status) => {
-		var handler = handlers[status];
-		//check that handler has function before acting
-		handler.handleReaction && handler.handleReaction(msgRxn, user);
-	});
 };
 
-module.exports = manager;
+handler.handleReaction = (msgRxn, user) => {
+	Console.debug('handler for run-tourney: reaction detected!');
+	discord.receiveConfirmMatchReport(msgRxn, user)
+	.then((answer) => {
+		if(answer.status == constants.EMOJI_YES){
+			Console.log('MATCH REPORT CONFIRMED!!');
+			var guild_id = msgRxn.message.guild.id;
+			var match_id = answer.payload.challonge_match_id;
+			var winner_id = answer.payload.winner_challonge_id;
+			var scores = '1-0';
+			challonge.updateMatch(guild_id, match_id, winner_id, scores)
+			.then(() => {
+				prep_round(msgRxn.message.guild, 1);
+			})
+			.catch(err => Console.log(err));
+		}
+		if(answer.status == constants.EMOJI_NO){
+			Console.log('MATCH REPORT REJECTED!!');
+
+		}
+
+	})
+	.catch(err => Console.log(err));
+};
+
+module.exports = handler;

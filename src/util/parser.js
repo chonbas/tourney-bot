@@ -22,8 +22,9 @@ function parseCommand(msg){
 	var parse;
 	var handler;
 	var data_object = {};
-	//msg = msg.split(' ');
+
 	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
+
 	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
 		handler = 'all';
@@ -92,6 +93,7 @@ function parseCommand(msg){
 
 //takes in an array of words, looks for the first user ID. (ex. for reporting)
 function findUserID(msg){
+
 	for(var i = 0; i < msg.length(); i++){
 		if(msg[i].match(/<@(\d|\!)+>/i) != null){
 			return msg[i].match(/<@(\d|\!)+>/i)[0];
@@ -105,6 +107,7 @@ var parseMessage = (msg) => {
 	Console.log(msg);
 
 	msg = processMessage(msg);
+	Console.log(msg);
 	if(msg[0]=='+'){
 		return parseCommand(msg);
 	}
@@ -185,5 +188,3 @@ var parseMessage = (msg) => {
 };
 
 module.exports = parseMessage;
-
-
