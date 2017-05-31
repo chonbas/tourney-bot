@@ -39,8 +39,7 @@ handler.handleMsg = (msg) => {
 	// if we get a message to join the tournamnet
 	if (msg.parsed_msg.parse == parser_constants['JOIN_TOURNEY']) {
 		//parse out the team name
-		msg.reply('Join a team or create one!');
-		var team_name = msg.content.split(' ')[1];
+		var team_name = msg.content.split(' ')[2];
 		Console.log('Team name' + team_name);
 
 		//check that the team exists
@@ -55,21 +54,12 @@ handler.handleMsg = (msg) => {
 				// make the team then add the person
 				return addTeam(msg, team_name).then(() => {
 					return addParticipant(msg.guild, msg.author.id, team_name);
-				});
+				})
+				.then(() => {msg.reply('I\'ve made you the owner of team ' + team_name + '!');})
+				.catch(err => Console.log(err));
 			}
 		})
-		.catch(err => Console.log(err));/*
-		db.getTeamIDByName(msg.guild.id, fake_team_name)
-		.then((ret_team_id) => {
-			team_id = ret_team_id;
-			if (team_id == constants['NO_TEAM']) {
-				return addTeam(msg, fake_team_name);
-			}
-			return new Promise((fulfill) => {fulfill(ret_team_id);});
-		})
-		.then((tid) => {
-			return addParticipant(msg, fake_team_name, tid);
-		}).catch(err => Console.log(err));*/
+		.catch(err => Console.log(err));
 	}
 
 // TODO: Add transition function in Discord
@@ -78,16 +68,29 @@ handler.handleMsg = (msg) => {
 		challonge.processTourneyCheckins(msg.guild.id)
 		.then(() => {
 			return challonge.startTourney(msg.guild.id);
+		}).then(() =>{
+			return db.advanceTournamentStatus();
 		}).catch(err => Console.log(err));
 	}
 };
 
 handler.handleReaction = (rxn, user) => {
+	var new_teammate_id = null;
+	var team_name = null;
 	discord.receiveConfirmJoinTeam(rxn, user)
 	.then((answer) => {
 		Console.log(answer);
 		if(answer.status == constants.EMOJI_YES) {
-			return addParticipant(rxn.message.guild, answer.payload.new_teammate_id, answer.payload.team_name);
+			new_teammate_id = answer.payload.new_teammate_id;
+			team_name = answer.payload.team_name;
+			return addParticipant(rxn.message.guild, new_teammate_id, team_name);
+		} else if (answer.status == constants.EMOJI_NO){
+			return rxn.message.channel.send('<@'+user.id + '> NOT added to ' + team_name +'.');
+		}
+	})
+	.then((added) => {
+		if(added) {
+			return rxn.message.channel.send('<@'+ new_teammate_id+ '> added to ' + team_name +'.');
 		}
 	})
 	.catch(err => Console.log(err));

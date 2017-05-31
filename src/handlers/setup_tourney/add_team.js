@@ -20,18 +20,14 @@ var addTeam = (msg, team_name) => {
 
 		discord.setupNewTeam(guild, team_name)
 		.then((ret_role_id) => {
-			Console.log('Setup New Team role_id: ');
-			Console.log(ret_role_id);
 			role_id = ret_role_id;
 			return db.createTeam(guild_id, role_id, team_name);
 		}).then(() => {
 			return challonge.createParticipant(guild_id, team_name); // Add team to challonge
 		}).then((ret_participant_id) => {
 			participant_id = ret_participant_id;
-			return db.getTeamIDByName(guild_id, team_name);
-		}).then((team_id) => {
 			Console.log('Added team');
-			fulfill(team_id); // if ok, fulfill with msg (next check needs msg)
+			fulfill(); // if ok, fulfill with msg (next check needs msg)
 		})
 		.catch((err) => {
 			Console.log('Failed to create team \n=====ERROR:=====');
@@ -43,7 +39,7 @@ var addTeam = (msg, team_name) => {
 			if (role_id != null) {
 				db.removeTeam(guild_id, role_id);
 			}
-			reject(); // if error, reject
+			reject(err); // if error, reject
 		});
 	});
 };
