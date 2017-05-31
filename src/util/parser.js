@@ -23,9 +23,7 @@ function parseCommand(msg){
 	var handler;
 	var data_object = {};
 	//msg = msg.split(' ');
-	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g)
-	Console.log(msg[0])
-	Console.log(msg[1])
+	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
 	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
 		handler = 'all';
