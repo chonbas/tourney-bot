@@ -6,6 +6,7 @@
 //handler: the handler to deliver the message to (string)
 
 //requires natural
+
 var parse_constants = require('./parse_constants');
 
 var Console = require('./console');
