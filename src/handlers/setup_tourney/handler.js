@@ -16,6 +16,7 @@ const challonge = require('../../webservices/challonge');
 const constants = require('../../util/constants');
 var addTeam = require('./add_team');
 var addParticipant = require('./add_participant');
+const discord = require('../../webservices/discord');
 
 var handler = {};
 
@@ -34,6 +35,7 @@ var teamExists = (guild_id, team_name) => {
 };
 
 handler.handleMsg = (msg) => {
+	var guild_id = msg.guild.id;
 	// if we get a message to join the tournamnet
 	if (msg.parsed_msg.parse == parser_constants['JOIN_TOURNEY']) {
 		//parse out the team name
@@ -42,14 +44,18 @@ handler.handleMsg = (msg) => {
 		Console.log('Team name' + team_name);
 
 		//check that the team exists
-		teamExists(msg.guild.id, team_name)
+		teamExists(guild_id, team_name)
 		.then(exists => {
 			if(exists){
-				//just add the person
-				return addParticipant(msg, team_name);
+				//get confm to just add the person
+				return db.getTeamIDByName(guild_id, team_name)
+				.then((team_id) => {return db.getTeamCreatorByTeamID(guild_id, team_id);})
+				.then((creator_id) => {return discord.sendConfirmJoinTeam(msg.channel, msg.author, creator_id, team_name);});
 			} else {
 				// make the team then add the person
-				return addTeam(msg, team_name).then(() => {return addParticipant(msg, team_name);});
+				return addTeam(msg, team_name).then(() => {
+					return addParticipant(msg.guild, msg.author.id, team_name);
+				});
 			}
 		})
 		.catch(err => Console.log(err));/*
@@ -70,10 +76,21 @@ handler.handleMsg = (msg) => {
 	if(msg.parsed_msg.parse == parser_constants['START_TOURNEY']) {
 		Console.log('HANDLER: Advancing from setup phase to running tourney phase');
 		challonge.processTourneyCheckins(msg.guild.id)
-.then(() => {
-	return challonge.startTourney(msg.guild.id);
-}).catch(err => Console.log(err));
+		.then(() => {
+			return challonge.startTourney(msg.guild.id);
+		}).catch(err => Console.log(err));
 	}
+};
+
+handler.handleReaction = (rxn, user) => {
+	discord.receiveConfirmJoinTeam(rxn, user)
+	.then((answer) => {
+		Console.log(answer);
+		if(answer.status == constants.EMOJI_YES) {
+			return addParticipant(rxn.message.guild, answer.payload.new_teammate_id, answer.payload.team_name);
+		}
+	})
+	.catch(err => Console.log(err));
 };
 
 module.exports = handler;

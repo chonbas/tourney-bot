@@ -238,9 +238,9 @@ exports.setupNewTeam = (guild, team_name) => {
 /*
 Fulfills with nothing. Rejects on error.
 */
-exports.setupAddToTeam = (guild, user, role_id) => {
+exports.setupAddToTeam = (guild, user_id, role_id) => {
 	return new Promise((fulfill, reject) => {
-		var guild_user = guild.members.get(user.id);
+		var guild_user = guild.members.get(user_id);
 		Console.log('Discord role_id: ');
 		Console.log(role_id);
 		var role = guild.roles.get(role_id);

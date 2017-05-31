@@ -7,11 +7,9 @@ const db = require('../../webservices/mongodb');
 const discord = require('../../webservices/discord');
 
 // eslint-disable-next-line
-var addParticipant = (msg, team_name) => {
-	var guild = msg.guild;
+var addParticipant = (guild, discord_id, team_name) => {
+	Console.log(guild);
 	var guild_id = guild.id;
-	var participant = msg.author;
-	var discord_id = participant.id;
 	var team_id = null;
 
 	return new Promise((fulfill, reject) => {
@@ -29,11 +27,11 @@ var addParticipant = (msg, team_name) => {
 		}).then((role_id) => {
 			Console.log('DB returned role_id: ');
 			Console.log(role_id);
-			return discord.setupAddToTeam(guild, participant, role_id);
+			return discord.setupAddToTeam(guild, discord_id, role_id);
 		})
 		.then(() => {
 			Console.log('Added participant');
-			fulfill(msg); // if ok, fulfill with msg (next check needs msg)
+			fulfill();
 		})
 		.catch((err) => {
 			Console.log('Failed to add participant \n=====ERROR:=====');
