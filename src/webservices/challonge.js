@@ -2,6 +2,7 @@ const challonge = require('challonge');
 const Console = require('../util/console');
 const token = require('../../credentials').CHALLONGE_TOKEN;
 var constants = require('../util/constants');
+var CryptoJS = require('crypto-js');
 
 const client = challonge.createClient({
 	apiKey: token
@@ -9,14 +10,16 @@ const client = challonge.createClient({
 
 var exports = {};
 var getChallongeURL = (guild_id) => {
-	return 'TB_' + guild_id;
+	return 'TB_' + CryptoJS.AES.encrypt(guild_id,token).toString();
 };
 var getTourneyName = (guild_id) => {
-	return 'TB_Tourney_' + guild_id;
+	return 'TB_Tourney_' + CryptoJS.AES.encrypt(guild_id,token).toString();
 };
 
 var getGuildIDFromURL = (url) => {
-	return url.substring(3);
+	var cypher_text = url.substring(3); //remove TB_
+	var bytes = CryptoJS.AES.decrypt(cypher_text,token);
+	return bytes.toString(CryptoJS.enc.Utf8);
 };
 
 exports.createTourney = (guild_id, parameters) => {
