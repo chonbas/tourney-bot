@@ -21,12 +21,21 @@ var constants = {
 	'ADVANCING': 2,
 
 	// channel types
-	'NO_CHANNEL': 0, //channel does not exist
-	'JURY_CHANNEL': 0, //channel used for dispute resolution
-	'GENERAL_CHANNEL': 1, //used for general tourney chat
-	'MATCH_CHANNEL': 2, //individual match channels
-	'TEAM_CHANNEL': 3, //individual team channels
-	'ANNOUNCE_CHANNEL':4, //individual channel for announcements, only bot can talk here
+	'NO_CHANNEL': 901, //channel does not exist
+	'INIT_CHANNEL': 907, //where init-er tells bot about tourney params
+	'JOIN_CHANNEL': 908, //where people say they want to join
+	'JURY_CHANNEL': 902, //channel used for dispute resolution
+	'GENERAL_CHANNEL': 903, //used for general tourney chat
+	'MATCH_CHANNEL': 904, //individual match channels
+	'TEAM_CHANNEL': 905, //individual team channels
+	'ANNOUNCE_CHANNEL':906, //individual channel for announcements, only bot can talk here
+
+	// emoji confirmation types
+	'EMOJI_YES': 'EMOJI_YES',
+	'EMOJI_MAYBE': 'EMOJI_MAYBE',
+	'EMOJI_NO': 'EMOJI_NO',
+	'EMOJI_COUNTS': 'EMOJI_COUNTS',
+	'EMOJI_INVALID': 'EMOJI_INVALID', //ignore
 
 	//Dispute Types
 	'DISPUTE_CHEAT':0,
