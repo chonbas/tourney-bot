@@ -4,39 +4,38 @@ This file is like the grand-poppy of all the add participant stuff.
 
 var Console = require('../../util/console');
 const db = require('../../webservices/mongodb');
-const challonge = require('../../webservices/challonge');
 const discord = require('../../webservices/discord');
 
 // eslint-disable-next-line
-var addParticipant = (msg, participant_name) => {
-	var guild_id = msg.guild.id;
-	var username = participant_name + '_NAME'; //TODO: set to name
-	var discord_id = participant_name + '_ID'; // TODO: set to user
+var addParticipant = (msg, fake_team_name, team_id) => {
+	var guild = msg.guild;
+	var guild_id = guild.id;
+	var user = msg.guild.member;
+	var participant_name = msg.author;
+	var discord_id = participant_name.id;
 
 	return new Promise((fulfill, reject) => {
-		var log_msg = 'Adding participant ' + username;
+		var log_msg = 'Adding participant ' + participant_name;
 		log_msg += ' with ID ' + discord_id;
-		log_msg += ' ... (not implemented)';
 		Console.log(log_msg);
 
-		db.createParticipant(guild_id, username, discord_id).then(() => {
-			return challonge.addParticipant(msg, participant_name);
-		})
-		.then(() => {
-			return discord.setupAddParticipant(msg, participant_name);
-		})
-		.then(() => {
-			Console.log('Added participant (not implemented)');
-			fulfill(msg); // if ok, fulfill with msg (next check needs msg)
-		})
-		.catch((err) => {
-			Console.log('Failed to add participant (not implemented)\n=====ERROR:=====');
-			Console.log(err);
-			Console.log('=====END ERROR=====');
-			// TODO: also remove from challonge if discord problems
-			db.removeParticipant(guild_id, discord_id);
-			reject(); // if error, reject
-		});
+		db.createParticipant(guild_id, participant_name, discord_id, team_id)
+.then(() => {
+	return db.getTeamRoleID(guild_id, team_id);
+}).then((role_id) => {
+	return discord.setupAddToTeam(guild, user, role_id);
+})
+.then(() => {
+	Console.log('Added participant');
+	fulfill(msg); // if ok, fulfill with msg (next check needs msg)
+})
+.catch((err) => {
+	Console.log('Failed to add participant \n=====ERROR:=====');
+	Console.log(err);
+	Console.log('=====END ERROR=====');
+	db.removeParticipant(guild_id, discord_id);
+	reject(); // if error, reject
+});
 	});
 };
 
