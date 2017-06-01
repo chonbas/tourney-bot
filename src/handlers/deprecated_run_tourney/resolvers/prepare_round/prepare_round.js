@@ -9,6 +9,7 @@ var prep = (guild, round) => {
 	return new Promise((fulfill, reject) => {
 
 		Console.log('Preparing round ' + round);
+		// Where is this from?
 		getMatches(guild, round).then((matches) => {
 			// if no matches (i.e. the end of the tourney), end
 			if(matches.length == 0) {

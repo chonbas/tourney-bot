@@ -6,11 +6,111 @@
 //handler: the handler to deliver the message to (string)
 
 //requires natural
+
 var parse_constants = require('./parse_constants');
 
 var Console = require('./console');
 
+function processMessage(msg) {
+	var name = msg.replace(/<@(\d|\!)+>/i,'');
+	return name;
+}
+
+//the msg is considered a command if it is preceded by a '+'
+//the space is automatically added to the me
+function parseCommand(msg){
+	var parse;
+	var handler;
+	var data_object = {};
+
+	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
+
+	if(msg[0] == '+REQUEST_HELP'){
+		parse = 'REQUEST_HELP';
+		handler = 'all';
+	} else if(msg[0] == '+MATCH_REPORT_WIN'){
+		parse = 'MATCH_REPORT_WIN';
+		handler = 'match';
+	} else if(msg[0] == '+MATCH_REPORT_LOSE'){
+		parse = 'MATCH_REPORT_LOSE';
+		handler = 'match';
+	} else if(msg[0] == '+MATCH_REPORT_AMBIGUOUS'){
+		parse = 'MATCH_REPORT_AMBIGUOUS';
+		handler = 'match';
+	} else if(msg[0] == '+JOIN_TOURNEY' && msg[1].match(/\".+\"/i) != null){
+		data_object.team_name = msg[1].match(/\".+\"/i)[0];
+		parse = 'JOIN_TOURNEY';
+		handler = 'setup_tourney';
+		Console.log('team name = ' + data_object.team_name);
+	} else if(msg[0] == '+CREATE_TOURNEY'){
+		parse = 'CREATE_TOURNEY';
+		handler = 'no_tourney';
+	} else if(msg[0] == '+INIT_TOURNEY' && msg[1].match(/\"[.+]\"/i) != null){
+		parse = 'INIT_TOURNEY';
+		handler = 'init_tourney';
+		data_object.tourney_name = msg[1].match(/\"[.+]\"/i)[0];
+		Console.log('tourney name = ' + data_object.tourney_name);
+
+		// data_object is the tournament object that will be passed to createTournament
+		// tournamentType is camelCase because Challonge API requires it
+		data_object.tournamentType = 'single elimination';
+	} else if(msg[0] == '+START_TOURNEY'){
+		parse = 'START_TOURNEY';
+		handler = 'setup_tourney';
+	} else if(msg[0] == '+END_TOURNEY'){
+		parse = 'END_TOURNEY';
+		handler = 'all';
+	} else if(msg[0] == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
+		parse = 'DROP_TOURNEY';
+		handler = 'all';
+	} else if(msg[0] == '+REPORT' && msg[1].match(/<@\d+>/i) != null){ //To report some one, do REPORT
+		parse = 'REPORT';
+		data_object.reported_user = msg[1].match(/<@\d+>/i)[0];
+		Console.log('reported user = ' + data_object.reported_user);
+		handler='match';
+	} else if(msg[0] == '+VOTE_GUILTY'){ //keeping these in just in case
+		parse = 'VOTE_GUILTY';
+		handler='dispute';
+	} else if(msg[0] == '+VOTE_INNOCENT'){
+		parse = 'VOTE_INNOCENT';
+		handler='dispute';
+	} else if(msg[0] == '+CHANGE_SETTINGS'){ //I realize this isn't useful yet
+		parse = 'CHANGE_SETTINGS';
+		handler='all';
+	} else if(msg[0] == '+YES'){
+		parse = 'YES';
+		handler='all';
+	} else if(msg[0] == '+NO'){
+		parse = 'NO';
+		handler='all';
+	} else{
+		parse = 'UNIDENTIFIED';
+		handler='all';
+	}
+	Console.log(parse);
+	return {parse: parse_constants[parse], message: msg, handler: handler, data_object: data_object};
+}
+
+//takes in an array of words, looks for the first user ID. (ex. for reporting)
+function findUserID(msg){
+
+	for(var i = 0; i < msg.length(); i++){
+		if(msg[i].match(/<@(\d|\!)+>/i) != null){
+			return msg[i].match(/<@(\d|\!)+>/i)[0];
+		}
+	}
+	return null;
+}
+
+
 var parseMessage = (msg) => {
+	Console.log(msg);
+
+	msg = processMessage(msg);
+	Console.log(msg);
+	if(msg[0]=='+'){
+		return parseCommand(msg);
+	}
 
 	var natural = require('natural'), tokenizer = new natural.WordTokenizer();
 
@@ -57,6 +157,8 @@ var parseMessage = (msg) => {
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
 	} else if(words.includes('report') || words.includes('cheat') || words.includes('ban')){
+		data_object.reported_user = findUserID(msg);
+		Console.log('reported user = ' + data_object.reported_user);
 		parse = 'REPORT';
 		handler='match';
 	} else if(words.includes('guilty')){ //HOW DOES JURY WORK??
@@ -86,5 +188,3 @@ var parseMessage = (msg) => {
 };
 
 module.exports = parseMessage;
-
-
