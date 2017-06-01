@@ -88,14 +88,14 @@ var guild_schema = new mongoose.Schema({
 	disputes: [dispute_schema]
 });
 
-var staged_tourney = new mongoose.Schema({
-	name:String,
-	tournament_type:Number, //Use constants
-	open_signup: {type:Boolean, default:false},
-	ranked_by:Number, //Use constants
-	signup_cap:Number,//Max users
-	start_at:Date
-});
+// var staged_tourney = new mongoose.Schema({
+// 	name:String,
+// 	tournament_type:Number, //Use constants
+// 	open_signup: {type:Boolean, default:false},
+// 	ranked_by:Number, //Use constants
+// 	signup_cap:Number,//Max users
+// 	start_at:Date
+// });
 
 var Team = mongoose.model('Team', team_schema);
 var Guild = mongoose.model('Guild', guild_schema);

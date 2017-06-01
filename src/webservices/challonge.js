@@ -90,7 +90,7 @@ exports.finalizeTourney = (guild_id) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					Console.log('Tournament at: challonge.com/' + getChallongeURL(guild_id));
+					Console.log('Finalized tournament at: challonge.com/' + getChallongeURL(guild_id));
 					Console.log(response);
 					fulfill(constants.CLOSE_TOURNEY);
 				}
