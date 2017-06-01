@@ -278,7 +278,9 @@ exports.createParticipant = (guild_id, name) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					fulfill(participant.id);
+					Console.log('HEY HERE');
+					Console.log(participant);
+					fulfill(participant.participant.id);
 				}
 			}
 		});

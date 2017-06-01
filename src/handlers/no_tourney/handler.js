@@ -12,16 +12,19 @@ so server admin can control who sets up tournaments
 var Console = require('../../util/console');
 var parser_constants = require('../../util/parse_constants');
 const db = require('../../webservices/mongodb');
+const discord = require('../../webservices/discord');
 var handler = {};
 
 var advanceTournamentStatus = (msg) => {
-	db.createTournament(msg.guild.id);
-	// TODO: create channel for tournament initialization
-	// TODO: give only tourney init-er permission to talk in channel
-	// TODO: in db, record channel exists so chat state can be recorded
+
+	db.createTournament(msg.guild.id).then(() => {
+		return discord.transitionNoToInit(msg.guild, msg.author);
+	})
+	.catch(err => Console.log(err));
 };
 
 handler.handleMsg = (msg) => {
+	Console.log(msg.parsed_msg);
 	msg.reply('no tourney handler handling');
 	// TODO: detect if someone wants to create a tournament
 	var done = (msg.parsed_msg.parse == parser_constants['CREATE_TOURNEY']);

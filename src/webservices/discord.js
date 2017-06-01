@@ -1,164 +1,364 @@
 //
 const Discord = require('discord.js');
 const Console = require('../util/console');
-const credentials = require('../../credentials.js');
-var db = require('./mongodb');
+const util = require('./discord_util/util');
+const str_gen = require('./discord_util/message_generator');
+const discord_constants = require('./discord_util/constants');
+
+// var db_m = require('./mongodb_messages');
+// var db = require('./mongodb');
 var constants = require('../util/constants');
-const manager = require('../handlers/manager');
 
 var client = new Discord.Client();
 
 var exports = {};
 
 // Stub
-exports.stub = (object, msg) => {
+exports.stub = (msg, obj1, obj2, obj3, obj4, obj5) => {
 	return new Promise((fulfill, reject) => {
-		fulfill(object); // if ok, fulfill - next piece needs message
+		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
 		Console.log(msg);
 		reject(); // if fail, reject
 	});
 };
 
-// Listeners
-//
-client.on('ready', () => {
-	Console.log(`Logged in as ${client.user.username}!`);
-});
-
-//
-client.on('warn', (info) => {
-	Console.log(info);
-});
-
-//
-client.on('error', (err) => {
-	Console.error(err);
-	process.exit();
-});
-
-//
-client.on('message', msg => {
-    // never reply to bots
-    // TODO: Add this check before release!!
-    // if (msg.author.bot) return;
-    // only respond to @bot mentions
-	if (!msg.isMentioned(client.user)) {
-		Console.debug('Message heard, but no @bot so not replying.');
-		return;
-	}
-	manager.distributeMsg(msg);
-});
-
-// emojis
-client.on('messageReactionAdd', (msgReaction, user) => {
-    // TODO: Only manage if our bot message was liked
-	manager.distributeReaction(msgReaction, user);
-});
-
 /*
-/
-/ Stage: Initialize
-/
+███████████████████████████████████████████████████████
+  STAGE: NO TOURNAMENT
+███████████████████████████████████████████████████████
 */
 
-// Transition from Init to Setup
+/*
+Send Confirm Init
+Sends a question asking if a user wants to init a tournament.
+channel: channel object to send the message
+init_user: user object
+*/
+exports.sendConfirmInit = (channel, init_user) => {
+	return new Promise((fulfill, reject) => {
+		util.sendConfirmMessage(
+			channel,
+			str_gen.stub(`Sure you want to make a tourney, <@${init_user.id}>?`, 'init tourney confirm'),
+			discord_constants.INIT_MESSAGE,
+			init_user.id,
+			init_user.id,
+			discord_constants.EMOJI_YN
+		)
+		.then(() => fulfill())
+		.catch((err) => reject(err));
+	});
+};
+
+/*
+Receive Confirm Init
+Examines a message reaction to determine if the
+user who created the reaction said yes or no.
+
+channel: channel object to send the message
+init_user: user object
+
+Returns: Promise<object>
+Fulfills: with object like this:
+{ status: STATUS, payload: 'no payload'}
+
+Status is one of a few things:
+EMOJI_YES: user said yes
+EMOJI_NO: user said no
+EMOJI_INVALID: wrong user, message, or emoji, so ignore.
+  If invalid, payload is an error message containing details
+	about why the reaction was invalid.
+*/
+exports.receiveConfirmInit = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.INIT_MESSAGE
+	);
+};
+
+/*
+Does:
+creates channel
+sets permission to only init-user
+*/
+exports.transitionNoToInit = (guild, init_user) => {
+	return new Promise((fulfill, reject) => {
+		util.createChannelPinMessage(
+			guild,
+			'init',
+			constants.INIT_CHANNEL,
+			str_gen.tourney_init_channel(init_user)
+		).then((message) => {
+			return util.setPermissions(
+				message.channel,
+				['SEND_MESSAGES'],
+				[init_user]);
+		}).then(() => {fulfill();})
+		.catch(err => reject(err));
+	});
+};
+
+/*
+███████████████████████████████████████████████████████
+  STAGE: INITIALIZE
+███████████████████████████████████████████████████████
+*/
+
+/*
+transitionInitToSetup(guild)
+Creates a general channel.
+Creates an announce channel.
+Creates a join channel.
+*/
 exports.transitionInitToSetup = (guild) => {
 	return new Promise((fulfill, reject) => {
-		guild.createChannel('tourney-general', 'text').then((channel) => {
-			return channel.sendMessage('Welcome to the tournament!');
-		}).then((message)=> {
-			return db.createChannel(message.guild.id, message.channel.id, constants.GENERAL_CHANNEL);
-		}).then((ret_val) => {
-			if (ret_val === constants.CREATE_SUCCESS) {
-				Console.log('Created channels for setup (not implemented)');
-				fulfill();
-			} else {
-				reject();
-			}
-		}).catch(err => {
-			Console.log(err);
-			reject();
-		});
+		var ps = [
+			util.createChannelPinMessage(
+				guild,
+				'announce',
+				constants.ANNOUNCE_CHANNEL,
+				str_gen.tourney_announce_channel(discord_constants.SETUP_PHASE)
+			).then((message) => {
+				return util.setPermissions(
+					message.channel,
+					['SEND_MESSAGES'],
+					[]);
+			}),
+			util.createChannelPinMessage(
+				guild,
+				'join',
+				constants.JOIN_CHANNEL,
+				str_gen.stub('join message', 'join message')
+			),
+			util.createChannelPinMessage(
+				guild,
+				'general',
+				constants.GENERAL_CHANNEL,
+				str_gen.tourney_general_channel()
+			)
+		];
+		Promise.all(ps)
+		.then(() => fulfill())
+		.catch(() => reject());
+	});
+};
+
+
+/*
+███████████████████████████████████████████████████████
+  Stage: Setup
+███████████████████████████████████████████████████████
+*/
+
+/*
+Send Confirm Init
+Sends a question asking if a user wants to init a tournament.
+channel: channel object to send the message
+init_user: user object
+*/
+exports.sendConfirmCreateTeam = (channel, init_user, team_name) => {
+	return util.sendConfirmMessage(
+		channel,
+		str_gen.stub(`Sure you want to make team [${team_name}], <@${init_user.id}>?`, 'init team confirm'),
+		discord_constants.TEAM_CREATE,
+		init_user.id,
+		init_user.id,
+		discord_constants.EMOJI_YN,
+		team_name
+	);
+};
+
+/*
+Receive Confirm Create Team
+On failure, returns object with obj.status=EMOJI_INVALID
+On succes, returns {
+ status: [status],
+ payload: team_name
+}
+*/
+exports.receiveConfirmCreateTeam = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.TEAM_CREATE
+	);
+};
+
+/*
+Send Confirm Join Team
+Asks team creator if they want to let joiner join.
+channel: object
+joiner: user object
+team_creator_id: just the user ID
+team_name: string
+*/
+exports.sendConfirmJoinTeam = (channel, joiner, team_creator_id, team_name) => {
+	return util.sendConfirmMessage(
+		channel,
+		str_gen.stub(`Hey <@${team_creator_id}>], can <@${joiner.id}> join ${team_name}?`, 'join team confirm'),
+		discord_constants.TEAM_LEADER_JOIN_MESSAGE,
+		joiner.id,
+		team_creator_id,
+		discord_constants.EMOJI_YN,
+		//payload
+		{
+			new_teammate_id: joiner.id,
+			team_name: team_name
+		}
+	);
+};
+
+/*
+Receive Join Confirm
+
+Returns: Promise<object>
+see payload from sendConfirmJoinTeam for properties, etc.
+*/
+exports.receiveConfirmJoinTeam = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.TEAM_LEADER_JOIN_MESSAGE
+	);
+};
+
+/*
+Fulfills with role_id
+*/
+exports.setupNewTeam = (guild, team_name) => {
+	return new Promise((fulfill, reject) => {
+		guild.createRole({
+			name: 'tourney-' + team_name
+		})
+		.then((role) => {fulfill(role.id);})
+		.catch((err) => {reject(err);});
 	});
 };
 
 /*
-/
-/ Stage: Setup
-/
+Fulfills with nothing. Rejects on error.
 */
-
-// eslint-disable-next-line
-exports.setupAddParticipant = (msg, participant_name) => {
+exports.setupAddToTeam = (guild, user_id, role_id) => {
 	return new Promise((fulfill, reject) => {
-        // TODO: give user role, insert in db etc.
-		Console.log('Added participant to Discord (not implemented)');
-
-        // TODO: put role_id in db
-
-        // pseudo-join: type "join"
-		fulfill(msg); // if ok, fulfill - next piece needs message
-
-		var err = 'Add to Discord failed because XYZ.';
-		reject(err); // if fail, reject
+		var guild_user = guild.members.get(user_id);
+		Console.log('Discord role_id: ');
+		Console.log(role_id);
+		var role = guild.roles.get(role_id);
+		guild_user.addRole(role)
+		.then(() => {fulfill();})
+		.catch(() => {reject();});
 	});
 };
 
-// Transition from set-up to run
-// eslint-disable-next-line
+/*
+Edits announce message to indicate new tournament states.
+Sends message to Join channel indicating you can't join.
+*/
 exports.transitionSetupToRun = (guild) => {
 	return new Promise((fulfill, reject) => {
 		Console.log('Started running Discord tournament (not implemented)');
-
-        // TODO: create channels? not sure
-        // TODO: update announce to say tournament is running
-        // TODO: message to join channel - can't accept new users
-        // maybe also remove permissions
-
-
-		fulfill(); // once channels are made, call this
-		reject(); // if error, reject
+		var promises = [
+			util.editAnnounce(
+				guild,
+				str_gen.tourney_announce_channel(discord_constants.MATCH_PHASE)
+			),
+			util.sendToChannel(
+				guild,
+				'join',
+				str_gen.stub('setup phase over, cannot join anymore','TODO HERE 1831')
+			).then((msg) => {
+				return util.setPermissions(msg.channel,
+				['SEND_MESSAGES'],
+				[]);
+			})
+		];
+		var finish_p = Promise.all(promises);
+		finish_p
+		.then(() => fulfill())
+		.catch(() => reject());
 	});
 };
 
 /*
-/
-/ Stage: Run
-/
+███████████████████████████████████████████████████████
+  Stage: Run
+███████████████████████████████████████████████████████
 */
 
-// Match Channels
-exports.runInitMatchChannels = (guild, matches) => {
-	return new Promise((fulfill, reject) => {
-		Console.log('  Init-ing match channels for ' + guild.id);
+/*
 
-        // TODO: for each match, make a channel and add the right ppl
-        // also send a greeting
-		matches.forEach((match) => {
-			Console.log('    Init match ' + match);
-		});
-
-		fulfill();
-		reject();
+*/
+exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
+	return util.createChannelPinMessage(
+		guild,
+		'match-' + match_number,
+		constants.MATCH_CHANNEL,
+		str_gen.stub(`Hi match ${match_number}.
+			please play: ${players.map(p => {return '<@'+p+'> ';})}`,
+			'match channel greeting'),
+		ref_id
+	).then((message) => {
+		return util.setPermissions(
+			message.channel,
+			['SEND_MESSAGES', 'READ_MESSAGES'],
+			players);
 	});
 };
 
+exports.sendConfirmMatchReport = (channel, reporter_user_id, confirmer_role_id, report) => {
+	return util.sendConfirmMessage(
+		channel,
+		str_gen.stub(`Hey <@${confirmer_role_id}>], <@${reporter_user_id}> says ${report.txt}. Is that right?`, 'join team confirm'),
+		discord_constants.MATCH_REPORT_MESSAGE,
+		reporter_user_id,
+		confirmer_role_id,
+		discord_constants.EMOJI_YN,
+		//payload
+		report
+	);
+};
+
+/*
+Receive Join Confirm
+
+Returns: Promise<object>
+see payload from sendConfirmJoinTeam for properties, etc.
+*/
+exports.receiveConfirmMatchReport = (msgRxn, user) => {
+	return util.receiveYNConfirmMessage(
+		msgRxn,
+		user,
+		discord_constants.MATCH_REPORT_MESSAGE
+	);
+};
+
 // Dispute Channels
-exports.runInitDisputeChannels = (guild) => {
-	return new Promise((fulfill, reject) => {
-		Console.log('  Init-ing disputes for ' + guild.id);
-
-        //TODO: get disputes from db
-		var disputes = ['GARBAGE_DISPUTE_1', 'GARBAGE_DISPUTE_2'];
-
-        // TODO: for each dispute, get a jury and make a channel
-		disputes.forEach((match) => {
-			Console.log('    Init dispute ' + match);
-		});
-
-		fulfill();
-		reject();
+exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_id) => {
+	return util.createChannel(
+		guild,
+		'dispute-' + dispute_name,
+		constants.JURY_CHANNEL
+	).then(channel => {
+		return util.sendConfirmMessage(
+			channel,
+			str_gen.stub(`Prosecutor: <@${prosecutor_id}>.
+				prosecutor: <@${defendant_id}>.`,
+				'jury channel greeting'),
+			discord_constants.VOTEKICK_MESSAGE,
+			defendant_id,
+			'@everyone',
+			discord_constants.EMOJI_YN,
+			//payload
+			{
+				new_teammate_id: defendant_id
+			},
+			true
+		);
 	});
+};
+
+exports.receiveDisputeChannelVote = (msgRxn, user) => {
+	return util.countReactions(msgRxn, user, discord_constants.VOTEKICK_MESSAGE);
 };
 
 exports.runNotifyEndMatches = (guild, matches) => {
@@ -188,13 +388,27 @@ exports.runResolveMatch = (guild, match) => {
 	});
 };
 
-// Logs in client
-client.login(credentials.DISCORD_TOKEN).catch((err) => {
-	Console.log(err);
-	Console.log('\n\nYou must provide a proper Discord API token in credentials.js.');
-	process.exit();
-}).then(() => {
-	Console.log('Logged in');
-});
+/*
+███████████████████████████████████████████████████████
+  Stage: Close
+███████████████████████████████████████████████████████
+*/
+
+exports.deleteAllTourneyChannels = (guild) => {
+	guild.channels
+	.filter(c => {return c.name.includes('tourney-');})
+	.deleteAll();
+	guild.roles
+	.filter(c => {return c.name.includes('tourney-');})
+	.deleteAll();
+};
+
+/*
+This is exported so another file can add the Listeners
+to break the circular dependency where discord must
+require the managers but the things requierd by the handlers
+need discord.
+*/
+exports._client = client;
 
 module.exports = exports;
