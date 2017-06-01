@@ -2,27 +2,26 @@ const challonge = require('challonge');
 const Console = require('../util/console');
 const token = require('../../credentials').CHALLONGE_TOKEN;
 var constants = require('../util/constants');
-var CryptoJS = require('crypto-js');
 
 const client = challonge.createClient({
 	apiKey: token
 });
 
 var exports = {};
+
 var getChallongeURL = (guild_id) => {
-	return 'TB_' + CryptoJS.AES.encrypt(guild_id,token).toString();
+	return 'TB_' + guild_id;
 };
+
 var getTourneyName = (guild_id) => {
-	return 'TB_Tourney_' + CryptoJS.AES.encrypt(guild_id,token).toString();
+	return 'TB_Tourney_' + guild_id;
 };
 
 var getGuildIDFromURL = (url) => {
-	var cypher_text = url.substring(3); //remove TB_
-	var bytes = CryptoJS.AES.decrypt(cypher_text,token);
-	return bytes.toString(CryptoJS.enc.Utf8);
+	return url.substring(3); //remove TB
 };
 
-exports.createTourney = (guild_id, parameters) => {
+exports.createTourney = (guild_id, parameters={}) => {
 	return new Promise((fulfill, reject) => {
 		var tournament =  parameters;
 		tournament['name'] = getTourneyName(guild_id);
@@ -43,7 +42,28 @@ exports.createTourney = (guild_id, parameters) => {
 	});
 };
 
-
+exports.isTourneyDone = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.tournaments.show({
+			id:getChallongeURL(guild_id),
+			callback: (err, response) => {
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					var state = response['tournament']['progressMeter'];
+					Console.log(response);
+					Console.log(state);
+					if (state === 100){
+						fulfill(true);
+					} else {
+						fulfill(false);
+					}
+				}
+			}
+		});
+	});
+};
 exports.deleteTourney = (guild_id) => {
 	return new Promise( (fulfill, reject) => {
 		client.tournaments.destroy({
@@ -348,6 +368,26 @@ exports.getTourneyParticipants = (guild_id) => {
 					fulfill(participants);
 				}
 			}
+		});
+	});
+};
+
+
+exports.getTourneyWinner = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		exports.getTourneyParticipants(guild_id).then( (participants)=>{
+			for (var k in Object.keys(participants)){
+				var cur_part = participants[k]['participant'];
+				Console.log(cur_part);
+				if (cur_part['finalRank'] === 1){
+					fulfill(cur_part['id']);
+					return;
+				}
+			}
+			fulfill(null);
+		}).catch( (err) =>{
+			Console.log(err);
+			reject(err);
 		});
 	});
 };
