@@ -46,9 +46,7 @@ handler.handleReaction = (msgRxn, user) => {
 		}
 		if(answer.status == constants.EMOJI_NO){
 			Console.log('MATCH REPORT REJECTED!!');
-
 		}
-
 	})
 	.catch(err => Console.log(err));
 };
