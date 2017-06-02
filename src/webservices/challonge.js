@@ -8,18 +8,20 @@ const client = challonge.createClient({
 });
 
 var exports = {};
+
 var getChallongeURL = (guild_id) => {
 	return 'TB_' + guild_id;
 };
+
 var getTourneyName = (guild_id) => {
 	return 'TB_Tourney_' + guild_id;
 };
 
 var getGuildIDFromURL = (url) => {
-	return url.substring(3);
+	return url.substring(3); //remove TB
 };
 
-exports.createTourney = (guild_id, parameters) => {
+exports.createTourney = (guild_id, parameters={}) => {
 	return new Promise((fulfill, reject) => {
 		var tournament =  parameters;
 		tournament['name'] = getTourneyName(guild_id);
@@ -40,7 +42,28 @@ exports.createTourney = (guild_id, parameters) => {
 	});
 };
 
-
+exports.isTourneyDone = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.tournaments.show({
+			id:getChallongeURL(guild_id),
+			callback: (err, response) => {
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					var state = response['tournament']['progressMeter'];
+					Console.log(response);
+					Console.log(state);
+					if (state === 100){
+						fulfill(true);
+					} else {
+						fulfill(false);
+					}
+				}
+			}
+		});
+	});
+};
 exports.deleteTourney = (guild_id) => {
 	return new Promise( (fulfill, reject) => {
 		client.tournaments.destroy({
@@ -67,7 +90,7 @@ exports.finalizeTourney = (guild_id) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					Console.log('Tournament at: challonge.com/' + getChallongeURL(guild_id));
+					Console.log('Finalized tournament at: challonge.com/' + getChallongeURL(guild_id));
 					Console.log(response);
 					fulfill(constants.CLOSE_TOURNEY);
 				}
@@ -347,6 +370,26 @@ exports.getTourneyParticipants = (guild_id) => {
 					fulfill(participants);
 				}
 			}
+		});
+	});
+};
+
+
+exports.getTourneyWinner = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		exports.getTourneyParticipants(guild_id).then( (participants)=>{
+			for (var k in Object.keys(participants)){
+				var cur_part = participants[k]['participant'];
+				Console.log(cur_part);
+				if (cur_part['finalRank'] === 1){
+					fulfill(cur_part['id']);
+					return;
+				}
+			}
+			fulfill(null);
+		}).catch( (err) =>{
+			Console.log(err);
+			reject(err);
 		});
 	});
 };
