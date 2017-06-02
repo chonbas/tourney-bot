@@ -6,6 +6,7 @@
 //handler: the handler to deliver the message to (string)
 
 //requires natural
+//manager
 
 var parse_constants = require('./parse_constants');
 
@@ -127,11 +128,23 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 		handler = 'all';
 	} else if(words.includes('won') || words.includes('win') || words.includes('victory') ||
 		words.includes('victorious') || words.includes('triumph') || words.includes('beat')){
-		parse = 'MATCH_REPORT_WIN';
-		handler = 'match';
+		if(words.includes('not') || words.includes('they') || words.includes('he') || words.includes('she') || words.includes('unable')){
+			parse = 'MATCH_REPORT_LOSE';
+			handler = 'match';
+		}
+		else{
+			parse = 'MATCH_REPORT_WIN';
+			handler = 'match';
+		}
 	} else if(words.includes('lost') || words.includes('lose') || words.includes('defeat')){
-		parse = 'MATCH_REPORT_LOSE';
-		handler = 'match';
+		if(words.includes('not') || words.includes('they') || words.includes('he') || words.includes('she') || words.includes('unable')){
+			parse = 'MATCH_REPORT_WIN';
+			handler = 'match';
+		}
+		else{
+			parse = 'MATCH_REPORT_LOSE';
+			handler = 'match';
+		}
 	} else if(words.includes('finish') || words.includes('done')){
 		parse = 'MATCH_REPORT_AMBIGUOUS';
 		handler = 'match';
@@ -151,7 +164,7 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 	} else if(words.includes('start') || words.includes('begin')){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';
-	} else if(words.includes('end') || words.includes('destroy')){
+	} else if(words.includes('end') || words.includes('destroy') || words.includes('close') || words.includes('kill') || words.includes('stop')){
 		parse = 'END_TOURNEY';
 		handler = 'all';
 	} else if(words.includes('drop') || words.includes('quit') || ((words.includes('im') || words.includes('i\'m')) && words.includes('done'))){

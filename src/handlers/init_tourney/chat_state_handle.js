@@ -10,11 +10,19 @@ var updateChatState = (msg) => {
 		// TODO: update chat state with info
 		// TODO: if done, set done to true
 
-		msg.reply('init-tourney handler handling');
+		//var db.chat_state
+		//.then()
+		msg.reply('');
 		if (msg.parsed_msg.parse == parser_constants['INIT_TOURNEY']){
-			fulfill(true);
+			fulfill({
+				ready: true,
+				data: null
+			});
 		}
-		fulfill(false);
+		fulfill({
+			ready: false,
+			data: null
+		});
 		reject(); // if error, reject
 	});
 };
