@@ -13,15 +13,6 @@ var client = new Discord.Client();
 
 var exports = {};
 
-// Stub
-exports.stub = (msg, obj1, obj2, obj3, obj4, obj5) => {
-	return new Promise((fulfill, reject) => {
-		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
-		Console.log(msg);
-		reject(); // if fail, reject
-	});
-};
-
 /*
 ███████████████████████████████████████████████████████
   STAGE: NO TOURNAMENT
@@ -134,6 +125,12 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'general',
 				constants.GENERAL_CHANNEL,
+				str_gen.tourney_general_channel()
+			),
+			util.createChannelPinMessage(
+				guild,
+				'dispute',
+				constants.JURY_CHANNEL,
 				str_gen.tourney_general_channel()
 			)
 		];

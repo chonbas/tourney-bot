@@ -42,7 +42,6 @@ var prepare_open_matches = (guild) => {
 	return new Promise((fulfill, reject) => {
 
 		Console.log('Preparing open matches');
-		// Where is this from?
 		challonge.getMatchList(guild.id)
 		.then((ms) => {
 			var matches = convertMatchesTArray(ms);

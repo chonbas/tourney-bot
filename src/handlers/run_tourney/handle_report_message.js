@@ -23,7 +23,7 @@ var report_winner_loser = (msg, author_is_winner) => {
 			challonge_match_id = c;
 			return challonge.getMatch(guild_id, challonge_match_id);
 		})
-		//get the team ids to determine which team reporter is on
+		//get the team ids to determine which team the reporter is on
 		.then((match_obj) => {
 			Console.log(match_obj);
 			team1_challonge_id = match_obj.match.player1Id;
