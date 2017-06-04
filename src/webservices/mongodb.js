@@ -300,8 +300,13 @@ exports.getTourneyAvailability = (guild_id) => {
 		}).then((guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
 			var res = {};
-			res['cap'] = guild_obj.signup_cap;
-			res['cur'] = guild_obj.teams.length;
+			if (guild_obj.signup_cap === -1){
+				res['cap'] = 1;
+				res['cur'] = 0;
+			}else{
+				res['cap'] = guild_obj.signup_cap;
+				res['cur'] = guild_obj.teams.length;
+			}
 			fulfill(res);
 		}).catch( (err) => {
 			Console.log(err);
