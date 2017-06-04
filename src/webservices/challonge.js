@@ -14,14 +14,9 @@ var getChallongeURL = (guild_id) => {
 	return 'TB_' + guild_id;
 };
 
-var getTourneyName = (guild_id) => {
-	return 'TB_Tourney_' + guild_id;
-};
-
 exports.createTourney = (guild_id, parameters={}) => {
 	return new Promise((fulfill, reject) => {
 		var tournament =  parameters;
-		tournament['name'] = getTourneyName(guild_id);
 		tournament['url'] = getChallongeURL(guild_id);
 		client.tournaments.create({
 			tournament: tournament,

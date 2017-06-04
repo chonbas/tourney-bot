@@ -17,7 +17,7 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 var manager = {};
 
 var checkAndPassMsg = (msg, tournament_status, channel_type, question=null) =>{
-	msg.parsed_msg = parseMessage(msg.content, tournament_status, channel_type);
+	msg.parsed_msg = parseMessage(msg.content, tournament_status, channel_type, question);
 	errhandler(msg, tournament_status, channel_type, question)
 		.then((data) => {
 			if(data.is_ok){

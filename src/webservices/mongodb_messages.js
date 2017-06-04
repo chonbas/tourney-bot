@@ -14,23 +14,6 @@ exports.clearDB = () =>{
 	});
 };
 
-/* createTournament(guild_id)
- * -------------------------------------------------------
- * Takes guild_id and first checks if the guild is already
- * in the db -- if it is, then fulfill with NO_TOURNEY as each
- * guild can only have one active tourney.
- * If no guild found, attempt to create new tourney and set
- * its state to INIT_TOURNEY to start. If an error occurs
- * during creation, the promise is rejected with the error.
- * Returns: Promise -- On succesful fulfill returns CREATE_SUCCESS.
- * Usage:
- * db.createTournament(guild_id).then( (guild_id) =>{
- * 		//DO STUFF
- * }).catch((err)=>{
- * 		//ERROR HANDLING
- * });
- * -------------------------------------------------------
-*/
 exports.setMessage = (id, type, creator, recipients, payload) => {
 	return new Promise((fulfill, reject) => {
 		Message.create({

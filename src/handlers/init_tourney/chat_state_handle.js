@@ -3,39 +3,43 @@ var Console = require('../../util/console');
 // eslint-disable-next-line
 var db = require('../../webservices/mongodb');
 var constants = require('../../util/constants');
-var parser_constants = require('../../util/parse_constants');
+var propToQuestion = require('../../util/parse_util').propToQuestion;
 
-//NAME
-//T_TYPE
-//TEAMS
-//SIGNUP_CAP
-//START_AT
-
-var generateReply = (prop) =>{
-
+var getPrompt = (prop) => {
+	if (prop === 'Done'){ return 'Initializing tournament...';}
+	if (prop === 'name'){ return 'What would you like the name of this tournament to be?';}
+	if (prop === 'tournament_type'){ return 'What would you like the tournament type to be? Single-elimination, double-elimination, round robin or swiss?';}
+	if (prop === 'teams'){ return 'Is the game being played 1v1?';}
 };
-// var staged_tourney_schema = new mongoose.Schema({
-// 	guild_id:{type:String, index:true, unique:true},
-// 	name:{type:String, default:null},
-// 	tournament_type:{type:Number, default:null}, //Use constants
-// 	teams: {type:Boolean, default:null},
-// 	signup_cap:{type:Number, default:null}, //Use constants,//Max users
-// 	start_at:{type:Date, default:null}, //Use constants,
-// 	open_signup: {type:Boolean, default:false}
-// });
-// db.getStagedQuestion
-
-var propToQuestion = (prop) =>{
-	if (prop === 'guild_id'){ return 'pass';}
-	if (prop === 'name'){ return parser_constants.NAME;}
-	if (prop === 'tournament_type'){ return parser_constants.T_TYPE;}
-	if (prop === 'teams'){ return parser_constants.TEAMS;}
-	if (prop === 'signup_cap'){ return parser_constants.SIGNUP_CAP;}
-	if (prop === 'start_at'){ return parser_constants.START_AT;}
-	return;
+var tourneyTypeToString = (t_type) =>{
+	return t_type;
 };
+
+var extractParams = (staged_t) => {
+	var params = {};
+	params['name'] = staged_t.name;
+	params['tournament_type'] = tourneyTypeToString(staged_t.tournament_type);
+	db.setTourneyTeams(staged_t.guild_id, staged_t.teams).then( () =>{
+		db.setTourneyName(staged_t.guild_id, staged_t.name).then( () =>{
+			return params;
+		}).catch( err => Console.log(err));
+	}).catch( err => Console.log(err));
+};
+
 var generateReply = (staged_t) => {
-	
+	var next = {};
+	for (var prop in staged_t){
+		if (staged_t[prop] === null){
+			next.msg = getPrompt(prop);
+			next.done = false;
+			next.params = {};
+			return next;
+		}
+	}
+	next.msg = getPrompt('Done');
+	next.done = true;
+	next.params = extractParams(staged_t);
+	return next;
 };
 
 var updateChatState = (msg, data) => {

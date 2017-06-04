@@ -1,7 +1,8 @@
 //require things up here
 
 //eslint-disable-next-line
-var errhandle = (msg, tournament_status, channel_type, question) => {
+
+var errhandle = (msg, tournament_status, channel_type) => {
 	return new Promise((fulfill, reject) => {
 		//TODO: check states
 		//TODO: give helpful error messages
