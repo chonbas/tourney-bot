@@ -258,7 +258,57 @@ exports.getTournamentTeamOption = (guild_id) => {
 	});
 };
 
+exports.getTournamentParticipantCap = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id
+		}).then((guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			fulfill(guild_obj.signup_cap);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
 
+exports.setTournamentParticipantCap = (guild_id,cap) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			guild_obj.signup_cap = cap;
+			guild_obj.save().then( () =>{
+				Console.log('Signup cap set to:' + cap +' for guild with id:' + guild_id);
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.getTourneyAvailability = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id
+		}).then((guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			var res = {};
+			res['cap'] = guild_obj.signup_cap;
+			res['cur'] = guild_obj.teams.length;
+			fulfill(res);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
 exports.setTournamentName = (guild_id, name) => {
 	return new Promise((fulfill, reject) => {
 		Guild.findOne({

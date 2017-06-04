@@ -42,25 +42,33 @@ handler.handleMsg = (msg) => {
 		//parse out the team name
 		var team_name = msg.content.split(' ')[2];
 		Console.log('Team name' + team_name);
-
-		//check that the team exists
-		teamExists(guild_id, team_name)
-		.then(exists => {
-			if(exists){
-				//get confm to just add the person
-				return db.getTeamIDByName(guild_id, team_name)
-				.then((team_id) => {return db.getTeamCreatorByTeamID(guild_id, team_id);})
-				.then((creator_id) => {return discord.sendConfirmJoinTeam(msg.channel, msg.author, creator_id, team_name);});
-			} else {
-				// make the team then add the person
-				return addTeam(msg, team_name).then(() => {
-					return addParticipant(msg.guild, msg.author.id, team_name);
+		db.getTourneyAvailability(guild_id)
+		.then( res => {
+			//check that tourney isnt full
+			if (res.cap - res.cur > 0){
+				//check that the team exists
+				teamExists(guild_id, team_name)
+				.then(exists => {
+					if(exists){
+						//get confm to just add the person
+						return db.getTeamIDByName(guild_id, team_name)
+						.then((team_id) => {return db.getTeamCreatorByTeamID(guild_id, team_id);})
+						.then((creator_id) => {return discord.sendConfirmJoinTeam(msg.channel, msg.author, creator_id, team_name);});
+					} else {
+						// make the team then add the person
+						return addTeam(msg, team_name).then(() => {
+							return addParticipant(msg.guild, msg.author.id, team_name);
+						})
+						.then(() => {msg.reply('I\'ve made you the owner of team ' + team_name + '!');})
+						.catch(err => Console.log(err));
+					}
 				})
-				.then(() => {msg.reply('I\'ve made you the owner of team ' + team_name + '!');})
 				.catch(err => Console.log(err));
+			} else {
+				msg.reply('I\'m sorry, but the tournament is at it\'s maximum capacity of ' + res.cap + ' total participants.');
 			}
-		})
-		.catch(err => Console.log(err));
+
+		}).catch( err=> Console.log(err));
 	}
 
 // TODO: Add transition function in Discord

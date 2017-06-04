@@ -10,6 +10,7 @@ var getPrompt = (prop) => {
 	if (prop === 'name'){ return 'What would you like the name of this tournament to be?';}
 	if (prop === 'tournament_type'){ return 'What would you like the tournament type to be? Single-elimination, double-elimination, round robin or swiss?';}
 	if (prop === 'teams'){ return 'Is the game being played 1v1?';}
+	if (prop === 'signup_cap'){ return 'What is the maximum number of participants for tournaments?';}
 };
 var tourneyTypeToString = (t_type) =>{
 	return t_type;
@@ -19,9 +20,11 @@ var extractParams = (staged_t) => {
 	var params = {};
 	params['name'] = staged_t.name;
 	params['tournament_type'] = tourneyTypeToString(staged_t.tournament_type);
-	db.setTourneyTeams(staged_t.guild_id, staged_t.teams).then( () =>{
-		db.setTourneyName(staged_t.guild_id, staged_t.name).then( () =>{
-			return params;
+	db.setTournamentTeamOption(staged_t.guild_id, staged_t.teams).then( () =>{
+		db.setTournamentName(staged_t.guild_id, staged_t.name).then( () =>{
+			db.setTournamentParticipantCap(staged_t.guild_id, staged_t.signup_cap).then( ()=>{
+				return params;
+			}).catch( err => Console.log(err));
 		}).catch( err => Console.log(err));
 	}).catch( err => Console.log(err));
 };

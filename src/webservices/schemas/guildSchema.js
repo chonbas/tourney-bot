@@ -60,6 +60,7 @@ var guild_schema = new mongoose.Schema({
 	tourney_name: String,
 	tourney_state: Number, // Tourney state \in {Constants}
 	teams_allowed: Boolean,
+	signup_cap: Number,
 	teams:  [team_schema],
 	channels: [channel_schema],
 	disputes: [dispute_schema]
