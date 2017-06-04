@@ -50,10 +50,14 @@ handler.handleMsg = (msg) => {
 				teamExists(guild_id, team_name)
 				.then(exists => {
 					if(exists){
+						if (res.teams){
 						//get confm to just add the person
-						return db.getTeamIDByName(guild_id, team_name)
-						.then((team_id) => {return db.getTeamCreatorByTeamID(guild_id, team_id);})
-						.then((creator_id) => {return discord.sendConfirmJoinTeam(msg.channel, msg.author, creator_id, team_name);});
+							return db.getTeamIDByName(guild_id, team_name)
+							.then((team_id) => {return db.getTeamCreatorByTeamID(guild_id, team_id);})
+							.then((creator_id) => {return discord.sendConfirmJoinTeam(msg.channel, msg.author, creator_id, team_name);});
+						} else {
+							msg.reply('Sorry but joining teams is disabled for this tournament.');
+						}
 					} else {
 						// make the team then add the person
 						return addTeam(msg, team_name).then(() => {

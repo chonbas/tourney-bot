@@ -19,4 +19,4 @@ exports.tourneyTypeToString = (t_type) =>{
 	return null;
 };
 
-module.exports= exports;
+module.exports = exports;

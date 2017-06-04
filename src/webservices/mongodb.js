@@ -301,12 +301,13 @@ exports.getTourneyAvailability = (guild_id) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
 			var res = {};
 			if (guild_obj.signup_cap === -1){
-				res['cap'] = 1;
-				res['cur'] = 0;
+				res.cap = 1;
+				res.cur = 0;
 			}else{
-				res['cap'] = guild_obj.signup_cap;
-				res['cur'] = guild_obj.teams.length;
+				res.cap = guild_obj.signup_cap;
+				res.cur = guild_obj.teams.length;
 			}
+			res.teams = guild_obj.teams_allowed;
 			fulfill(res);
 		}).catch( (err) => {
 			Console.log(err);
