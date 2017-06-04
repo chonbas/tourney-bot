@@ -12,7 +12,7 @@ var dispute_schema = new mongoose.Schema({
 
 var participant_schema = new mongoose.Schema({
 	ids: {
-		role_id:{ //Role ID within Discord server
+		role_id:{ //Role ID within Discord server -> refs to team
 			type: String,
 			index: true
 		},
@@ -25,14 +25,14 @@ var participant_schema = new mongoose.Schema({
 });
 
 var team_schema = new mongoose.Schema({
+	challonge_id:{type:String, index:true, unique:true}, //identifier
 	members:[participant_schema],
 	name:String,
 	role_id:{ //Role ID within Discord server
 		type: String,
 		index: true
 	},
-	owner:String,
-	challonge_id:String
+	owner:String
 });
 
 var channel_schema = new mongoose.Schema({
@@ -46,28 +46,6 @@ var channel_schema = new mongoose.Schema({
 						//If channel is jury channel, ref_id refers specific id
 });
 
-var chat_state_schema = new mongoose.Schema({
-	// This is to be used for NLP purposes
-	// to keep track of chat state
-	type: mongoose.Schema.Types.Mixed
-});
-
-var match_schema = new mongoose.Schema({
-	team_1:{
-		win:{type:Boolean, default:null},
-		vote:{type:Boolean, default:false},
-		name:{type:String}
-	},
-	team_2:{
-		win:{type:Boolean, default:null},
-		vote:{type:Boolean, default:false},
-		name:{type:String}
-	},
-	team_2_vote:{type:Boolean, default:false},
-	winner: String
-});
-
-
 var guild_schema = new mongoose.Schema({
 	guild_id: {
 		type:String,
@@ -80,22 +58,12 @@ var guild_schema = new mongoose.Schema({
 		index: true
 	},
 	tourney_state: Number, // Tourney state \in {Constants}
-	tourney_sub_state: Number, //If tourney is RUNNING, specify cycle state
 	teams:  [team_schema],
 	channels: [channel_schema],
-	active_matches: [match_schema],
-	chat_state: [chat_state_schema],
 	disputes: [dispute_schema]
 });
 
-// var staged_tourney = new mongoose.Schema({
-// 	name:String,
-// 	tournament_type:Number, //Use constants
-// 	open_signup: {type:Boolean, default:false},
-// 	ranked_by:Number, //Use constants
-// 	signup_cap:Number,//Max users
-// 	start_at:Date
-// });
+
 
 var Team = mongoose.model('Team', team_schema);
 var Guild = mongoose.model('Guild', guild_schema);
