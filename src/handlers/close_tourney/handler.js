@@ -19,11 +19,8 @@ var handler = {};
 handler.handleMsg = (msg) => {
 	Console.log(msg.parsed_msg.parse);
 	if(msg.parsed_msg.parse == parser_constants.END_TOURNEY) {
-		discord.deleteAllTourneyChannels(msg.guild)
-		.then(() => {
-			Console.log('Your tournament is all wrapped up!');
-		})
-		.catch(err => Console.log(err));
+		discord.deleteAllTourneyChannels(msg.guild);
+		Console.log('Your tournament is all wrapped up!');
 	}
 };
 
