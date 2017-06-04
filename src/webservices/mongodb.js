@@ -46,10 +46,21 @@
  * deleteChannel(guild_id, channel_id) *
  * deleteChannesByTypel(guild_id, channel_type) *
  */
+
+
+
+
+// createStagedTourney
+// getStagedTourney
+// getNextStagedTourneyQuestion
+// removeStagedTourney
+
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
 const Console = require('../util/console');
-const SCHEMAS = require('./schemas/guildSchema.js');
+const SCHEMAS = require('./schemas/guildSchema');
+var Stage = require('./schemas/guildStagingSchema').Stage;
+
 var Guild = SCHEMAS.Guild;
 var Team = SCHEMAS.Team;
 // var Dispute = SCHEMAS.Dispute;
@@ -82,9 +93,12 @@ exports.clearDB = () =>{
 			if (err) { reject(err);	}
 			Team.remove({}, (err) =>{
 				if(err) {reject(err);}
-				fulfill(constants.REMOVE_SUCCESS);
-			});
-		});
+				Stage.remove({}, (err)=>{
+					if(err) {reject(err);}
+					fulfill(constants.REMOVE_SUCCESS);
+				}).catch(err=>reject(err));
+			}).catch(err=>reject(err));
+		}).catch(err=>reject(err));
 	});
 };
 

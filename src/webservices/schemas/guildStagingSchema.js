@@ -3,12 +3,12 @@
 var mongoose = require('mongoose');
 
 var staged_tourney_schema = new mongoose.Schema({
-	name:String,
-	tournament_type:Number, //Use constants
-	ranked_by:Number, //Use constants
-	teams: {type:Boolean, default:true},
-	signup_cap:Number,//Max users
-	start_at:Date,
+	guild_id:{type:String, index:true, unique:true},
+	name:{type:String, default:null},
+	tournament_type:{type:Number, default:null}, //Use constants
+	teams: {type:Boolean, default:null},
+	signup_cap:{type:Number, default:null}, //Use constants,//Max users
+	start_at:{type:Date, default:null}, //Use constants,
 	open_signup: {type:Boolean, default:false}
 });
 

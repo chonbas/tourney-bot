@@ -18,7 +18,10 @@ var handler = {};
 var advanceTournamentStatus = (msg) => {
 
 	db.createTournament(msg.guild.id).then(() => {
-		return discord.transitionNoToInit(msg.guild, msg.author);
+		db.createStagedTourney(msg.guild.id).then( () =>{
+			return discord.transitionNoToInit(msg.guild, msg.author);
+		})
+		.catch(err => Console.log(err));
 	})
 	.catch(err => Console.log(err));
 };
