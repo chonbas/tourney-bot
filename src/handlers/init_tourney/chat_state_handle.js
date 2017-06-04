@@ -57,7 +57,7 @@ var updateChatState = (msg, data) => {
 				reject('No staged tourney');
 			}
 			for (var prop in staged_t){
-				if (data.question === propToQuestion(prop)){
+				if (data[1] === propToQuestion(prop)){
 					staged_t.prop = msg.parsed_msg.parse;
 					staged_t.save().then( () =>{
 						var next = generateReply(staged_t);
