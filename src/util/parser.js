@@ -59,7 +59,7 @@ function parseCommand(msg){
 		handler = 'setup_tourney';
 	} else if(msg[0] == '+END_TOURNEY'){
 		parse = 'END_TOURNEY';
-		handler = 'all';
+		handler = 'close_tourney';
 	} else if(msg[0] == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
@@ -166,7 +166,7 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 		handler = 'setup_tourney';
 	} else if(words.includes('end') || words.includes('destroy')){
 		parse = 'END_TOURNEY';
-		handler = 'all';
+		handler = 'close_tourney';
 	} else if(words.includes('drop') || words.includes('quit') || ((words.includes('im') || words.includes('i\'m')) && words.includes('done'))){
 		parse = 'DROP_TOURNEY';
 		handler = 'all';

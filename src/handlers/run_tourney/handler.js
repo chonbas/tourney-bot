@@ -13,7 +13,8 @@ const parse_constants = require('../../util/parse_constants');
 const Console = require('../../util/console');
 const prep_round = require('./prepare_open_matches');
 const handle_it = require('./handle_report_message');
-const handle_disputes = require('./disputes');
+const process_winner = require('./process_winner');
+const process_dispute = require('./dispute');
 
 
 
@@ -29,7 +30,7 @@ handler.handleMsg = (msg) => {
 	}else if (msg.parsed_msg.parse == parse_constants.MATCH_REPORT_AMBIGUOUS){
 		msg.reply('I think you\'re trying to report a match but i don\'t understand');
 	}else if (msg.parsed_msg.parse == parse_constants.REPORT) {
-		handle_disputes(msg);
+		process_dispute(msg.guild.id);
 	}
 };
 
@@ -44,9 +45,14 @@ handler.handleReaction = (msgRxn, user) => {
 			var winner_id = answer.payload.winner_challonge_id;
 			var scores = '1-0';
 			challonge.updateMatch(guild_id, match_id, winner_id, scores)
-			// After updating match, check to see if tournament is finished, if so advance tournament state, else prep_round
 			.then(() => {
-				prep_round(msgRxn.message.guild, 1);
+				return challonge.isTourneyDone(guild_id);
+			}).then((done) => {
+				if (done == true) {
+					return process_winner(guild_id);
+				} else {
+					return prep_round(msgRxn.message.guild, 1);
+				}
 			})
 			.catch(err => Console.log(err));
 		}
