@@ -329,6 +329,25 @@ exports.receiveConfirmMatchReport = (msgRxn, user) => {
 	);
 };
 
+// Initiate vote
+exports.initiateDisputeVote = (guild, originator_id, defendant_id, challonge_match_id) => {
+	var dispute_channel = guild.channels.find('name', 'tourney-dispute');
+	return util.sendConfirmMessage(
+		dispute_channel,
+		str_gen.stub(`Prosecutor: <@${originator_id}>.
+			defendant: <@${defendant_id}>.`,
+			'jury channel greeting'),
+		discord_constants.VOTEKICK_MESSAGE,
+		defendant_id,
+		'@everyone',
+		discord_constants.EMOJI_YN,
+		{
+			originator_id: originator_id, defendant_id: defendant_id, challonge_match_id: challonge_match_id
+		},
+		true
+	);
+};
+
 // Dispute Channels
 exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_id) => {
 	return util.createChannel(
