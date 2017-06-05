@@ -3,6 +3,7 @@ const constants = require('../util/constants');
 // eslint-disable-next-line
 const Console = require('../util/console');
 const parseMessage = require('../util/parser');
+const errhandler = require('./error_handler/handler');
 
 var handlers = {};
 handlers[constants.NO_TOURNEY] = require('./no_tourney/handler');
@@ -16,6 +17,10 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 var manager = {};
 
 manager.distributeMsg = (msg) => {
+	if(msg.content.includes('PURGE')) {
+		require('../webservices/discord').deleteAllTourneyChannels(msg.guild);
+		return;
+	}
 	var tournament_status = null;
 	// retrieve tournament status
 	db.getTournamentStatus(msg.guild.id).then((status) => {
@@ -26,9 +31,14 @@ manager.distributeMsg = (msg) => {
 		//give info to parser and attach parsed info to msg object
 		msg.parsed_msg = parseMessage(msg.content, tournament_status, channel_type);
 
-		//TODO: check that handler has function before acting
-		var handler = handlers[tournament_status];
-		handler.handleMsg && handler.handleMsg(msg);
+		errhandler(msg, tournament_status, channel_type)
+		.then((is_ok) => {
+			if(is_ok){
+				var handler = handlers[tournament_status];
+				handler.handleMsg && handler.handleMsg(msg);
+			}
+		})
+		.catch(err => Console.log(err));
 	});
 };
 

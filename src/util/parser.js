@@ -22,8 +22,9 @@ function parseCommand(msg){
 	var parse;
 	var handler;
 	var data_object = {};
-	//msg = msg.split(' ');
+
 	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
+
 	if(msg[0] == '+REQUEST_HELP'){
 		parse = 'REQUEST_HELP';
 		handler = 'all';
@@ -208,5 +209,3 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 };
 
 module.exports = parseMessage;
-
-

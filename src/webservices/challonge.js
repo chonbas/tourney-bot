@@ -1,6 +1,7 @@
 const challonge = require('challonge');
 const Console = require('../util/console');
 const token = require('../../credentials').CHALLONGE_TOKEN;
+const crypto = require('crypto-js/sha256');
 var constants = require('../util/constants');
 
 const client = challonge.createClient({
@@ -8,18 +9,16 @@ const client = challonge.createClient({
 });
 
 var exports = {};
+
 var getChallongeURL = (guild_id) => {
 	return 'TB_' + guild_id;
 };
+
 var getTourneyName = (guild_id) => {
 	return 'TB_Tourney_' + guild_id;
 };
 
-var getGuildIDFromURL = (url) => {
-	return url.substring(3);
-};
-
-exports.createTourney = (guild_id, parameters) => {
+exports.createTourney = (guild_id, parameters={}) => {
 	return new Promise((fulfill, reject) => {
 		var tournament =  parameters;
 		tournament['name'] = getTourneyName(guild_id);
@@ -40,11 +39,48 @@ exports.createTourney = (guild_id, parameters) => {
 	});
 };
 
+exports.isTourneyDone = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		client.tournaments.show({
+			id:getChallongeURL(guild_id),
+			callback: (err, response) => {
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					var progress = response['tournament']['progressMeter'];
+					if (progress === 100){
+						fulfill(true);
+					} else {
+						fulfill(false);
+					}
+				}
+			}
+		});
+	});
+};
 
 exports.deleteTourney = (guild_id) => {
 	return new Promise( (fulfill, reject) => {
 		client.tournaments.destroy({
 			id: getChallongeURL(guild_id),
+			callback: (err, response) => {
+				if (err){
+					Console.log(err);
+					reject(err);
+				} else {
+					Console.log('Deleting tournament at: challonge.com/' + response.tournament.url);
+					fulfill(constants.REMOVE_SUCCESS);
+				}
+			}
+		});
+	});
+};
+
+var delete_tourney = (url) => {
+	return new Promise( (fulfill, reject) => {
+		client.tournaments.destroy({
+			id: url,
 			callback: (err, response) => {
 				if (err){
 					Console.log(err);
@@ -67,7 +103,7 @@ exports.finalizeTourney = (guild_id) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					Console.log('Tournament at: challonge.com/' + getChallongeURL(guild_id));
+					Console.log('Finalized tournament at: challonge.com/' + getChallongeURL(guild_id));
 					Console.log(response);
 					fulfill(constants.CLOSE_TOURNEY);
 				}
@@ -86,6 +122,27 @@ exports.getTourney = (guild_id) => {
 					reject(err);
 				} else {
 					fulfill(tourney);
+				}
+			}
+		});
+	});
+};
+
+exports.stashTourney = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		var new_url = crypto(Date.now()).toString().substring(0,constants.MAX_STASH_URL_LENGTH);
+		client.tournaments.update({
+			id: getChallongeURL(guild_id),
+			tournament: {
+				url: new_url
+			},
+			callback: (err, data) =>{
+				if (err) {
+					Console.log(err);
+					reject(err);
+				} else {
+					Console.log(data);
+					fulfill(new_url);
 				}
 			}
 		});
@@ -174,7 +231,7 @@ exports.removeAllTourneys = () => {
 				var delete_mes = arr.filter(t => {return t.tournament.createdByApi;} );
 				//get promises to delete all tournaments
 				var promises = delete_mes.map(t => {
-					return exports.deleteTourney(getGuildIDFromURL(t.tournament.url));
+					return delete_tourney(t.tournament.url);
 				});
 
 				//get promise based on when all deletes are done
@@ -255,7 +312,9 @@ exports.createParticipant = (guild_id, name) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					fulfill(participant.id);
+					Console.log('HEY HERE');
+					Console.log(participant);
+					fulfill(participant.participant.id);
 				}
 			}
 		});
@@ -345,6 +404,26 @@ exports.getTourneyParticipants = (guild_id) => {
 					fulfill(participants);
 				}
 			}
+		});
+	});
+};
+
+
+exports.getTourneyWinner = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		exports.getTourneyParticipants(guild_id).then( (participants)=>{
+			for (var k in Object.keys(participants)){
+				var cur_part = participants[k]['participant'];
+				Console.log(cur_part);
+				if (cur_part['finalRank'] === 1){
+					fulfill(cur_part['id']);
+					return;
+				}
+			}
+			fulfill(null);
+		}).catch( (err) =>{
+			Console.log(err);
+			reject(err);
 		});
 	});
 };
