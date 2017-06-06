@@ -22,7 +22,7 @@ var checkAndPassMsg = (msg, tournament_status, channel_type, question=null) =>{
 		.then((data) => {
 			if(data[0]){
 				var handler = handlers[tournament_status];
-				if (tournament_status == constants.INIT_TOURNEY){
+				if (tournament_status === constants.INIT_TOURNEY){
 					handler.handleMsg && handler.handleMsg(msg, data);
 					return;
 				}
