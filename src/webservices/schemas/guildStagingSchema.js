@@ -7,7 +7,7 @@ var staged_tourney_schema = new mongoose.Schema({
 	tourney_name:{type:String, default:null},
 	tournament_type:{type:String, default:null}, //Use constants
 	// teams: {type:Boolean, default:null},
-	// signup_cap:{type:Number, default:null},
+	// signup_cap:{type:Number, default:-1},
 	open_signup: {type:Boolean, default:false}
 });
 
