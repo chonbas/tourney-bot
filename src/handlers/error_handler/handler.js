@@ -7,7 +7,7 @@ var errhandle = (msg, tournament_status, channel_type) => {
 		//TODO: check states
 		//TODO: give helpful error messages
 		Console.log(channel_type);
-		fulfill([true]);
+		fulfill(true);
 		//fulfill true if everyone's ok and the handlers should run_tourney
 		//like green light
 		//fulfill false stops handlers from tripping
