@@ -47,8 +47,9 @@ var generateReply = (staged_t) => {
 	return next;
 };
 
-var updateChatState = (msg, data) => {
+var updateChatState = (msg) => {
 	return new Promise((fulfill, reject) => {
+		var data = msg.parsed_msg.data_object;
 		var data_status = {};
 		var guild_id = msg.guild.id;
 		db.getStagedTourney(guild_id).then( (staged_t) => {
@@ -57,8 +58,8 @@ var updateChatState = (msg, data) => {
 				reject('No staged tourney');
 			}
 			for (var prop in staged_t){
-				if (data[1] === propToQuestion(prop)){
-					staged_t.prop = msg.parsed_msg.parse;
+				if (data[prop]){
+					staged_t.prop = data[prop];
 					staged_t.save().then( () =>{
 						var next = generateReply(staged_t);
 						msg.reply(next.msg);
