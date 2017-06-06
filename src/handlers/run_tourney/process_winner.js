@@ -22,16 +22,23 @@ var process_winner = (guild_id) => {
 		challonge.finalizeTourney(guild_id)
 		.then(() => {
 			return challonge.getTourneyWinner(guild_id);
-		}).then((winner) => {
-			Console.log('Winner\'s name is ');
-			Console.log(winner);
-			// Print tourney url to TourneyGeneral
+		})
+		.then((winner_id) => {
+			return db.getTeamNameByChallongeID(guild_id, winner_id);
+		})
+		.then((winner_name) => {
+			// Send tourney winner to TourneyAnnounce
+			Console.log('The winner is: ');
+			Console.log(winner_name);
 			return challonge.stashTourney(guild_id);
-		}).then((tourney_url) => {
+		})
+		.then((tourney_url) => {
+			// Send tourney url to TourneyAnnounce
 			Console.log('Your tournament can be found at: ');
 			Console.log('http://challonge.com/' + tourney_url);
 			return db.advanceTournamentState(guild_id);
-		}).then(() => {
+		})
+		.then(() => {
 			fulfill();
 		}).catch(err => {
 			Console.log(err);

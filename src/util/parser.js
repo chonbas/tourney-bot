@@ -144,20 +144,20 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 				break;
 			}
 		}
-		Console.log("team name = " + data_object.team_name);
+		Console.log('team name = ' + data_object.team_name);
 	} else if(words.includes('init') || words.includes('initialize') || words.includes('create') || words.includes('make')){
 		parse = 'CREATE_TOURNEY';
 		handler = 'no_tourney';
 	} else if(words.includes('name')){
 		parse = 'INIT_TOURNEY';
 		handler = 'init_tourney';
-		for(var i = 0; i < words.length; i++){
-			if(msg.match(/\".+\"/i) != null){
-				data_object.tourney_name = msg.match(/\".+\"/i)[0];
-				break;
-			}
-		}
-		Console.log("tourney name = " + data_object.tourney_name);
+		// for(var i = 0; i < words.length; i++){
+		// 	if(msg.match(/\".+\"/i) != null){
+		// 		data_object.tourney_name = msg.match(/\".+\"/i)[0];
+		// 		break;
+		// 	}
+		// }
+		// Console.log("tourney name = " + data_object.tourney_name);
 		// data_object is the tournament object that will be passed to createTournament
 		// tournamentType is camelCase because Challonge API requires it
 		data_object.tournamentType = 'single elimination';
@@ -181,7 +181,7 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 				break;
 			}
 		}
-		Console.log("reported user = " + data_object.reported_user);
+		Console.log('reported user = ' + data_object.reported_user);
 	} else if(words.includes('guilty')){ //HOW DOES JURY WORK??
 		parse = 'VOTE_GUILTY';
 		handler='dispute';

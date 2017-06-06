@@ -38,11 +38,13 @@ handler.handleReaction = (msgRxn, user) => {
 	Console.debug('handler for run-tourney: reaction detected!');
 	// Parse out whether the msgRxn is a match report or dipsute vote
 	var dispute_channel = msgRxn.message.guild.channels.find('name','tourney-dispute');
-
-	if (msgRxn.message.guild.channels.name == dispute_channel.name) {
+	if (msgRxn.message.channel.id == dispute_channel.id) {
+		Console.log('Dispute reaction detected!');
 		resolve_dispute(msgRxn, user)
 		.then((data) => {
-			do_shit(msgRxn, data.guild_id, data.match_id, data.winner_id, data.scores);
+			if (data.winner_team_id != null) {
+				process_match(msgRxn, data.guild_id, data.match_id, data.winner_team_id, data.scores);
+			}
 		})
 		.catch(err => Console.log(err));
 	} else {
@@ -54,9 +56,10 @@ handler.handleReaction = (msgRxn, user) => {
 				var match_id = answer.payload.challonge_match_id;
 				var winner_id = answer.payload.winner_challonge_id;
 				var scores = '1-0';
-				do_shit(msgRxn, guild_id, match_id, winner_id, scores);
+				process_match(msgRxn, guild_id, match_id, winner_id, scores);
 			}
 			if(answer.status == constants.EMOJI_NO){
+				// Send message to match channel asking if they want to report
 				Console.log('MATCH REPORT REJECTED!!');
 			}
 		})
@@ -64,7 +67,7 @@ handler.handleReaction = (msgRxn, user) => {
 	}
 };
 
-var do_shit = (msgRxn, guild_id, match_id, winner_id, scores) => {
+var process_match = (msgRxn, guild_id, match_id, winner_id, scores) => {
 	challonge.updateMatch(guild_id, match_id, winner_id, scores)
 	.then(() => {
 		return challonge.isTourneyDone(guild_id);
@@ -77,5 +80,7 @@ var do_shit = (msgRxn, guild_id, match_id, winner_id, scores) => {
 	})
 	.catch(err => Console.log(err));
 };
+
+
 
 module.exports = handler;
