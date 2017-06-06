@@ -19,11 +19,11 @@ var manager = {};
 var checkAndPassMsg = (msg, tournament_status, channel_type, question=null) =>{
 	msg.parsed_msg = parseMessage(msg.content, tournament_status, channel_type, question);
 	errhandler(msg, tournament_status, channel_type, question)
-		.then((data) => {
-			if(data[0]){
+		.then((is_ok) => {
+			if(is_ok){
 				var handler = handlers[tournament_status];
 				if (tournament_status === constants.INIT_TOURNEY){
-					handler.handleMsg && handler.handleMsg(msg, data);
+					handler.handleMsg && handler.handleMsg(msg);
 					return;
 				}
 				handler.handleMsg && handler.handleMsg(msg);
