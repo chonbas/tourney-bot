@@ -11,11 +11,6 @@ var constants = {
 	'RUN_TOURNEY': 3,   // tournament is in progress
 	'CLOSE_TOURNEY': 4, // tournament is finished, perform clean/reset to none
 
-	//RUN_TOURNEY sub states
-	'STATE_MATCH':0, //
-	'STATE_ADV_MATCH':1,//..
-	'STATE_DISPUTE':2, //..
-	'STATE_ADV_DISPUTE':3,
 
 	// running tournament statuses
 	'RECEIVING_MATCH_REPORTS': 0,

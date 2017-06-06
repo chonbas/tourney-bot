@@ -17,6 +17,7 @@ const handle_it = require('./handle_report_message');
 
 
 var handler = {};
+
 handler.handleMsg = (msg) => {
 	Console.debug('handler for run-tourney checking in');
 	if(msg.parsed_msg.parse == parse_constants.MATCH_REPORT_WIN){

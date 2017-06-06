@@ -2,20 +2,83 @@
 var Console = require('../../util/console');
 // eslint-disable-next-line
 var db = require('../../webservices/mongodb');
-var parser_constants = require('../../util/parse_constants');
+var constants = require('../../util/constants');
+var propToQuestion = require('../../util/parse_util').propToQuestion;
+var tourneyTypeToString = require('../../util/parse_util').tourneyTypeToString;
 
-var updateChatState = (msg) => {
-	return new Promise((fulfill, reject) => {
-		// TODO: retrieve chat state - might need channelid??
-		// TODO: update chat state with info
-		// TODO: if done, set done to true
 
-		msg.reply('init-tourney handler handling');
-		if (msg.parsed_msg.parse == parser_constants['INIT_TOURNEY']){
-			fulfill(true);
+var getPrompt = (prop) => {
+	if (prop === 'Done'){ return 'Initializing tournament...';}
+	if (prop === 'name'){ return 'What would you like the name of this tournament to be?';}
+	if (prop === 'tournament_type'){ return 'What would you like the tournament type to be? Single-elimination, double-elimination, round robin or swiss?';}
+	if (prop === 'teams'){ return 'Is the game being played 1v1?';}
+	if (prop === 'signup_cap'){ return 'What is the maximum number of participants for this tournament? (Please enter -1 for unlimited participants)';}
+};
+
+
+var extractParams = (staged_t) => {
+	var params = {};
+	params['name'] = staged_t.name;
+	params['tournament_type'] = tourneyTypeToString(staged_t.tournament_type);
+	db.setTournamentTeamOption(staged_t.guild_id, staged_t.teams).then( () =>{
+		db.setTournamentName(staged_t.guild_id, staged_t.name).then( () =>{
+			db.setTournamentParticipantCap(staged_t.guild_id, staged_t.signup_cap).then( ()=>{
+				db.removeStagedTourney(staged_t.guild_id).then( () => {
+					return params;
+				}).catch( err => Console.log(err));
+			}).catch( err => Console.log(err));
+		}).catch( err => Console.log(err));
+	}).catch( err => Console.log(err));
+};
+
+var generateReply = (staged_t) => {
+	var next = {};
+	for (var prop in staged_t){
+		if (staged_t[prop] === null){
+			next.msg = getPrompt(prop);
+			next.done = false;
+			next.params = {};
+			return next;
 		}
-		fulfill(false);
-		reject(); // if error, reject
+	}
+	next.msg = getPrompt('Done');
+	next.done = true;
+	next.params = extractParams(staged_t);
+	return next;
+};
+
+var updateChatState = (msg, data) => {
+	return new Promise((fulfill, reject) => {
+		var data_status = {};
+		var guild_id = msg.guild.id;
+		db.getStagedTourney(guild_id).then( (staged_t) => {
+			if (staged_t === constants.NO_TOURNEY){
+				Console.log('No staged tourney was created.');
+				reject('No staged tourney');
+			}
+			for (var prop in staged_t){
+				if (data[1] === propToQuestion(prop)){
+					staged_t.prop = msg.parsed_msg.parse;
+					staged_t.save().then( () =>{
+						var next = generateReply(staged_t);
+						msg.reply(next.msg);
+						data_status.done = next.done;
+						data_status.params = next.params;
+						fulfill(data_status);
+						return;
+					}).catch( (err) =>{
+						Console.log(err);
+						reject(err);
+					});
+				}
+			}
+			data_status.done = false;
+			fulfill(data_status);
+			return;
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
 	});
 };
 
