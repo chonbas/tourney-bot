@@ -48,12 +48,9 @@ function parseCommand(msg){
 	} else if(msg[0] == '+INIT_TOURNEY' && msg[1].match(/\"[.+]\"/i) != null){
 		parse = 'INIT_TOURNEY';
 		handler = 'init_tourney';
-		data_object.tourney_name = msg[1].match(/\"[.+]\"/i)[0];
+		data_object.name = msg[1].match(/\"[.+]\"/i)[0];
 		Console.log('tourney name = ' + data_object.tourney_name);
-
-		// data_object is the tournament object that will be passed to createTournament
-		// tournamentType is camelCase because Challonge API requires it
-		data_object.tournamentType = 'single elimination';
+		data_object.tournament_type = 'single elimination';
 	} else if(msg[0] == '+START_TOURNEY'){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';
@@ -157,10 +154,12 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 		// 		break;
 		// 	}
 		// }
+
+		data_object.tourney_name = 'name';
 		// Console.log("tourney name = " + data_object.tourney_name);
 		// data_object is the tournament object that will be passed to createTournament
 		// tournamentType is camelCase because Challonge API requires it
-		data_object.tournamentType = 'single elimination';
+		data_object.tournament_type = 'single elimination';
 	} else if(words.includes('start') || words.includes('begin')){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';

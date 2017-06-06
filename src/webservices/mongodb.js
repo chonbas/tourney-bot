@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
-var propToQuestion = require('../util/parse_util').propToQuestion;
+var propToQuestion = require('../util/parser_util').propToQuestion;
 const Console = require('../util/console');
 const SCHEMAS = require('./schemas/guildSchema');
 var Stage = require('./schemas/guildStagingSchema').Stage;

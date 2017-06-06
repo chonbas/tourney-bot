@@ -36,6 +36,7 @@ var advanceTournamentStatus = (tourney_params, msg) => {
 
 handler.handleMsg = (msg) => {
 	chat(msg).then((data_status) => {
+		Console.log(data_status);
 		if (data_status.done) {
 			advanceTournamentStatus(data_status.params, msg);
 		}
