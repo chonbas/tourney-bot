@@ -41,7 +41,7 @@ exports.tourney_announce_channel = (status) => {
 
 exports.tourney_announce_winner = (winner_name, tourney_url) => {
 	return `Congratulations ${winner_name} on winning the tournament!
-You can check out the tournament bracket at: ${tourney_url}`;
+You can check out the tournament bracket at: http://www.challonge.com/${tourney_url}`;
 };
 
 module.exports = exports;

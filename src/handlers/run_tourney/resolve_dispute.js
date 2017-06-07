@@ -6,7 +6,6 @@ This is responsible for resolving disputes
 */
 
 var constants = require('../../util/constants');
-var message_text = require('../../util/message_text');
 var db = require('../../webservices/mongodb');
 const discord = require('../../webservices/discord');
 var Console = require('../../util/console');
@@ -26,6 +25,7 @@ var resolve_dispute = (msgRxn, user) => {
 		db.getTournamentTeams(guild_id)
 		.then((teams) => {
 			num_teams = teams.length;
+			Console.log(num_teams);
 			return discord.receiveDisputeChannelVote(msgRxn, user);
 		})
 		.then((votes) => {
@@ -40,7 +40,8 @@ var resolve_dispute = (msgRxn, user) => {
 			counts = votes.payload.counts;
 			yays = counts[constants.EMOJI_YES] + 1;
 			nays = counts[constants.EMOJI_NO] + 1;
-			if ((yays + nays) >= (num_teams - 1)) {
+			// Update threshold
+			if ((yays + nays) >= 1) {
 				if (yays > nays) {
 					winner_discord_id = originator_id;
 				} else {
