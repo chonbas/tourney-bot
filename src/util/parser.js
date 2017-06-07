@@ -26,8 +26,8 @@ function parseCommand(msg){
 
 	msg = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
 
-	if(msg[0] == '+REQUEST_HELP'){
-		parse = 'REQUEST_HELP';
+	if(msg[0] == '+HELP'){
+		parse = 'HELP';
 		handler = 'all';
 	} else if(msg[0] == '+MATCH_REPORT_WIN'){
 		parse = 'MATCH_REPORT_WIN';
@@ -103,7 +103,145 @@ function findUserID(msg){
 }
 
 
-var parseMessage = (msg, tourney_state, channel_type) => {
+
+var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
+	Console.log(msg);
+
+	msg = processMessage(msg);
+	var natural = require('natural'), tokenizer = new natural.WordTokenizer();
+
+	var parse;
+	var handler;
+	var data_object = {};
+
+	var words = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
+	for(var i = 0; i < words.length; i++){
+		if(!words[i].search('\"') && !words[i].search('\'')){
+			words[i] = natural.PorterStemmer.stem(words[i]);
+		}
+	}
+
+	//check if response includes a number
+	var numeric_response == false
+	for(var i = 0; i < words.length; i++){
+		if(msg.match(/\d+/i) != null){
+			data_object.number = msg.match(/\d+/i)[0];
+			numeric_response == true;
+			break;
+		}
+	}
+
+	//if the bot asked about the tourney name, any response given will be interpreted as the tourney name.
+	if(question='NAME'){
+		for(var i = 0; i < words.length; i++){
+			if(msg.match(/(\"|\').+(\"|\')/i) != null){
+				data_object.tourney_name = msg.match(/\".+\"/i)[0];
+				break;
+			}
+		}
+		//if user didn't put anything in quotes, it treats the entire message as the tourney name
+		if(data_object.tourney_name==null){
+			t_name = "";
+			for(var i = 0; i < words.length; i++){
+				t_name = t_name+words[i];
+				if(i != words.length-1){
+					t_name = t_name+' ';
+				}
+			}
+		}
+		parse='DEFINE_NAME';
+		handler='init_tourney';
+	} else if(words.includes('how') || words.includes('why') || words.includes('help') || words.includes('where') || words.includes('what')){
+		parse = 'HELP';
+		handler = 'init_tourney';
+	} else if(words.includes('1v1') || (words.includes('single') && words.includes('player')) || ((words.includes('one') || words.includes('1'))  && (words.includes('verses') || words.includes('vs')))){
+ 		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
+			parse = 'NO_TEAMS';
+			handler = 'init_tourney';
+			data_object.answered = 'TEAMS';
+		} else{
+			parse = 'YES_TEAMS';
+			handler='init_tourney';
+			data_object.answered = 'TEAMS';
+		}
+	} else if(words.includes('single') || words.includes('single_elim')){
+		parse = 'SINGLE_ELIM';
+		handler = 'init_tourney';
+		data_object.answered = 'T_TYPE';
+	} else if(words.includes('double') || words.includes('double_elim')){
+		parse = 'DOUBLE_ELIM';
+		handler = 'init_tourney';
+		data_object.answered = 'T_TYPE';
+	} else if(words.includes('swiss')){
+		parse = 'SWISS';
+		handler = 'init_tourney';
+		data_object.answered = 'T_TYPE';
+	} else if(words.includes('round') || words.includes('robin')){
+		parse = 'ROUND_ROBIN';
+		handler = 'init_tourney';
+		data_object.answered = 'T_TYPE';
+ 	} else if(words.includes('cap') || words.includes('max')){
+ 		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
+			parse = 'NO_CAP';
+			handler = 'init_tourney';
+			data_object.answered = 'STARTUP_CAP';
+		} else{
+			parse = 'CAP';
+			handler='match';
+			data_object.answered = 'STARTUP_CAP';
+			for(var i = 0; i < words.length; i++){
+				if(msg.match(/\d+/i) != null){
+					data_object.number = msg.match(/\d+/i)[0];
+					break;
+				}
+			}
+		}
+	} else if(question='STARTUP_CAP' && numeric_response == true){
+ 		parse = 'CAP';
+ 		handler = 'init_tourney';
+
+	} else if(words.includes('team')){
+ 		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('none')){
+			parse = 'NO_TEAMS';
+			handler = 'init_tourney';
+			data_object.answered = 'TEAMS';
+		} else{
+			parse = 'YES_TEAMS';
+			handler='init_tourney';
+			data_object.answered = 'TEAMS';
+		}
+	} else if(words.includes('name')){ //if the user types "name" in this phase, the bot looks for quotes for what to change the name to.
+		data_object.tourney_name='null'
+		for(var i = 0; i < words.length; i++){
+			if(msg.match(/(\"|\').+(\"|\')/i) != null){
+				data_object.tourney_name = msg.match(/\".+\"/i)[0];
+				break;
+			}
+		}
+		parse='DEFINE_NAME';
+		handler = 'init_tourney';
+		data_object.answered = null;
+	} else if(words.includes('yes') || words.includes('y') || words.includes('sure')){
+		parse = 'YES';
+		handler = 'init_tourney';
+		data_object.answered = null;
+	} else if(words.includes('no') || words.includes('n') || words.includes('negative')){
+		parse = 'NO';
+		handler = 'init_tourney';
+		data_object.answered = null;
+	} else{
+		parse = 'UNIDENTIFIED';
+		handler = 'init_tourney';
+		data_object.answered = null;
+	}
+
+	return {parse: parse_constants[parse], message: msg, handler: handler, data_object: data_object};
+
+};
+
+
+
+var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 	Console.log(msg);
 
 	msg = processMessage(msg);
@@ -124,9 +262,9 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 		}
 	}
 	if(words.includes('how') || words.includes('why') || words.includes('help') || words.includes('where') || words.includes('what')){
-		parse = 'REQUEST_HELP';
+		parse = 'HELP';
 		handler = 'all';
-	} else if(words.includes('won') || words.includes('win') || words.includes('victory') ||
+	} else if(words.includes('won') || words.includes('win') || words.includes('victor') ||
 		words.includes('victorious') || words.includes('triumph') || words.includes('beat')){
 		if(words.includes('not') || words.includes('they') || words.includes('he') || words.includes('she') || words.includes('unable')){
 			parse = 'MATCH_REPORT_LOSE';
@@ -188,33 +326,8 @@ var parseMessage = (msg, tourney_state, channel_type) => {
 	} else if(words.includes('innocent') || words.includes('aquit')){ //HOW DOES JURY WORK??
 		parse = 'VOTE_INNOCENT';
 		handler='dispute';
-	} else if(words.includes('set') || words.includes('setting') || words.includes('adjust') ||
-		words.includes('change')){
-		parse = 'CHANGE_SETTINGS';
-		handler='all';
 	} else if(tourney_state == 'INIT_TOURNEY'){
-		parse = 'INIT_TOURNEY';
-		handler = 'init_tourney';
-		for(var i = 0; i < words.length; i++){
-			if(msg.match(/(\"|\').+(\"|\')/i) != null){
-				data_object.tourney_name = msg.match(/\".+\"/i)[0];
-				break;
-			}
-		}
-		//if user didn't put anything in quotes, it treats the entire message as the tourney name
-		if(data_object.tourney_name==null){
-			t_name = "";
-			for(var i = 0; i < words.length; i++){
-				t_name = t_name+words[i];
-				if(i != words.length-1){
-					t_name = t_name+' ';
-				}
-			}
-		}
-		Console.log("tourney name = " + data_object.tourney_name);
-		// data_object is the tournament object that will be passed to createTournament
-		// tournamentType is camelCase because Challonge API requires it
-		data_object.tournamentType = 'single elimination';
+		return parseMessageInit(msg, tourney_state, channel_type, question=null);
 	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative')){
 		parse = 'YES';
 		handler='all';

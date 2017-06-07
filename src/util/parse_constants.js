@@ -1,5 +1,5 @@
 var parse_constants = {
-	'REQUEST_HELP': 0,
+	'HELP': 0,
 	'MATCH_REPORT_WIN': 1,
 	'MATCH_REPORT_LOSE': 2,
 	'MATCH_REPORT_AMBIGUOUS': 3,
@@ -16,6 +16,16 @@ var parse_constants = {
 	'YES': 13,
 	'NO': 14,
 	'UNIDENTIFIED': 15
+	//below are constants for the init phase
+	'NO_TEAMS': 16
+	'YES_TEAMS': 17
+	'SINGLE_ELIM': 18
+	'DOUBLE_ELIM': 19
+	'SWISS': 20
+	'ROUND_ROBIN': 21
+	'NO_CAP': 22
+	'CAP': 23
+	'DEFINE_NAME': 24
 
 };
 //
