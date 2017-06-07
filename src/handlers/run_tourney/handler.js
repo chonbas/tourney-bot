@@ -63,7 +63,8 @@ handler.handleReaction = (msgRxn, user) => {
 			if(answer.status == constants.EMOJI_NO){
 				// Send message to match channel asking if they want to report
 				Console.log('MATCH REPORT REJECTED!!');
-				return msgRxn.message.channel.send(message_text.MATCH_WIN);
+				Console.log(user);
+				return msgRxn.message.channel.send(message_text.MATCH_REJECTED);
 			}
 		})
 		.catch(err => Console.log(err));

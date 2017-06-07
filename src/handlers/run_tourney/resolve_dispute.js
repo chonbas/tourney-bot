@@ -6,6 +6,7 @@ This is responsible for resolving disputes
 */
 
 var constants = require('../../util/constants');
+var message_text = require('../../util/message_text');
 var db = require('../../webservices/mongodb');
 const discord = require('../../webservices/discord');
 var Console = require('../../util/console');
@@ -30,7 +31,7 @@ var resolve_dispute = (msgRxn, user) => {
 		.then((votes) => {
 			var originator_id = votes.payload.original_payload.originator_id;
 			var defendant = votes.payload.original_payload.defendant_id;
-			// 
+			//
 			var defendant_id = defendant.replace(/\</, '');
 			defendant_id = defendant_id.replace(/\@/, '');
 			defendant_id = defendant_id.replace(/\>/, '');
@@ -51,6 +52,12 @@ var resolve_dispute = (msgRxn, user) => {
 				})
 				.then((winner_challonge_id) => {
 					winner_team_id = winner_challonge_id;
+					return db.getTeamNameByChallongeID(guild_id, winner_team_id);
+				})
+				.then((team_name) => {
+					return msgRxn.message.channel.send('This dispute has been resolved. Congrats ' + team_name + '! You are moving on.');
+				})
+				.then(() => {
 					fulfill({
 						guild_id,
 						match_id,

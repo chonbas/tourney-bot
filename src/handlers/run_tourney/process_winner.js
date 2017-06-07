@@ -29,13 +29,11 @@ var process_winner = (guild) => {
 			return db.getTeamNameByChallongeID(guild_id, winner_id);
 		})
 		.then((winner) => {
-			// Send tourney winner to TourneyAnnounce
 			winner_name = winner;
-			Console.log('The winner is: ');
-			Console.log(winner_name);
 			return challonge.stashTourney(guild_id);
 		})
 		.then((tourney_url) => {
+			// Send tourney winner to TourneyAnnounce
 			// Send tourney url to TourneyAnnounce
 			Console.log('Your tournament can be found at: ');
 			Console.log('http://challonge.com/' + tourney_url);
