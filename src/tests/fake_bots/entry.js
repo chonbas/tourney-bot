@@ -67,6 +67,8 @@ Write @me to have me echo to users with a display name containing "${target_stri
 		if (msg.author.bot) return;
 		// if I'm mentioned
 		if (!msg.isMentioned(client.user)) {return;}
+		// if I'm mentioned first
+		if (!msg.content.startsWith(`<@${client.user.id}>`)) {return;}
 
 		// in a guild server only
 		if (msg.channel.type === 'text'){
