@@ -73,7 +73,7 @@ var process_match = (msgRxn, guild_id, match_id, winner_id, scores) => {
 		return challonge.isTourneyDone(guild_id);
 	}).then((done) => {
 		if (done == true) {
-			return process_winner(guild_id);
+			return process_winner(msgRxn.message.guild);
 		} else {
 			return prep_round(msgRxn.message.guild, 1);
 		}

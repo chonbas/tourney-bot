@@ -17,8 +17,10 @@ const discord = require('../../webservices/discord');
 const challonge = require('../../webservices/challonge');
 const db = require('../../webservices/mongodb');
 
-var process_winner = (guild_id) => {
+var process_winner = (guild) => {
 	return new Promise((fulfill, reject) => {
+		var guild_id = guild.id;
+		var winner_name = null;
 		challonge.finalizeTourney(guild_id)
 		.then(() => {
 			return challonge.getTourneyWinner(guild_id);
@@ -26,8 +28,9 @@ var process_winner = (guild_id) => {
 		.then((winner_id) => {
 			return db.getTeamNameByChallongeID(guild_id, winner_id);
 		})
-		.then((winner_name) => {
+		.then((winner) => {
 			// Send tourney winner to TourneyAnnounce
+			winner_name = winner;
 			Console.log('The winner is: ');
 			Console.log(winner_name);
 			return challonge.stashTourney(guild_id);
@@ -36,6 +39,9 @@ var process_winner = (guild_id) => {
 			// Send tourney url to TourneyAnnounce
 			Console.log('Your tournament can be found at: ');
 			Console.log('http://challonge.com/' + tourney_url);
+			return discord.runAnnounceWinner(guild, winner_name, tourney_url);
+		})
+		.then(() => {
 			return db.advanceTournamentState(guild_id);
 		})
 		.then(() => {

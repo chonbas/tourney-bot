@@ -30,9 +30,10 @@ var resolve_dispute = (msgRxn, user) => {
 		.then((votes) => {
 			var originator_id = votes.payload.original_payload.originator_id;
 			var defendant = votes.payload.original_payload.defendant_id;
+			// 
 			var defendant_id = defendant.replace(/\</, '');
-			var defendant_id = defendant_id.replace(/\@/, '');
-			var defendant_id = defendant_id.replace(/\>/, '');
+			defendant_id = defendant_id.replace(/\@/, '');
+			defendant_id = defendant_id.replace(/\>/, '');
 			match_id = votes.payload.original_payload.challonge_match_id;
 
 			counts = votes.payload.counts;

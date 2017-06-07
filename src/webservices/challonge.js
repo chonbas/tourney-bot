@@ -125,7 +125,7 @@ exports.getTourney = (guild_id) => {
 
 exports.stashTourney = (guild_id) => {
 	return new Promise( (fulfill, reject) => {
-		var new_url = crypto(Date.now()).toString().substring(0,constants.MAX_STASH_URL_LENGTH);
+		var new_url = crypto(Date.now().toString()).toString().substring(0,constants.MAX_STASH_URL_LENGTH);
 		client.tournaments.update({
 			id: getChallongeURL(guild_id),
 			tournament: {

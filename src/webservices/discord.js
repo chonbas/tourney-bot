@@ -377,6 +377,10 @@ exports.receiveDisputeChannelVote = (msgRxn, user) => {
 	return util.countReactions(msgRxn, user, discord_constants.VOTEKICK_MESSAGE);
 };
 
+exports.runAnnounceWinner = (guild, winner_name, tourney_url) => {
+	return util.editAnnounce(guild, str_gen.tourney_announce_winner(winner_name, tourney_url));
+};
+
 exports.runNotifyEndMatches = (guild, matches) => {
 	return new Promise((fulfill, reject) => {
 		Console.log('  Notifying incomplete matches that time is up for ' + guild.id);
