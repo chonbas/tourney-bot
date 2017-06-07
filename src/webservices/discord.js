@@ -224,10 +224,23 @@ Fulfills with role_id
 */
 exports.setupNewTeam = (guild, team_name) => {
 	return new Promise((fulfill, reject) => {
+		var role_id = null;
 		guild.createRole({
 			name: 'tourney-' + team_name
 		})
-		.then((role) => {fulfill(role.id);})
+		.then((role) => {
+			role_id = role.id;
+			return role.setMentionable(true);
+		})
+		.then((role) => {
+			return role.setHoist(true);
+		})
+		.then((role) => {
+			return role.setPosition(0);
+		})
+		.then(() => {
+			fulfill(role_id);
+		})
 		.catch((err) => {reject(err);});
 	});
 };

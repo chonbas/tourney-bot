@@ -45,6 +45,10 @@ var exportme = (client) => {
 		var dat = msg.content.split(' ')[2];
 
 		switch (cmd) {
+		case 'setupNewTeam':
+			discord.setupNewTeam(msg.guild, dat)
+			.then(role_id => {discord.setupAddToTeam(msg.guild, msg.author.id, role_id);});
+			break;
 		case 'sendConfirmInit':
 			discord.sendConfirmInit(msg.channel, msg.author);
 			break;
