@@ -45,7 +45,7 @@ var generateReply = (staged_t) => {
 		// 	}
 		// }
 		next.msg = getPrompt('Done');
-		next.done = true;
+		next.done = false;
 		extractParams(staged_t).then( (params) => {
 			next.params = params;
 			fulfill(next);

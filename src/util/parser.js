@@ -119,7 +119,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 	}
 
 	//check if response includes a number
-	var numeric_response == false
+	var numeric_response = false
 	for(var i = 0; i < words.length; i++){
 		if(msg.match(/\d+/i) != null){
 			data_object.number = msg.match(/\d+/i)[0];
