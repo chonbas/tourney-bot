@@ -234,7 +234,7 @@ exports.editAnnounce = (guild, text) => {
 		var announce_channel = guild.channels.find('name','tourney-announce');
 		announce_channel.fetchPinnedMessages()
 		.then((msgs) => {
-			var announce_msg = msgs.first;
+			var announce_msg = msgs.first();
 			return announce_msg.edit(text);
 		})
 		.then(msg => fulfill(msg))

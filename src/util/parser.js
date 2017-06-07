@@ -49,18 +49,15 @@ function parseCommand(msg){
 	} else if(msg[0] == '+INIT_TOURNEY' && msg[1].match(/\"[.+]\"/i) != null){
 		parse = 'INIT_TOURNEY';
 		handler = 'init_tourney';
-		data_object.tourney_name = msg[1].match(/\"[.+]\"/i)[0];
+		data_object.name = msg[1].match(/\"[.+]\"/i)[0];
 		Console.log('tourney name = ' + data_object.tourney_name);
-
-		// data_object is the tournament object that will be passed to createTournament
-		// tournamentType is camelCase because Challonge API requires it
-		data_object.tournamentType = 'single elimination';
+		data_object.tournament_type = 'single elimination';
 	} else if(msg[0] == '+START_TOURNEY'){
 		parse = 'START_TOURNEY';
 		handler = 'setup_tourney';
 	} else if(msg[0] == '+END_TOURNEY'){
 		parse = 'END_TOURNEY';
-		handler = 'all';
+		handler = 'close_tourney';
 	} else if(msg[0] == '+DROP_TOURNEY'){ //when a user wants to drop from the tourney
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
@@ -245,6 +242,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 	Console.log(msg);
 
 	msg = processMessage(msg);
+
 	if(msg[0]=='+' || (msg[0]==' ' && msg[1]=='+')){
 		return parseCommand(msg);
 	}
@@ -295,7 +293,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 				break;
 			}
 		}
-		Console.log("team name = " + data_object.team_name);
+		Console.log('team name = ' + data_object.team_name);
 	} else if(words.includes('init') || words.includes('initialize') || words.includes('create') || words.includes('make')){
 		parse = 'CREATE_TOURNEY';
 		handler = 'no_tourney';
@@ -304,7 +302,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		handler = 'setup_tourney';
 	} else if(words.includes('end') || words.includes('destroy') || words.includes('close') || words.includes('kill') || words.includes('stop')){
 		parse = 'END_TOURNEY';
-		handler = 'all';
+		handler = 'close_tourney';
 	} else if(words.includes('drop') || words.includes('quit') || ((words.includes('im') || words.includes('i\'m')) && words.includes('done'))){
 		parse = 'DROP_TOURNEY';
 		handler = 'all';
@@ -319,7 +317,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 				break;
 			}
 		}
-		Console.log("reported user = " + data_object.reported_user);
+		Console.log('reported user = ' + data_object.reported_user);
 	} else if(words.includes('guilty')){ //HOW DOES JURY WORK??
 		parse = 'VOTE_GUILTY';
 		handler='dispute';

@@ -13,15 +13,6 @@ var client = new Discord.Client();
 
 var exports = {};
 
-// Stub
-exports.stub = (msg, obj1, obj2, obj3, obj4, obj5) => {
-	return new Promise((fulfill, reject) => {
-		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
-		Console.log(msg);
-		reject(); // if fail, reject
-	});
-};
-
 /*
 ███████████████████████████████████████████████████████
   STAGE: NO TOURNAMENT
@@ -135,6 +126,12 @@ exports.transitionInitToSetup = (guild) => {
 				'general',
 				constants.GENERAL_CHANNEL,
 				str_gen.tourney_general_channel()
+			),
+			util.createChannelPinMessage(
+				guild,
+				'dispute',
+				constants.JURY_CHANNEL,
+				str_gen.tourney_general_channel()
 			)
 		];
 		Promise.all(ps)
@@ -227,10 +224,23 @@ Fulfills with role_id
 */
 exports.setupNewTeam = (guild, team_name) => {
 	return new Promise((fulfill, reject) => {
+		var role_id = null;
 		guild.createRole({
 			name: 'tourney-' + team_name
 		})
-		.then((role) => {fulfill(role.id);})
+		.then((role) => {
+			role_id = role.id;
+			return role.setMentionable(true);
+		})
+		.then((role) => {
+			return role.setHoist(true);
+		})
+		.then((role) => {
+			return role.setPosition(0);
+		})
+		.then(() => {
+			fulfill(role_id);
+		})
 		.catch((err) => {reject(err);});
 	});
 };
@@ -332,6 +342,25 @@ exports.receiveConfirmMatchReport = (msgRxn, user) => {
 	);
 };
 
+// Initiate vote
+exports.initiateDisputeVote = (guild, originator_id, defendant_id, challonge_match_id) => {
+	var dispute_channel = guild.channels.find('name', 'tourney-dispute');
+	return util.sendConfirmMessage(
+		dispute_channel,
+		str_gen.stub(`Prosecutor: <@${originator_id}>.
+			defendant: <@${defendant_id}>.`,
+			'jury channel greeting'),
+		discord_constants.VOTEKICK_MESSAGE,
+		defendant_id,
+		'@everyone',
+		discord_constants.EMOJI_YN,
+		{
+			originator_id: originator_id, defendant_id: defendant_id, challonge_match_id: challonge_match_id
+		},
+		true
+	);
+};
+
 // Dispute Channels
 exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_id) => {
 	return util.createChannel(
@@ -359,6 +388,10 @@ exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_i
 
 exports.receiveDisputeChannelVote = (msgRxn, user) => {
 	return util.countReactions(msgRxn, user, discord_constants.VOTEKICK_MESSAGE);
+};
+
+exports.runAnnounceWinner = (guild, winner_name, tourney_url) => {
+	return util.editAnnounce(guild, str_gen.tourney_announce_winner(winner_name, tourney_url));
 };
 
 exports.runNotifyEndMatches = (guild, matches) => {

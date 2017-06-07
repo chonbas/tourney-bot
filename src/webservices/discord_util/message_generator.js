@@ -10,9 +10,6 @@ const universals = require('../../util/constants');
 //eslint-disable-next-line
 const locals = require('./constants');
 
-var wrap = (txt, mentions='') => {
-	return `*Note to self: [${txt}] ${mentions}`;
-};
 
 /*
 Stub is for temporary place-holding.
@@ -38,8 +35,13 @@ exports.tourney_general_channel = () => {
 exports.tourney_announce_channel = (status) => {
 	return `Hi everyone!\n
 	This is the general tourney channel.
-	${wrap(universals.ANNOUNCE_CHANNEL)}
+	${universals.ANNOUNCE_CHANNEL}
 	Status: ${status}`;
+};
+
+exports.tourney_announce_winner = (winner_name, tourney_url) => {
+	return `Congratulations ${winner_name} on winning the tournament!
+You can check out the tournament bracket at: ${tourney_url}`;
 };
 
 module.exports = exports;

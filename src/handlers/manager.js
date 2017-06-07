@@ -16,6 +16,23 @@ handlers[constants.CLOSE_TOURNEY] = require('./close_tourney/handler');
 
 var manager = {};
 
+var checkAndPassMsg = (msg, tournament_status, channel_type, question=null) =>{
+	msg.parsed_msg = parseMessage(msg.content, tournament_status, channel_type, question);
+	errhandler(msg, tournament_status, channel_type, question)
+		.then((is_ok) => {
+			if(is_ok){
+				var handler = handlers[tournament_status];
+				if (tournament_status === constants.INIT_TOURNEY){
+					handler.handleMsg && handler.handleMsg(msg);
+					return;
+				}
+				handler.handleMsg && handler.handleMsg(msg);
+				return;
+			}
+		})
+		.catch(err => Console.log(err));
+};
+
 manager.distributeMsg = (msg) => {
 	if(msg.content.includes('PURGE')) {
 		require('../webservices/discord').deleteAllTourneyChannels(msg.guild);
@@ -29,16 +46,13 @@ manager.distributeMsg = (msg) => {
 	//retrieve channel type
 	}).then((channel_type) => {
 		//give info to parser and attach parsed info to msg object
-		msg.parsed_msg = parseMessage(msg.content, tournament_status, channel_type);
-
-		errhandler(msg, tournament_status, channel_type)
-		.then((is_ok) => {
-			if(is_ok){
-				var handler = handlers[tournament_status];
-				handler.handleMsg && handler.handleMsg(msg);
-			}
-		})
-		.catch(err => Console.log(err));
+		if (tournament_status === constants.INIT_TOURNEY){
+			db.getNextStagedTourneyQuestion(msg.guild.id).then( (question) => {
+				checkAndPassMsg(msg, tournament_status, channel_type, question);
+			}).catch(err => Console.log(err));
+		} else {
+			checkAndPassMsg(msg, tournament_status, channel_type);
+		}
 	});
 };
 

@@ -21,8 +21,18 @@ exports.testTourneyDone = () => {
 exports.testTourneyCreation = () => {
 	return new Promise((fulfill, reject) => {
 		Challonge.createTourney(test_id).then( () => {
-			Console.log('created');
 			fulfill('created');
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.testTourneyDeletion = () => {
+	return new Promise((fulfill, reject) => {
+		Challonge.removeAllTourneys().then( () => {
+			fulfill('deleted');
 		}).catch( (err) => {
 			Console.log(err);
 			reject(err);
@@ -32,8 +42,20 @@ exports.testTourneyCreation = () => {
 
 exports.testGetWinner = () => {
 	return new Promise((fulfill, reject) => {
-		Challonge.getTourneyWinner(test_id).then( (status) => {
+		Challonge.getTourneyCreation(test_id).then( (status) => {
 			Console.log('got winner?');
+			fulfill(status);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.testStash = () => {
+	return new Promise((fulfill, reject) => {
+		Challonge.stashTourney(test_id).then( (status) => {
+			Console.log('stashed');
 			fulfill(status);
 		}).catch( (err) => {
 			Console.log(err);
@@ -45,17 +67,29 @@ exports.testGetWinner = () => {
 module.exports = exports;
 
 if (!module.parent) {
-	exports.testTourneyDone().then( (status) => {
-		exports.testGetWinner().then( (status) => {
+	exports.testTourneyCreation().then( (status) => {
+		Console.log(status);
+		exports.testStash().then( (status) => {
+			Console.log(status);
+			exports.testTourneyDeletion().then( (status) => {
+				Console.log(status);
+				process.exit();
+			}).catch( (err) => {
+				Console.log(err);
+				process.exit();
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			process.exit();
+		});
+	}).catch((err) =>{
+		Console.log(err);
+		exports.testTourneyDeletion().then( (status) => {
 			Console.log(status);
 			process.exit();
 		}).catch( (err) => {
 			Console.log(err);
 			process.exit();
 		});
-		Console.log(status);
-	}).catch((err) =>{
-		Console.log(err);
-		process.exit();
 	});
 }

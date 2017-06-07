@@ -1,5 +1,6 @@
 //require things up here
 var Console = require('../../util/console');
+<<<<<<< HEAD
 var parser_constants = require('../../util/parse_constants');
 const db = require('../../webservices/mongodb');
 const challonge = require('../../webservices/challonge');
@@ -132,12 +133,8 @@ var errhandle = (msg, tournament_status, channel_type, question=null) => {
 			msg.reply(update_msg(msg, msg.parsed_msg.data_object.number));
 		}
 		fulfill(init_err[0]);
-		//fulfill true if everyone's ok and the handlers should run_tourney
-		//like green light
-		//fulfill false stops handlers from tripping
-		reject(/*erros*/);
 	});
-};
+}
 
 handler.handleMsg = (msg, t_status) => {
 	if(msg.parsed_msg.parse != parse_constants.MATC)
