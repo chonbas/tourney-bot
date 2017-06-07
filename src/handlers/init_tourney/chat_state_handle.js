@@ -21,7 +21,7 @@ var extractParams = (staged_t) => {
 		var params = {};
 		params['name'] = staged_t.tourney_name;
 		params['tournament_type'] = staged_t.tournament_type;
-		// db.setTournamentTeamOption(staged_t.guild_id, staged_t.teams).then( () =>{
+		// db.setTournamentTeamOption(staged_t.guild_id, staged_t.teams).then( () =>{ //UNCOMMENT ALL OF THESE LINES
 		db.setTournamentName(staged_t.guild_id, staged_t.tourney_name).then( () =>{
 			// db.setTournamentParticipantCap(staged_t.guild_id, staged_t.signup_cap).then( ()=>{
 			db.removeStagedTourney(staged_t.guild_id).then( () => {
@@ -36,7 +36,7 @@ var extractParams = (staged_t) => {
 var generateReply = (staged_t) => {
 	return new Promise( (fulfill, reject) => {
 		var next = {};
-		// for (var prop in staged_t){
+		// for (var prop in staged_t){ //UNCOMMENT THIS LOOP!!!
 		// 	if (staged_t[prop] && staged_t[prop] === null){
 		// 		next.msg = getPrompt(prop);
 		// 		next.done = false;
@@ -45,7 +45,7 @@ var generateReply = (staged_t) => {
 		// 	}
 		// }
 		next.msg = getPrompt('Done');
-		next.done = false;
+		next.done = true;
 		extractParams(staged_t).then( (params) => {
 			next.params = params;
 			fulfill(next);

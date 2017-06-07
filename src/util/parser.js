@@ -119,10 +119,10 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 	}
 
 	//check if response includes a number
-	var numeric_response = false
-	for(var i = 0; i < words.length; i++){
+	var numeric_response = false;
+	for(i = 0; i < words.length; i++){
 		if(msg.match(/\d+/i) != null){
-			data_object.number = msg.match(/\d+/i)[0];
+			data_object.signup_cap = parseInt(msg.match(/\d+/i)[0]);
 			numeric_response == true;
 			break;
 		}
@@ -130,7 +130,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 
 	//if the bot asked about the tourney name, any response given will be interpreted as the tourney name.
 	if(question='NAME'){
-		for(var i = 0; i < words.length; i++){
+		for(i = 0; i < words.length; i++){
 			if(msg.match(/(\"|\').+(\"|\')/i) != null){
 				data_object.tourney_name = msg.match(/\".+\"/i)[0];
 				break;
@@ -138,13 +138,14 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 		}
 		//if user didn't put anything in quotes, it treats the entire message as the tourney name
 		if(data_object.tourney_name==null){
-			t_name = "";
-			for(var i = 0; i < words.length; i++){
+			var t_name = '';
+			for(i = 0; i < words.length; i++){
 				t_name = t_name+words[i];
 				if(i != words.length-1){
 					t_name = t_name+' ';
 				}
 			}
+			data_object.tourney_name==t_name;
 		}
 		parse='DEFINE_NAME';
 		handler='init_tourney';
@@ -155,28 +156,28 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
  		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
 			parse = 'NO_TEAMS';
 			handler = 'init_tourney';
-			data_object.answered = 'TEAMS';
+			data_object.teams = false;
 		} else{
 			parse = 'YES_TEAMS';
 			handler='init_tourney';
-			data_object.answered = 'TEAMS';
+			data_object.teams = true;
 		}
 	} else if(words.includes('single') || words.includes('single_elim')){
 		parse = 'SINGLE_ELIM';
 		handler = 'init_tourney';
-		data_object.answered = 'T_TYPE';
+		data_object.tournament_type = 'single elimination';
 	} else if(words.includes('double') || words.includes('double_elim')){
 		parse = 'DOUBLE_ELIM';
 		handler = 'init_tourney';
-		data_object.answered = 'T_TYPE';
+		data_object.tournament_type = 'double elimination';
 	} else if(words.includes('swiss')){
 		parse = 'SWISS';
 		handler = 'init_tourney';
-		data_object.answered = 'T_TYPE';
+		data_object.tournament_type = 'swiss';
 	} else if(words.includes('round') || words.includes('robin')){
 		parse = 'ROUND_ROBIN';
 		handler = 'init_tourney';
-		data_object.answered = 'T_TYPE';
+		data_object.tournament_type = 'round robin';
  	} else if(words.includes('cap') || words.includes('max')){
  		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
 			parse = 'NO_CAP';
@@ -186,9 +187,9 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 			parse = 'CAP';
 			handler='match';
 			data_object.answered = 'STARTUP_CAP';
-			for(var i = 0; i < words.length; i++){
+			for(i = 0; i < words.length; i++){
 				if(msg.match(/\d+/i) != null){
-					data_object.number = msg.match(/\d+/i)[0];
+					data_object.singup_cap = msg.match(/\d+/i)[0];
 					break;
 				}
 			}
@@ -201,15 +202,15 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
  		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('none')){
 			parse = 'NO_TEAMS';
 			handler = 'init_tourney';
-			data_object.answered = 'TEAMS';
+			data_object.teams = false;
 		} else{
 			parse = 'YES_TEAMS';
 			handler='init_tourney';
-			data_object.answered = 'TEAMS';
+			data_object.teams = true;
 		}
 	} else if(words.includes('name')){ //if the user types "name" in this phase, the bot looks for quotes for what to change the name to.
-		data_object.tourney_name='null'
-		for(var i = 0; i < words.length; i++){
+		data_object.tourney_name='null';
+		for(i = 0; i < words.length; i++){
 			if(msg.match(/(\"|\').+(\"|\')/i) != null){
 				data_object.tourney_name = msg.match(/\".+\"/i)[0];
 				break;
