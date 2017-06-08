@@ -166,6 +166,33 @@ exports.setTournamentChallongeID = (guild_id, challonge_id) => {
 	});
 };
 
+
+
+/* setTournamentOwner(guild_id, discord_id)
+ * -------------------------------------------------------
+ * -------------------------------------------------------
+*/
+exports.setTournamentAdmin = (guild_id, admin_discord_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			guild_obj.admin = admin_discord_id;
+			guild_obj.save().then( () =>{
+				Console.log('Owner set to user with Discord ID:' + admin_discord_id +' for guild with id:' + guild_id);
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 /* getTournamentChallongeID(guild_id)
  * -------------------------------------------------------
  * Attempts to find the guild with the given id,
@@ -198,6 +225,38 @@ exports.getTournamentChallongeID = (guild_id) => {
 	});
 };
 
+
+/* getTournamentAdmin(guild_id)
+ * -------------------------------------------------------
+ * Attempts to find the guild with the given id,
+ * and if that guild's challonge id is not null, the promise
+ * is fulfilled and the challonge id is returned.
+ * If tourney not found, fulfill with NO_TOURNEY.
+ * NOTE:If ChallongeID is null, fulfill will be null.
+ * If any error occurs, the promise will be rejected.
+ * Returns: Promise -- On successful fulfill returns challonge ID.
+ * Usage:
+ * db.getTournamentChallongeID(guild_id).then( (challonge_id) =>{
+ * 		//DO STUFF
+ * }).catch( (err) =>{
+ * 		//ERROR HANDLING
+ * });
+ * -------------------------------------------------------
+*/
+exports.getTournamentAdmin = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			var admin = guild_obj.admin;
+			fulfill(admin);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
 /* getTournamentStatus(guild_id)
  * -------------------------------------------------------
  * Attempts to find guild with the given id,
