@@ -25,12 +25,13 @@ var resolve_dispute = (msgRxn, user) => {
 		db.getTournamentTeams(guild_id)
 		.then((teams) => {
 			num_teams = teams.length;
+			Console.log(num_teams);
 			return discord.receiveDisputeChannelVote(msgRxn, user);
 		})
 		.then((votes) => {
 			var originator_id = votes.payload.original_payload.originator_id;
 			var defendant = votes.payload.original_payload.defendant_id;
-			// 
+			//
 			var defendant_id = defendant.replace(/\</, '');
 			defendant_id = defendant_id.replace(/\@/, '');
 			defendant_id = defendant_id.replace(/\>/, '');
@@ -39,7 +40,8 @@ var resolve_dispute = (msgRxn, user) => {
 			counts = votes.payload.counts;
 			yays = counts[constants.EMOJI_YES] + 1;
 			nays = counts[constants.EMOJI_NO] + 1;
-			if ((yays + nays) >= (num_teams - 1)) {
+			// Update threshold
+			if ((yays + nays) >= 1) {
 				if (yays > nays) {
 					winner_discord_id = originator_id;
 				} else {
@@ -51,6 +53,12 @@ var resolve_dispute = (msgRxn, user) => {
 				})
 				.then((winner_challonge_id) => {
 					winner_team_id = winner_challonge_id;
+					return db.getTeamNameByChallongeID(guild_id, winner_team_id);
+				})
+				.then((team_name) => {
+					return msgRxn.message.channel.send('This dispute has been resolved. Congrats ' + team_name + '! You are moving on.');
+				})
+				.then(() => {
 					fulfill({
 						guild_id,
 						match_id,
