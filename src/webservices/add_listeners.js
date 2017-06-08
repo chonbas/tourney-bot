@@ -3,11 +3,14 @@
 
 const Console = require('../util/console');
 const manager = require('../handlers/manager');
+const str_gen = require('../webservices/discord_util/message_generator');
 const credentials = require('../../credentials.js');
 
 var exportme = (client) => {
 	client.on('ready', () => {
 		Console.log(`Logged in as ${client.user.username}!`);
+		Console.log('Use this link to invite the bot to your server:');
+		Console.log(`https://discordapp.com/oauth2/authorize?client_id=${client.user.id}&scope=bot&permissions=268631120`);
 	});
 
 	//
@@ -32,6 +35,19 @@ var exportme = (client) => {
 			return;
 		}
 		manager.distributeMsg(msg);
+	});
+
+	/*
+	whenever the bot joins a server,
+	send a message to the guild's default channel
+	instructing users what to do.
+	*/
+	client.on('guildCreate', guild => {
+		guild.defaultChannel.send(
+			str_gen.stub('TOURNEYBOT HAS JOINED THE SERVER, MUHAHAHA')
+		)
+		.then(() => {})
+		.catch(err => Console.log(err));
 	});
 
 	// emojis
