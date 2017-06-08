@@ -1846,12 +1846,8 @@ exports.getNextStagedTourneyQuestion = (guild_id) => {
 			guild_id:guild_id
 		}).then( (staged_t) =>{
 			if (staged_t === null){fulfill(constants.NO_TOURNEY);return;}
-			for (var prop_ind in constants.STAGED_PROPS){
-				var prop = constants.STAGED_PROPS[prop_ind];
-				if (staged_t[prop] === null){
-					Console.log('next prop');
-					Console.log(prop);
-					Console.log(propToQuestion(prop));
+			for (var prop in staged_t){
+				if (staged_t.prop === null){
 					fulfill(propToQuestion(prop));
 					return;
 				}

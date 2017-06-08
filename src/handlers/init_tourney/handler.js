@@ -18,7 +18,6 @@ const challonge = require('../../webservices/challonge');
 
 var handler = {};
 
-
 var advanceTournamentStatus = (tourney_params, msg) => {
 	Console.log('Init tourney handler "done"; advancing to setup');
 	// tournament and use db.setChallongeID() to set challonge ID
@@ -42,6 +41,7 @@ handler.handleMsg = (msg) => {
 			advanceTournamentStatus(data_status.params, msg);
 		}
 	}).catch((err) => { Console.log(err); });
+
 };
 
 
