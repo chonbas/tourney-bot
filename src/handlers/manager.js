@@ -48,7 +48,6 @@ manager.distributeMsg = (msg) => {
 		//give info to parser and attach parsed info to msg object
 		if (tournament_status === constants.INIT_TOURNEY){
 			db.getNextStagedTourneyQuestion(msg.guild.id).then( (question) => {
-				Console.log('question in manager: ' + question)
 				checkAndPassMsg(msg, tournament_status, channel_type, question);
 			}).catch(err => Console.log(err));
 		} else {

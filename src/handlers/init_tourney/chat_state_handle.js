@@ -32,16 +32,15 @@ var extractParams = (staged_t) => {
 					db.removeStagedTourney(staged_t.guild_id).then( () => {
 						fulfill(params);
 					}).catch( err => reject(err));
-				}).catch( err => Console.log(err));
-			}).catch( err => reject(err));
-		}).catch( err => Console.log(err));
+				}).catch( err => reject(err));
+       }).catch( err => reject(err));
+     }).catch( err => reject(err));
 	});
 };
 
 var generateReply = (staged_t) => {
 	return new Promise( (fulfill, reject) => {
 		var next = {};
-
 		for (var i in STAGED_PROPS){
 			var prop = STAGED_PROPS[i];
 			if (prop in staged_t && staged_t[prop] === null){
