@@ -15,6 +15,8 @@ var parse_constants = {
 	'CHANGE_SETTINGS': 12,
 	'YES': 13,
 	'NO': 14,
+	'RESOLVE': 25,
+	
 	'UNIDENTIFIED': 15, //below are constants for the init phase
 	'NO_TEAMS': 16,
 	'YES_TEAMS': 17,

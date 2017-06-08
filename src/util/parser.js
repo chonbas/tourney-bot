@@ -73,6 +73,9 @@ function parseCommand(msg){
 	} else if(msg[0] === '+VOTE_INNOCENT'){
 		parse = 'VOTE_INNOCENT';
 		handler='dispute';
+	} else if(msg[0] === '+RESOLVE'){
+		parse = 'RESOLVE';
+		handler='dispute';
 	} else if(msg[0] === '+CHANGE_SETTINGS'){ //I realize this isn't useful yet
 		parse = 'CHANGE_SETTINGS';
 		handler='all';
@@ -338,6 +341,9 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		handler='dispute';
 	} else if(words.includes('innocent') || words.includes('aquit')){ //HOW DOES JURY WORK??
 		parse = 'VOTE_INNOCENT';
+		handler='dispute';
+	} else if(words.includes('resolve') || (words.includes('move') && words.includes('on')) || ((words.includes('end') || words.includes('stop') || words.includes('finish'))&& words.includes('dispute'))){ //HOW DOES JURY WORK??
+		parse = 'RESOLVE';
 		handler='dispute';
 	} else if(tourney_state === constants['INIT_TOURNEY']){
 		return parseMessageInit(msg, tourney_state, channel_type, question);
