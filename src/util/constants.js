@@ -34,6 +34,8 @@ var constants = {
 	'EMOJI_COUNTS': 'EMOJI_COUNTS',
 	'EMOJI_INVALID': 'EMOJI_INVALID', //ignore
 
+
+	'STAGED_PROPS': ['tourney_name', 'tournament_type','teams','signup_cap'],
 	//Dispute Types
 	'DISPUTE_CHEAT':0,
 	'DISPUTE_DC':1,
