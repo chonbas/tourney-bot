@@ -125,7 +125,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 		Console.log(msg.match(/\d+/i));
 		if(msg.match(/\d+/i) != null){
 			data_object.signup_cap = parseInt(msg.match(/\d+/i)[0]);
-			numeric_response === true;
+			numeric_response = true;
 			break;
 		}
 	}

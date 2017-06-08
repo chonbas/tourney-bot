@@ -35,7 +35,8 @@ var constants = {
 	'EMOJI_INVALID': 'EMOJI_INVALID', //ignore
 
 
-	'STAGED_PROPS': ['tourney_name', 'tournament_type','teams','signup_cap'],
+	'STAGED_PROPS': ['tourney_name', 'tournament_type','teams','signup_cap','confirmed'],
+	'STAGED_IND_TO_NAME': {0:'Tournament Name:', 1:'Tournament Type:', 2:'1v1:', 3:'Max participants:'},
 	//Dispute Types
 	'DISPUTE_CHEAT':0,
 	'DISPUTE_DC':1,
