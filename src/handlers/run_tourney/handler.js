@@ -58,7 +58,7 @@ handler.handleReaction = (msgRxn, user) => {
 				var winner_id = answer.payload.winner_challonge_id;
 				var scores = '1-0';
 				process_match(msgRxn, guild_id, match_id, winner_id, scores);
-				return msgRxn.message.channel.send(message_text.MATCH_WIN);
+				return msgRxn.message.channel.send('Congrats! You won the match.');
 			}
 			if(answer.status == constants.EMOJI_NO){
 				// Send message to match channel asking if they want to report

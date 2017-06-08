@@ -74,17 +74,19 @@ sets permission to only init-user
 */
 exports.transitionNoToInit = (guild, init_user) => {
 	return new Promise((fulfill, reject) => {
+		var msg = null;
 		util.createChannelPinMessage(
 			guild,
 			'init',
 			constants.INIT_CHANNEL,
 			str_gen.tourney_init_channel(init_user)
 		).then((message) => {
+			msg = message;
 			return util.setPermissions(
 				message.channel,
 				['SEND_MESSAGES'],
 				[init_user]);
-		}).then(() => {fulfill();})
+		}).then(() => {fulfill(msg.channel);})
 		.catch(err => reject(err));
 	});
 };
