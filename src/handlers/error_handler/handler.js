@@ -55,18 +55,21 @@ function update_msg(msg, cap=null){
 }
 
 function unidentified_err(msg){
-	if(question=='TEAMS'){
-		return 'I did not understand that.  Could you please rephrase?';
-	}
+	var err_msg = 'I did not understand that.  Could you please rephrase?';
+	return err_msg;
 }
 
 function init_checker(msg, question=null){
-	if(question == 'NAME' || msg.parsed_msg.parse == parser_constants['SINGLE_ELIM'] || msg.parsed_msg.parse == parser_constants['DOUBLE_ELIM'] ||
-		msg.parsed_msg.parse == parser_constants['SWISS'] || msg.parsed_msg.parse == parser_constants['ROUND_ROBIN'] ||
-		msg.parsed_msg.parse == parser_constants['NO_TEAMS'] || msg.parsed_msg.parse == parser_constants['YES_TEAMS'] ||
-		msg.parsed_msg.parse == parser_constants['CAP'] || msg.parsed_msg.parse == parser_constants['NO_CAP']){
+	if(question === 'NAME' || msg.parsed_msg.parse === parser_constants['SINGLE_ELIM'] || msg.parsed_msg.parse === parser_constants['DOUBLE_ELIM'] ||
+		msg.parsed_msg.parse === parser_constants['SWISS'] || msg.parsed_msg.parse === parser_constants['ROUND_ROBIN'] ||
+		msg.parsed_msg.parse === parser_constants['NO_TEAMS'] || msg.parsed_msg.parse === parser_constants['YES_TEAMS'] ||
+		msg.parsed_msg.parse === parser_constants['CAP'] || msg.parsed_msg.parse === parser_constants['NO_CAP'] || msg.parsed_msg.parse === parser_constants['YES']
+		|| msg.parsed_msg.parse === parser_constants['NO']){
+		Console.log('identified parse, returning true');
 		return true;
 	} else{
+		Console.log('unidentified init');
+		msg.reply('I did not understand that.  Could you please rephrase?');
 		return false;
 	}
 
@@ -104,8 +107,8 @@ var errhandle = (msg, tournament_status, channel_type, question=null) => {
 		//TODO: check states
 		//TODO: give helpful error messages
 		Console.log('ERR HANDLING');
-		if(tournament_status == 'INIT_TOURNEY'){
-			fulfill(init_checker(msg));
+		if(tournament_status == constants['INIT_TOURNEY']){
+			fulfill(init_checker(msg, question));
 		}
 		else{
 			Console.log('FULFILLING TRUE');

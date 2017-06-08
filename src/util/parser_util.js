@@ -7,7 +7,7 @@ exports.propToQuestion = (prop) =>{
 	if (prop === 'tourney_name'){ return 'NAME';}
 	if (prop === 'tournament_type'){ return 'T_TYPE';}
 	if (prop === 'teams'){ return 'TEAMS';}
-	if (prop === 'signup_cap'){ return 'SIGNUP_CAP';}
+	if (prop === 'signup_cap'){ return 'STARTUP_CAP';}
 	return;
 };
 

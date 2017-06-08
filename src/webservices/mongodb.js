@@ -300,7 +300,7 @@ exports.getTourneyAvailability = (guild_id) => {
 		}).then((guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
 			var res = {};
-			if (guild_obj.signup_cap === -1){
+			if (guild_obj.signup_cap === 0){
 				res.cap = 1;
 				res.cur = 0;
 			}else{
@@ -1788,8 +1788,6 @@ exports.deleteChannelsByType = (guild_id, channel_type) => {
 		});
 	});
 };
-// createStagedTourney
-// getStagedTourney
 
 
 exports.createStagedTourney = (guild_id) => {
@@ -1846,12 +1844,10 @@ exports.getNextStagedTourneyQuestion = (guild_id) => {
 			guild_id:guild_id
 		}).then( (staged_t) =>{
 			if (staged_t === null){fulfill(constants.NO_TOURNEY);return;}
+
 			for (var prop_ind in constants.STAGED_PROPS){
 				var prop = constants.STAGED_PROPS[prop_ind];
 				if (staged_t[prop] === null){
-					Console.log('next prop');
-					Console.log(prop);
-					Console.log(propToQuestion(prop));
 					fulfill(propToQuestion(prop));
 					return;
 				}

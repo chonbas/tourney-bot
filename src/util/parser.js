@@ -106,7 +106,8 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 	Console.log(msg);
 
 	msg = processMessage(msg);
-	var natural = require('natural'), tokenizer = new natural.WordTokenizer();
+
+	var natural = require('natural'); //, tokenizer = new natural.WordTokenizer(); < - declared but never used?
 
 	var parse;
 	var handler;
@@ -122,9 +123,10 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 	//check if response includes a number
 	var numeric_response = false;
 	for(i = 0; i < words.length; i++){
+		Console.log(msg.match(/\d+/i));
 		if(msg.match(/\d+/i) != null){
 			data_object.signup_cap = parseInt(msg.match(/\d+/i)[0]);
-			numeric_response === true;
+			numeric_response = true;
 			break;
 		}
 	}
@@ -139,16 +141,12 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 			}
 		}
 		//if user didn't put anything in quotes, it treats the entire message as the tourney name
-		if(data_object.tourney_name===null){
-			var t_name = '';
-			for(i = 0; i < words.length; i++){
-				t_name = t_name+words[i];
-				if(i != words.length-1){
-					t_name = t_name+' ';
-				}
-			}
-			data_object.tourney_name===t_name;
+
+		if(!data_object.tourney_name){
+			data_object.tourney_name=words.join(' ');
 		}
+		Console.log('data object');
+		Console.log(data_object);
 		parse='DEFINE_NAME';
 		handler='init_tourney';
 	} else if(words.includes('how') || words.includes('why') || words.includes('help') || words.includes('where') || words.includes('what')){
@@ -167,11 +165,11 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 	} else if(question==="TEAMS" && (words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('totally') || words.includes('sure'))){
 		parse = 'YES_TEAMS';
 		handler = 'init_tourney';
-		data_object.teams = true;
+		data_object.teams = false; // question asked is 'is this 1v1'
 	} else if(question==="TEAMS" && (words.includes('no') || words.includes('n') || words.includes('negative') || words.includes('nope'))){
 		parse = 'NO_TEAMS';
 		handler = 'init_tourney';
-		data_object.teams = false;
+		data_object.teams = true;
 	} else if(words.includes('single') || words.includes('single-elim') || words.includes('single-elimination')){
 		parse = 'SINGLE_ELIM';
 		handler = 'init_tourney';
@@ -193,6 +191,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 			parse = 'NO_CAP';
 			handler = 'init_tourney';
 			data_object.answered = 'STARTUP_CAP';
+			data_object.signup_cap = 0;
 		} else{
 			parse = 'CAP';
 			handler='match';
@@ -229,14 +228,17 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 		parse='DEFINE_NAME';
 		handler = 'init_tourney';
 		data_object.answered = null;
-	} else if(words.includes('yes') || words.includes('y') || words.includes('sure')){
+	} else if(question==='CONFIRMED' && (words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('yeah') || words.includes('yep') || words.includes('yup') || words.includes('ya'))){
 		parse = 'YES';
 		handler = 'init_tourney';
+		if(question==='CONFIRMED'){
+			data_object.confirmed = true;
+		}
 		data_object.answered = null;
-	} else if(words.includes('no') || words.includes('n') || words.includes('negative')){
+	} else if(question==='CONFIRMED' && (words.includes('no') || words.includes('n') || words.includes('negative')|| words.includes('nope'))){
 		parse = 'NO';
 		handler = 'init_tourney';
-		data_object.answered = null;
+		data_object.confirmed = false;
 	} else{
 		parse = 'UNIDENTIFIED';
 		handler = 'init_tourney';
@@ -260,7 +262,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		return parseCommand(msg);
 	}
 
-	var natural = require('natural'), tokenizer = new natural.WordTokenizer();
+	var natural = require('natural'); //, tokenizer = new natural.WordTokenizer();
 
 	var parse;
 	var handler;
@@ -300,7 +302,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 	} else if(words.includes('join') || words.includes('sign') || words.includes('add') || words.includes('enter')){ //will return null if "team name" not found
 		parse = 'JOIN_TOURNEY';
 		handler = 'setup_tourney';
-		for(var i = 0; i < words.length; i++){
+		for(i = 0; i < words.length; i++){
 			if(msg.match(/(\"|\').+(\"|\')/i) != null){
 				data_object.team_name = msg.match(/\".+\"/i)[0];
 				break;
@@ -324,7 +326,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		Console.log('reported user = ' + data_object.reported_user);
 		parse = 'REPORT';
 		handler='match';
-		for(var i = 0; i < words.length; i++){
+		for(i = 0; i < words.length; i++){
 			if(msg.match(/<@(\d|\!)+>/i) != null){
 				data_object.reported_user = msg.match(/<@(\d|\!)+>/i)[0];
 				break;
@@ -339,10 +341,10 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		handler='dispute';
 	} else if(tourney_state === constants['INIT_TOURNEY']){
 		return parseMessageInit(msg, tourney_state, channel_type, question);
-	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative')){
+	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('yeah') || words.includes('yep') || words.includes('yup') || words.includes('ya')){
 		parse = 'YES';
 		handler='all';
-	} else if(words.includes('no') || words.includes('n') || words.includes('nope') || words.includes('negative')){
+	} else if(words.includes('no') || words.includes('n') || words.includes('nope') || words.includes('negative') || words.includes('nah')){
 		parse = 'NO';
 		handler='all';
 	} else{

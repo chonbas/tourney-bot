@@ -24,7 +24,8 @@ exports.tourney_init_channel = (user) => {
 	return `Hello ${user.username}!\n
 	You're in charge of initializing the tournament, but don't worry - I've got you covered.\n
 	By typing "doneski", I will create a Challonge tournament for you that other people can join.\n
-	Blah blah blah. Yep!`;
+	Blah blah blah. Yep!\n
+	First off -- what would you like the tournament name to be?`;
 };
 
 exports.tourney_general_channel = () => {
