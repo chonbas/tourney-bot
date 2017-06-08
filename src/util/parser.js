@@ -106,6 +106,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 	Console.log(msg);
 
 	msg = processMessage(msg);
+
 	var natural = require('natural'); //, tokenizer = new natural.WordTokenizer(); < - declared but never used?
 
 	var parse;
@@ -140,6 +141,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 			}
 		}
 		//if user didn't put anything in quotes, it treats the entire message as the tourney name
+
 		if(!data_object.tourney_name){
 			data_object.tourney_name=words.join(' ');
 		}
@@ -226,14 +228,17 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 		parse='DEFINE_NAME';
 		handler = 'init_tourney';
 		data_object.answered = null;
-	} else if(words.includes('yes') || words.includes('y') || words.includes('sure')){
+	} else if(question==='CONFIRMED' && (words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('yeah') || words.includes('yep') || words.includes('yup') || words.includes('ya'))){
 		parse = 'YES';
 		handler = 'init_tourney';
+		if(question==='CONFIRMED'){
+			data_object.confirmed = true;
+		}
 		data_object.answered = null;
-	} else if(words.includes('no') || words.includes('n') || words.includes('negative')){
+	} else if(question==='CONFIRMED' && (words.includes('no') || words.includes('n') || words.includes('negative')|| words.includes('nope'))){
 		parse = 'NO';
 		handler = 'init_tourney';
-		data_object.answered = null;
+		data_object.confirmed = false;
 	} else{
 		parse = 'UNIDENTIFIED';
 		handler = 'init_tourney';
@@ -336,10 +341,10 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		handler='dispute';
 	} else if(tourney_state === constants['INIT_TOURNEY']){
 		return parseMessageInit(msg, tourney_state, channel_type, question);
-	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative')){
+	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('yeah') || words.includes('yep') || words.includes('yup') || words.includes('ya')){
 		parse = 'YES';
 		handler='all';
-	} else if(words.includes('no') || words.includes('n') || words.includes('nope') || words.includes('negative')){
+	} else if(words.includes('no') || words.includes('n') || words.includes('nope') || words.includes('negative') || words.includes('nah')){
 		parse = 'NO';
 		handler='all';
 	} else{
