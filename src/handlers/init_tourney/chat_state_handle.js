@@ -22,23 +22,24 @@ var extractParams = (staged_t) => {
 		var params = {};
 		params['name'] = staged_t.tourney_name;
 		params['tournament_type'] = staged_t.tournament_type;
-		// params['signup_cap'] = staged_t.signup_cap;
-		// params['open_signup'] = staged_t.open_signup; // THIS IS TO ENSURE NOONE CAN SIGN UP THROUGH CHALLONGE WEBSITE
-		// db.setTournamentTeamOption(staged_t.guild_id, staged_t.teams).then( () =>{
-		db.setTournamentName(staged_t.guild_id, staged_t.tourney_name).then( () =>{
-			// db.setTournamentParticipantCap(staged_t.guild_id, staged_t.signup_cap).then( ()=>{
-			db.removeStagedTourney(staged_t.guild_id).then( () => {
-				fulfill(params);
+		params['signup_cap'] = staged_t.signup_cap;
+		params['open_signup'] = staged_t.open_signup; // THIS IS TO ENSURE NOONE CAN SIGN UP THROUGH CHALLONGE WEBSITE
+		db.setTournamentTeamOption(staged_t.guild_id, staged_t.teams).then( () =>{
+			db.setTournamentName(staged_t.guild_id, staged_t.tourney_name).then( () =>{
+				db.setTournamentParticipantCap(staged_t.guild_id, staged_t.signup_cap).then( ()=>{
+					db.removeStagedTourney(staged_t.guild_id).then( () => {
+						fulfill(params);
+					}).catch( err => reject(err));
+				}).catch( err => Console.log(err));
 			}).catch( err => reject(err));
-			// }).catch( err => Console.log(err));
-		}).catch( err => reject(err));
-		// }).catch( err => Console.log(err));
+		}).catch( err => Console.log(err));
 	});
 };
 
 var generateReply = (staged_t) => {
 	return new Promise( (fulfill, reject) => {
 		var next = {};
+
 		for (var i in STAGED_PROPS){
 			var prop = STAGED_PROPS[i];
 			if (prop in staged_t && staged_t[prop] === null){
