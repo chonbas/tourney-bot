@@ -4,7 +4,7 @@ const Console = require('../util/console');
 var exports = {};
 
 /*
-returns a Promise<mssage>
+returns a Promise<message>
 */
 var dmPlayer = (user_obj, msg_txt) => {
 	if(user_obj.dmChannel){
@@ -15,7 +15,7 @@ var dmPlayer = (user_obj, msg_txt) => {
 };
 
 /*
-returns a Promise<Array<>>
+returns a Promise<Array<message>>
 */
 exports.notifyRole = (guild_obj, role_id, message_txt) => {
 	var role_obj = guild_obj.roles.get(role_id);
@@ -24,7 +24,9 @@ exports.notifyRole = (guild_obj, role_id, message_txt) => {
 	}));
 };
 
-
+/*
+returns a Promise<message>
+*/
 exports.notifyPlayer = (guild_obj, player_id, message_txt) => {
 	var player_obj = guild_obj.members.get(player_id);
 	return dmPlayer(player_obj, message_txt);
