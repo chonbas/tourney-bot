@@ -33,7 +33,7 @@ var exportme = (client) => {
 	// WE ARE NOT EQUIPPED TO HANDLE DM CHANNELS
 		if(!msg.guild){
 			msg.reply('Sorry, I\'m not equipped to handle messages not in a guild.');
-			return
+			return;
 		}
 	// never reply to bots
 	// TODO: Add this check before release!!
