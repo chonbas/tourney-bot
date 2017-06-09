@@ -26,6 +26,15 @@ var exportme = (client) => {
 
 	//
 	client.on('message', msg => {
+		//never reply to self
+		if(msg.author.id == client.user.id){
+			return;
+		}
+	// WE ARE NOT EQUIPPED TO HANDLE DM CHANNELS
+		if(!msg.guild){
+			msg.reply('Sorry, I\'m not equipped to handle messages not in a guild.');
+			return
+		}
 	// never reply to bots
 	// TODO: Add this check before release!!
 	// if (msg.author.bot) return;
