@@ -59,7 +59,10 @@ tokens.forEach((token) => {
 		//send a "i'm awake" message
 		client.guilds.map((guild) => {
 			guild.defaultChannel.sendMessage(`${client.user.username} has arrived.
-Write @me to have me echo to users with a display name containing "${target_string}".`);
+
+Write @me to have me echo to users with a display name containing "${target_string}".
+
+React to any message I send, and I'll copy whatever reactions you have to other messages until you tell me "@bot stop".`);
 		});
 	});
 
