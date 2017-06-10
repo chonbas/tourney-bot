@@ -1,20 +1,18 @@
 machine:
     environment:
-        GCLOUD_PROJECT:"tourneybot-170319"
+        - GCLOUD_PROJECT:"tourneybot-170319"
     node:
         version: 6.10.2
-
 test:
     override:
         - npm run lint;
 deployment:
     production:
-        pre:
+        branch: master
+        commands:
             - pyenv global 2.7.12
             - echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
             - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
             - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             - sudo /opt/google-cloud-sdk/bin/gcloud config set project $GCLOUD_PROJECT
-        branch: master
-        commands:
             - gcloud -q app deploy app.yaml --promote --version=1 --stop-previous-version
