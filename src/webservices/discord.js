@@ -303,20 +303,18 @@ exports.transitionSetupToRun = (guild) => {
 /*
 
 */
-exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
+exports.runInitMatchChannel = (guild, role_ids, match_number, ref_id) => {
 	return util.createChannelPinMessage(
 		guild,
 		'match-' + match_number,
 		constants.MATCH_CHANNEL,
-		str_gen.stub(`Hi match ${match_number}.
-			please play: ${players.map(p => {return '<@'+p+'> ';})}`,
-			'match channel greeting'),
+		str_gen.tourney_match_channel(guild, role_ids, match_number),
 		ref_id
 	).then((message) => {
 		return util.setPermissions(
 			message.channel,
 			['SEND_MESSAGES', 'READ_MESSAGES'],
-			players,
+			role_ids,
 			client);
 	});
 };
