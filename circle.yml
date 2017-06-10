@@ -1,7 +1,20 @@
 machine:
+    environment:
+        GCLOUD_PROJECT:"tourneybot-170319"
     node:
         version: 6.10.2
+dependencies:
+    pre:
+        - pyenv global 2.7.12
+        - echo $GCLOUD_SERVICE_KEY | base64 --decode > ${HOME}/client-secret.json
+        - gcloud --quiet components update app
+        - gcloud auth activate-service-account --key-file ${HOME}/client-secret.json
+        - gcloud config set project $GCLOUD_PROJECT
 test:
     override:
         - npm run lint;
-        # - npm run test;
+deployment:
+    staging:
+        branch: master
+        commands:
+            - gcloud app deploy --promote --version=1 --stop-previous-version
