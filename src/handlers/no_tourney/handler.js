@@ -22,7 +22,6 @@ var advanceTournamentStatus = (msg) => {
 			return discord.transitionNoToInit(msg.guild, msg.author);
 		})
 		.then((init_channel) => {
-			Console.log(init_channel.name);
 			return init_channel.send('<@'+msg.author.id + '> Let us get started! What would you like to name the tournament?');
 		})
 		.catch(err => Console.log(err));

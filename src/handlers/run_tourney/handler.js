@@ -8,6 +8,7 @@ in handlers.
 
 const discord = require('../../webservices/discord');
 const challonge = require('../../webservices/challonge');
+const db = require('../../webservices/mongodb');
 const constants = require('../../util/constants');
 const parse_constants = require('../../util/parse_constants');
 const Console = require('../../util/console');
@@ -70,9 +71,28 @@ handler.handleReaction = (msgRxn, user) => {
 		.catch(err => Console.log(err));
 	}
 };
-
+// db.removeTeam(guild_id, role_id)
 var process_match = (msgRxn, guild_id, match_id, winner_id, scores) => {
 	challonge.updateMatch(guild_id, match_id, winner_id, scores)
+	.then(() => {
+		return challonge.getMatch(guild_id, match_id);
+	})
+	// Remove loser
+	.then((match_obj) => {
+		var team1_challonge_id = match_obj.match.player1Id;
+		var team2_challonge_id = match_obj.match.player2Id;
+		if (team1_challonge_id == winner_id) {
+			db.getRoleIDByChallongeID(guild_id, team2_challonge_id)
+			.then((team2_role_id) => {
+				return db.removeTeam(guild_id, team2_role_id);
+			}).catch(err => Console.log(err));
+		} else {
+			db.getRoleIDByChallongeID(guild_id, team1_challonge_id)
+			.then((team1_role_id) => {
+				return db.removeTeam(guild_id, team1_role_id);
+			}).catch(err => Console.log(err));
+		}
+	})
 	.then(() => {
 		return challonge.isTourneyDone(guild_id);
 	}).then((done) => {
