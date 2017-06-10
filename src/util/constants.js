@@ -53,10 +53,10 @@ var constants = {
 	'PARTICIPANT_IN_TEAM':6,
 	'DISPUTE_EXISTS':7,
 	'TEAM_EXISTS':8,
-	// 'DATABASE_ADDRESS':	'mongodb://' + creds.MONGO_USER + ':' + creds.MONGO_PASS + '@ds113702.mlab.com:13702/tourneydb'// update to live when needeed
+	'DATABASE_ADDRESS':	'mongodb://' + creds.MONGO_USER + ':' + creds.MONGO_PASS + '@ds113702.mlab.com:13702/tourneydb',// update to live when needeed
 	// other constants
 	'CONSTANT_MESSAGE': 'hello world',
-	'DATABASE_ADDRESS': 'mongodb://localhost/test'
+	// 'DATABASE_ADDRESS': 'mongodb://localhost/test'
 };
 //
 module.exports = constants;
