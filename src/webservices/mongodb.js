@@ -171,7 +171,6 @@ exports.setTournamentChallongeID = (guild_id, challonge_id) => {
 
 /* setTournamentOwner(guild_id, discord_id)
  * -------------------------------------------------------
- * -------------------------------------------------------
 */
 exports.setTournamentAdmin = (guild_id, admin_discord_id) => {
 	return new Promise((fulfill, reject) => {
