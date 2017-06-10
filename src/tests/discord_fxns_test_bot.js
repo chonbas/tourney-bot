@@ -64,6 +64,11 @@ var exportme = (client) => {
 			notify.notifyPlayer(msg.guild, player_id, 'DM player test')
 			.then(res => Console.log(res));
 			break;
+		case 'notifyAllPlayers':
+			notify.notifyAllPlayers(msg.guild, 'DM all players test')
+			.then(res => Console.log(res))
+			.catch(res => Console.log(res));
+			break;
 		/*
 		TESTING DISCORD.JS FILE
 		*/

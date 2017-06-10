@@ -136,7 +136,13 @@ exports.transitionInitToSetup = (guild) => {
 				'dispute',
 				constants.JURY_CHANNEL,
 				str_gen.tourney_general_channel()
-			)
+			),
+			guild.createRole({
+				name: discord_constants.GENERAL_ROLE_NAME
+			})
+			.then((role) => {
+				return role.setMentionable(true);
+			})
 		];
 		Promise.all(ps)
 		.then(() => fulfill())
@@ -259,6 +265,10 @@ exports.setupAddToTeam = (guild, user_id, role_id) => {
 		Console.log(role_id);
 		var role = guild.roles.get(role_id);
 		guild_user.addRole(role)
+		.then(() => {
+			var general_role = guild.roles.find('name', discord_constants.GENERAL_ROLE_NAME);
+			return guild_user.addRole(general_role);
+		})
 		.then(() => {fulfill();})
 		.catch(() => {reject();});
 	});
