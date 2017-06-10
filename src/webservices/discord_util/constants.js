@@ -26,6 +26,9 @@ var constants = {
 	'MATCH_REPORT_MESSAGE': 'match-report-confirmation',
 	//get vote counts
 	'VOTEKICK_MESSAGE': 'votekick-counter-message',
+
+	//for a general tournament role
+	'GENERAL_ROLE_NAME': '-tourney-player-',
 };
 //
 module.exports = constants;
