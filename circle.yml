@@ -4,14 +4,14 @@ machine:
 test:
     override:
         - npm run lint;
-# deployment:
-#     production:
-#         pre:
-#             - pyenv global 2.7.12
-#         branch: master
-#         commands:
-#             - echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-#             - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
-#             - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-#             - sudo /opt/google-cloud-sdk/bin/gcloud config set project $GCLOUD_PROJECT
-#             - sudo /opt/google-cloud-sdk/bin/gcloud -q app deploy --promote --version=circle --stop-previous-version
+deployment:
+    production:
+        pre:
+            - pyenv global 2.7.12
+        branch: master
+        commands:
+            - echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+            - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+            - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            - sudo /opt/google-cloud-sdk/bin/gcloud config set project $GCLOUD_PROJECT
+            - sudo /opt/google-cloud-sdk/bin/gcloud app deploy --promote --version=circle --stop-previous-version
