@@ -85,7 +85,8 @@ exports.transitionNoToInit = (guild, init_user) => {
 			return util.setPermissions(
 				message.channel,
 				['SEND_MESSAGES'],
-				[init_user, client.user]);
+				[init_user],
+				client);
 		}).then(() => {fulfill(msg.channel);})
 		.catch(err => reject(err));
 	});
@@ -115,7 +116,8 @@ exports.transitionInitToSetup = (guild) => {
 				return util.setPermissions(
 					message.channel,
 					['SEND_MESSAGES'],
-					[]);
+					[],
+					client);
 			}),
 			util.createChannelPinMessage(
 				guild,
@@ -281,7 +283,8 @@ exports.transitionSetupToRun = (guild) => {
 			).then((msg) => {
 				return util.setPermissions(msg.channel,
 				['SEND_MESSAGES'],
-				[]);
+				[],
+				client);
 			})
 		];
 		var finish_p = Promise.all(promises);
@@ -313,7 +316,8 @@ exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
 		return util.setPermissions(
 			message.channel,
 			['SEND_MESSAGES', 'READ_MESSAGES'],
-			players);
+			players,
+			client);
 	});
 };
 

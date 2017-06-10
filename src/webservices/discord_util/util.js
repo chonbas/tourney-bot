@@ -67,9 +67,12 @@ permission to write.
 
 allowed is an array!!
 
+client is the client from Discord.js. This is to make
+sure the bot has permission to do things in the channel.
+
 Returns the pinned message in a promise.
 */
-exports.setPermissions = (channel, permissions, allowed) => {
+exports.setPermissions = (channel, permissions, allowed, client) => {
 	return new Promise((fulfill, reject) => {
 		var p_obj = {'SEND_MESSAGES': false};
 		permissions.forEach(p => p_obj[p] = false);
@@ -87,6 +90,10 @@ exports.setPermissions = (channel, permissions, allowed) => {
 					p_obj
 				);
 			});
+			promise_array.push(channel.overwritePermissions(
+				client.user,
+				{'SEND_MESSAGES': true, 'READ_MESSAGES': true}
+			));
 			var all_set = Promise.all(promise_array);
 			return all_set;
 		}).then(() => {
