@@ -4,15 +4,16 @@ var Challonge = require('../webservices/challonge');
 
 var wipeDB = () => {
 	return new Promise((fulfill, reject) => {
-		db.clearDB().then( () => {
-			Challonge.removeAllTourneys().then( (status) => {
-				fulfill(status);
-			}). catch(( err) => {
-				Console.log(err);
-				reject(err);
-			});
-		}).catch( (err) => {
+		db.clearDB()
+		.then(() => {
+			return Challonge.removeAllTourneys();
+		})
+		.then( (status) => {
+			fulfill(status);
+		})
+		.catch( (err) => {
 			Console.log(err);
+			reject(err);
 		});
 	});
 };
