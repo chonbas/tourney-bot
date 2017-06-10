@@ -1,6 +1,4 @@
 machine:
-    environment:
-        - GCLOUD_PROJECT:"tourneybot-170319"
     node:
         version: 6.10.2
 test:
