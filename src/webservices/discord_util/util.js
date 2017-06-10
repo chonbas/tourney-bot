@@ -166,13 +166,14 @@ exports.receiveYNConfirmMessage = (
 	uses_maybe=false
 ) => {
 	return new Promise((fulfill, reject) => {
-		db_m.getMessage(msgRxn.message.id)
+		var ret = {};
+		var message_id = msgRxn.message.id;
+		db_m.getMessage(message_id)
 		.then((msg_data) => {
-			var ret = {};
 			ret.status = constants.EMOJI_INVALID;
 			if (!exports.isRelevantReaction(msgRxn, type, msg_data, user, ret)) {
 				fulfill(ret);
-				return;
+				return Promise.resolve();
 			}
 			// if our recipient, get answer
 			switch (msgRxn.emoji.name) {
@@ -190,9 +191,12 @@ exports.receiveYNConfirmMessage = (
 			default: //unknown emoji
 				ret.payload = 'unknown emoji';
 				fulfill(ret);
-				return;
+				return Promise.resolve();
 			}
 			ret.payload = msg_data.msg_payload;
+			return db_m.deleteMessage(message_id);
+		})
+		.then(() => {
 			fulfill(ret);
 		})
 		.catch((err) => reject(err));
