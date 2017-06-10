@@ -10,6 +10,7 @@ exports.clearDB = () =>{
 	return new Promise((fulfill, reject) => {
 		Message.remove({}, (err)=>{
 			if (err) { reject(err);	}
+			fulfill();
 		});
 	});
 };
@@ -42,6 +43,17 @@ exports.getMessage = (id) => {
 		}).catch( (err)=>{
 			Console.log(err);
 			reject(err);
+		});
+	});
+};
+
+exports.deleteMessage = (id) => {
+	return new Promise((fulfill, reject) => {
+		Message.remove({
+			msg_id: id
+		}, (err)=>{
+			if (err) { reject(err);	}
+			fulfill(constants.REMOVE_SUCCESS);
 		});
 	});
 };

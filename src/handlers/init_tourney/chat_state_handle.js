@@ -21,7 +21,7 @@ var getTourneySummary = (staged_t) =>{
 var getPrompt = (prop, staged_t) => {
 	if (prop === 'Done'){ return 'Initializing tournament...';}
 	if (prop === 'tourney_name'){ return 'What would you like the name of this tournament to be?';}
-	if (prop === 'tournament_type'){ return 'What would you like the tournament type to be? Single-elimination, double-elimination, round robin or swiss?';}
+	if (prop === 'tournament_type'){ return 'What would you like the tournament type to be: single-elimination, double-elimination, round robin or swiss?';}
 	if (prop === 'teams'){ return 'Is the game being played 1v1?';}
 	if (prop === 'signup_cap'){ return 'What is the maximum number of participants for this tournament? (Please enter 0 for unlimited participants)';}
 	if (prop === 'confirmed'){ return getTourneySummary(staged_t);}

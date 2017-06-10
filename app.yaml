@@ -1,0 +1,5 @@
+runtime: nodejs
+service: tourney-bot
+env: flex
+manual_scaling:
+  instances: 1

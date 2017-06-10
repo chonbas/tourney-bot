@@ -4,4 +4,14 @@ machine:
 test:
     override:
         - npm run lint;
-        # - npm run test;
+deployment:
+    production:
+        pre:
+            - pyenv global 2.7.12
+        branch: master
+        commands:
+            - echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+            - gcloud --quiet components update
+            - gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            - gcloud config set project $GCLOUD_PROJECT
+            - gcloud -q app deploy app.yaml --promote --version=1 --stop-previous-version
