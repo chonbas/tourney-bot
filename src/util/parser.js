@@ -156,7 +156,7 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 		parse = 'HELP';
 		handler = 'init_tourney';
 	} else if(words.includes('1v1') || (words.includes('single') && words.includes('player')) || ((words.includes('one') || words.includes('1'))  && (words.includes('verses') || words.includes('vs')))){
- 		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
+		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none') || words.includes('not')){
 			parse = 'NO_TEAMS';
 			handler = 'init_tourney';
 			data_object.teams = false;
@@ -165,11 +165,11 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 			handler='init_tourney';
 			data_object.teams = true;
 		}
-	} else if(question==="TEAMS" && (words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('totally') || words.includes('sure'))){
+	} else if(question==='TEAMS' && (words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('totally') || words.includes('sure'))){
 		parse = 'YES_TEAMS';
 		handler = 'init_tourney';
 		data_object.teams = false; // question asked is 'is this 1v1'
-	} else if(question==="TEAMS" && (words.includes('no') || words.includes('n') || words.includes('negative') || words.includes('nope'))){
+	} else if(question==='TEAMS' && (words.includes('no') || words.includes('n') || words.includes('negative') || words.includes('nope'))){
 		parse = 'NO_TEAMS';
 		handler = 'init_tourney';
 		data_object.teams = true;
@@ -189,8 +189,8 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 		parse = 'ROUND_ROBIN';
 		handler = 'init_tourney';
 		data_object.tournament_type = 'round robin';
- 	} else if(words.includes('cap') || words.includes('max')){
- 		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
+	} else if(words.includes('cap') || words.includes('max')){
+		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('not')){
 			parse = 'NO_CAP';
 			handler = 'init_tourney';
 			data_object.answered = 'STARTUP_CAP';
@@ -207,11 +207,11 @@ var parseMessageInit = (msg, tourney_state, channel_type, question=null) => {
 			}
 		}
 	} else if(question==='STARTUP_CAP' && numeric_response === true){
- 		parse = 'CAP';
- 		handler = 'init_tourney';
+		parse = 'CAP';
+		handler = 'init_tourney';
 
 	} else if(words.includes('team')){
- 		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('none')){
+		if(words.includes('no') || words.includes('unneccessary') || words.includes('nope') || words.includes('none')  || words.includes('none')){
 			parse = 'NO_TEAMS';
 			handler = 'init_tourney';
 			data_object.teams = false;
@@ -329,6 +329,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 		Console.log('reported user = ' + data_object.reported_user);
 		parse = 'REPORT';
 		handler='match';
+		data_object.reported_user = null;
 		for(i = 0; i < words.length; i++){
 			if(msg.match(/<@(\d|\!)+>/i) != null){
 				data_object.reported_user = msg.match(/<@(\d|\!)+>/i)[0];
