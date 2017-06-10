@@ -17,4 +17,4 @@ deployment:
     staging:
         branch: master
         commands:
-            - gcloud app deploy --promote --version=1
+            - gcloud app deploy --promote --version=1 --stop-previous-version
