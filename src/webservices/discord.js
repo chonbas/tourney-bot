@@ -85,7 +85,7 @@ exports.transitionNoToInit = (guild, init_user) => {
 			return util.setPermissions(
 				message.channel,
 				['SEND_MESSAGES'],
-				[init_user]);
+				[init_user, client.user]);
 		}).then(() => {fulfill(msg.channel);})
 		.catch(err => reject(err));
 	});
