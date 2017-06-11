@@ -55,7 +55,6 @@ var constants = {
 	'TEAM_EXISTS':8,
 
 	// 'DATABASE_ADDRESS':	'mongodb://' + creds.MONGO_USER + ':' + creds.MONGO_PASS + '@ds113702.mlab.com:13702/tourneydb',// update to live when needeed
-	// 'DATABASE_ADDRESS':	'mongodb://tb:t0urn3yb0t@ds113702.mlab.com:13702/tourneydb',// update to live when needeed
 	// other constants
 	'CONSTANT_MESSAGE': 'hello world',
 	'DATABASE_ADDRESS': 'mongodb://localhost/test'

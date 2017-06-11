@@ -58,6 +58,7 @@ var extractParams = (staged_t, admin_id) => {
 var generateReply = (staged_t, admin_id) => {
 	return new Promise( (fulfill, reject) => {
 		var next = {};
+
 		for (var i in STAGED_PROPS){
 			var prop = STAGED_PROPS[i];
 			if (prop in staged_t && staged_t[prop] === null){
