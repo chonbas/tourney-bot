@@ -48,7 +48,6 @@ manager.distributeMsg = (msg) => {
 	}).then((channel_type_return) => {
 		channel_type = channel_type_return;
 		return db.getTournamentAdmin(msg.guild.id);
-
 	}).then((initiator_id) => {
 		//give info to parser and attach parsed info to msg object
 		if (tournament_status === constants.INIT_TOURNEY){
