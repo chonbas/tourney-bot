@@ -43,7 +43,7 @@ var join_parsing_err = 'I did not get the name of the team you are trying to cre
 // var init_nonsense_err = 'I didn\'t quite get that.';
 
 
-var current_state_msg (t_status, initiator_id, msg) =>{
+var current_state_msg = (t_status, initiator_id, msg) =>{
 	if(t_status === constants['NO_TOURNEY']){
 		return no_tourney_err;
 	}
