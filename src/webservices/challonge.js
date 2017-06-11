@@ -14,14 +14,9 @@ var getChallongeURL = (guild_id) => {
 	return 'TB_' + guild_id;
 };
 
-var getTourneyName = (guild_id) => {
-	return 'TB_Tourney_' + guild_id;
-};
-
 exports.createTourney = (guild_id, parameters={}) => {
 	return new Promise((fulfill, reject) => {
 		var tournament =  parameters;
-		tournament['name'] = getTourneyName(guild_id);
 		tournament['url'] = getChallongeURL(guild_id);
 		client.tournaments.create({
 			tournament: tournament,
@@ -130,7 +125,7 @@ exports.getTourney = (guild_id) => {
 
 exports.stashTourney = (guild_id) => {
 	return new Promise( (fulfill, reject) => {
-		var new_url = crypto(Date.now()).toString().substring(0,constants.MAX_STASH_URL_LENGTH);
+		var new_url = crypto(Date.now().toString()).toString().substring(0,constants.MAX_STASH_URL_LENGTH);
 		client.tournaments.update({
 			id: getChallongeURL(guild_id),
 			tournament: {
@@ -254,7 +249,13 @@ exports.getMatchList = (guild_id) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					fulfill(matches);
+					var match_arr = [];
+					for(var match in matches){
+						let m = matches[match].match;
+						m.name = match;
+						match_arr.push(m);
+					}
+					fulfill(match_arr);
 				}
 			}
 		});

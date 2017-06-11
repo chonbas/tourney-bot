@@ -67,9 +67,12 @@ permission to write.
 
 allowed is an array!!
 
+client is the client from Discord.js. This is to make
+sure the bot has permission to do things in the channel.
+
 Returns the pinned message in a promise.
 */
-exports.setPermissions = (channel, permissions, allowed) => {
+exports.setPermissions = (channel, permissions, allowed, client) => {
 	return new Promise((fulfill, reject) => {
 		var p_obj = {'SEND_MESSAGES': false};
 		permissions.forEach(p => p_obj[p] = false);
@@ -87,6 +90,10 @@ exports.setPermissions = (channel, permissions, allowed) => {
 					p_obj
 				);
 			});
+			promise_array.push(channel.overwritePermissions(
+				client.user,
+				{'SEND_MESSAGES': true, 'READ_MESSAGES': true}
+			));
 			var all_set = Promise.all(promise_array);
 			return all_set;
 		}).then(() => {
@@ -159,13 +166,14 @@ exports.receiveYNConfirmMessage = (
 	uses_maybe=false
 ) => {
 	return new Promise((fulfill, reject) => {
-		db_m.getMessage(msgRxn.message.id)
+		var ret = {};
+		var message_id = msgRxn.message.id;
+		db_m.getMessage(message_id)
 		.then((msg_data) => {
-			var ret = {};
 			ret.status = constants.EMOJI_INVALID;
 			if (!exports.isRelevantReaction(msgRxn, type, msg_data, user, ret)) {
 				fulfill(ret);
-				return;
+				return Promise.resolve();
 			}
 			// if our recipient, get answer
 			switch (msgRxn.emoji.name) {
@@ -183,9 +191,12 @@ exports.receiveYNConfirmMessage = (
 			default: //unknown emoji
 				ret.payload = 'unknown emoji';
 				fulfill(ret);
-				return;
+				return Promise.resolve();
 			}
 			ret.payload = msg_data.msg_payload;
+			return db_m.deleteMessage(message_id);
+		})
+		.then(() => {
 			fulfill(ret);
 		})
 		.catch((err) => reject(err));
@@ -234,7 +245,7 @@ exports.editAnnounce = (guild, text) => {
 		var announce_channel = guild.channels.find('name','tourney-announce');
 		announce_channel.fetchPinnedMessages()
 		.then((msgs) => {
-			var announce_msg = msgs.first;
+			var announce_msg = msgs.first();
 			return announce_msg.edit(text);
 		})
 		.then(msg => fulfill(msg))

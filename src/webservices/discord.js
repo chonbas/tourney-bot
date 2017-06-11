@@ -13,15 +13,6 @@ var client = new Discord.Client();
 
 var exports = {};
 
-// Stub
-exports.stub = (msg, obj1, obj2, obj3, obj4, obj5) => {
-	return new Promise((fulfill, reject) => {
-		fulfill(obj1, obj2, obj3, obj4, obj5); // if ok, fulfill - next piece needs message
-		Console.log(msg);
-		reject(); // if fail, reject
-	});
-};
-
 /*
 ███████████████████████████████████████████████████████
   STAGE: NO TOURNAMENT
@@ -83,17 +74,20 @@ sets permission to only init-user
 */
 exports.transitionNoToInit = (guild, init_user) => {
 	return new Promise((fulfill, reject) => {
+		var msg = null;
 		util.createChannelPinMessage(
 			guild,
 			'init',
 			constants.INIT_CHANNEL,
 			str_gen.tourney_init_channel(init_user)
 		).then((message) => {
+			msg = message;
 			return util.setPermissions(
 				message.channel,
 				['SEND_MESSAGES'],
-				[init_user]);
-		}).then(() => {fulfill();})
+				[init_user],
+				client);
+		}).then(() => {fulfill(msg.channel);})
 		.catch(err => reject(err));
 	});
 };
@@ -122,20 +116,33 @@ exports.transitionInitToSetup = (guild) => {
 				return util.setPermissions(
 					message.channel,
 					['SEND_MESSAGES'],
-					[]);
+					[],
+					client);
 			}),
 			util.createChannelPinMessage(
 				guild,
 				'join',
 				constants.JOIN_CHANNEL,
-				str_gen.stub('join message', 'join message')
+				str_gen.tourney_join_channel()
 			),
 			util.createChannelPinMessage(
 				guild,
 				'general',
 				constants.GENERAL_CHANNEL,
 				str_gen.tourney_general_channel()
-			)
+			),
+			util.createChannelPinMessage(
+				guild,
+				'dispute',
+				constants.JURY_CHANNEL,
+				str_gen.tourney_dispute_channel()
+			),
+			guild.createRole({
+				name: discord_constants.GENERAL_ROLE_NAME
+			})
+			.then((role) => {
+				return role.setMentionable(true);
+			})
 		];
 		Promise.all(ps)
 		.then(() => fulfill())
@@ -227,10 +234,23 @@ Fulfills with role_id
 */
 exports.setupNewTeam = (guild, team_name) => {
 	return new Promise((fulfill, reject) => {
+		var role_id = null;
 		guild.createRole({
 			name: 'tourney-' + team_name
 		})
-		.then((role) => {fulfill(role.id);})
+		.then((role) => {
+			role_id = role.id;
+			return role.setMentionable(true);
+		})
+		.then((role) => {
+			return role.setHoist(true);
+		})
+		.then((role) => {
+			return role.setPosition(0);
+		})
+		.then(() => {
+			fulfill(role_id);
+		})
 		.catch((err) => {reject(err);});
 	});
 };
@@ -245,6 +265,10 @@ exports.setupAddToTeam = (guild, user_id, role_id) => {
 		Console.log(role_id);
 		var role = guild.roles.get(role_id);
 		guild_user.addRole(role)
+		.then(() => {
+			var general_role = guild.roles.find('name', discord_constants.GENERAL_ROLE_NAME);
+			return guild_user.addRole(general_role);
+		})
 		.then(() => {fulfill();})
 		.catch(() => {reject();});
 	});
@@ -269,7 +293,8 @@ exports.transitionSetupToRun = (guild) => {
 			).then((msg) => {
 				return util.setPermissions(msg.channel,
 				['SEND_MESSAGES'],
-				[]);
+				[],
+				client);
 			})
 		];
 		var finish_p = Promise.all(promises);
@@ -288,27 +313,26 @@ exports.transitionSetupToRun = (guild) => {
 /*
 
 */
-exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
+exports.runInitMatchChannel = (guild, role_ids, match_number, ref_id) => {
 	return util.createChannelPinMessage(
 		guild,
 		'match-' + match_number,
 		constants.MATCH_CHANNEL,
-		str_gen.stub(`Hi match ${match_number}.
-			please play: ${players.map(p => {return '<@'+p+'> ';})}`,
-			'match channel greeting'),
+		str_gen.tourney_match_channel(guild, role_ids, match_number),
 		ref_id
 	).then((message) => {
 		return util.setPermissions(
 			message.channel,
 			['SEND_MESSAGES', 'READ_MESSAGES'],
-			players);
+			role_ids,
+			client);
 	});
 };
 
 exports.sendConfirmMatchReport = (channel, reporter_user_id, confirmer_role_id, report) => {
 	return util.sendConfirmMessage(
 		channel,
-		str_gen.stub(`Hey <@${confirmer_role_id}>], <@${reporter_user_id}> says ${report.txt}. Is that right?`, 'join team confirm'),
+		str_gen.stub(`Hey <@&${confirmer_role_id}>], <@${reporter_user_id}> says ${report.txt}. Is that right?`, 'join team confirm'),
 		discord_constants.MATCH_REPORT_MESSAGE,
 		reporter_user_id,
 		confirmer_role_id,
@@ -329,6 +353,25 @@ exports.receiveConfirmMatchReport = (msgRxn, user) => {
 		msgRxn,
 		user,
 		discord_constants.MATCH_REPORT_MESSAGE
+	);
+};
+
+// Initiate vote
+exports.initiateDisputeVote = (guild, originator_id, defendant_id, challonge_match_id) => {
+	var dispute_channel = guild.channels.find('name', 'tourney-dispute');
+	return util.sendConfirmMessage(
+		dispute_channel,
+		str_gen.stub(`Prosecutor: <@${originator_id}>.
+			defendant: <@${defendant_id}>.`,
+			'jury channel greeting'),
+		discord_constants.VOTEKICK_MESSAGE,
+		defendant_id,
+		'@everyone',
+		discord_constants.EMOJI_YN,
+		{
+			originator_id: originator_id, defendant_id: defendant_id, challonge_match_id: challonge_match_id
+		},
+		true
 	);
 };
 
@@ -359,6 +402,10 @@ exports.runInitDisputeChannel = (guild, dispute_name, prosecutor_id, defendant_i
 
 exports.receiveDisputeChannelVote = (msgRxn, user) => {
 	return util.countReactions(msgRxn, user, discord_constants.VOTEKICK_MESSAGE);
+};
+
+exports.runAnnounceWinner = (guild, winner_name, tourney_url) => {
+	return util.editAnnounce(guild, str_gen.tourney_announce_winner(winner_name, tourney_url));
 };
 
 exports.runNotifyEndMatches = (guild, matches) => {

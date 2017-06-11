@@ -18,29 +18,30 @@ const challonge = require('../../webservices/challonge');
 
 var handler = {};
 
-var advanceTournamentStatus = (msg) => {
+
+var advanceTournamentStatus = (tourney_params, msg) => {
 	Console.log('Init tourney handler "done"; advancing to setup');
 	// tournament and use db.setChallongeID() to set challonge ID
-	challonge.createTourney(msg.guild.id, msg.parsed_msg.data_object)
+	challonge.createTourney(msg.guild.id, tourney_params)
 	.then((challonge_id) => {
 		Console.log('challonge_id: ' + challonge_id);
 		return db.setTournamentChallongeID(msg.guild.id, challonge_id);
-		// TODO return
-	}).then(() => {
+	}).
+	then(() => {
 		return db.advanceTournamentState(msg.guild.id);
-		// TODO return
-	}).then(() => {
+	}).
+	then(() => {
 		return discord.transitionInitToSetup(msg.guild);
 	}).catch(err => Console.log(err));
 };
 
 handler.handleMsg = (msg) => {
-	chat(msg).then((advance) => {
-		if (advance) {
-			advanceTournamentStatus(msg);
+	chat(msg).then((data_status) => {
+		Console.log(data_status);
+		if (data_status.done) {
+			advanceTournamentStatus(data_status.params, msg);
 		}
 	}).catch((err) => { Console.log(err); });
-
 };
 
 

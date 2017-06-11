@@ -1,4 +1,6 @@
-//
+// const creds = require('../../credentials');
+
+
 var constants = {
 	'DEBUG': false, // DEBUG FLAG USED TO RUN TESTS
 	'MONGO_DEBUG': true, //MONGO DEBUG FLAG USED TO LOG ALL MONGO OPS
@@ -11,11 +13,6 @@ var constants = {
 	'RUN_TOURNEY': 3,   // tournament is in progress
 	'CLOSE_TOURNEY': 4, // tournament is finished, perform clean/reset to none
 
-	//RUN_TOURNEY sub states
-	'STATE_MATCH':0, //
-	'STATE_ADV_MATCH':1,//..
-	'STATE_DISPUTE':2, //..
-	'STATE_ADV_DISPUTE':3,
 
 	// running tournament statuses
 	'RECEIVING_MATCH_REPORTS': 0,
@@ -39,6 +36,9 @@ var constants = {
 	'EMOJI_COUNTS': 'EMOJI_COUNTS',
 	'EMOJI_INVALID': 'EMOJI_INVALID', //ignore
 
+
+	'STAGED_PROPS': ['tourney_name', 'tournament_type','teams','signup_cap','confirmed'],
+	'STAGED_IND_TO_NAME': {0:'Tournament Name: ', 1:'Tournament Type: ', 2:'1v1: ', 3:'Max participants: '},
 	//Dispute Types
 	'DISPUTE_CHEAT':0,
 	'DISPUTE_DC':1,
@@ -54,10 +54,13 @@ var constants = {
 	'DISPUTE_EXISTS':7,
 	'TEAM_EXISTS':8,
 
+	// 'DATABASE_ADDRESS':	'mongodb://' + creds.MONGO_USER + ':' + creds.MONGO_PASS + '@ds113702.mlab.com:13702/tourneydb',// update to live when needeed
+
+	// 'DATABASE_ADDRESS':	'mongodb://tb:t0urn3yb0t@ds113702.mlab.com:13702/tourneydb',// update to live when needeed
+
 	// other constants
 	'CONSTANT_MESSAGE': 'hello world',
-
-	'DATABASE_ADDRESS':	'mongodb://localhost/test' // update to live when needeed
+	'DATABASE_ADDRESS': 'mongodb://localhost/test'
 };
 //
 module.exports = constants;

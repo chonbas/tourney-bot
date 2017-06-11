@@ -1,55 +1,10 @@
-/* AVAILABLE FUNCTIONS:
- * --------------------------------------------------------
- * clearDB()
- * TOURNAMENTS:
- * createTournament(guild_id) *
- * deleteTournament(guild_id) *
- * setTournamentChallongeID(guild_id, challonge_id) *
- * getTournamentChallongeID(guild_id) *
- * getTournamentStatus(guild_id) *
- * getTournamentRunState(guild_id) *
- * advanceTournamentState(guild_id) *
- * advanceTournamentRunState(guild_id) *
- * getTournamentTeams(guild_id) *
- * getTournamentParticipants(guild_id) *
- * getTournamentChannels(guild_id) *
- * getTournamentDisputes(guild_id)
- * getTournamentDisputesByOriginator(guild_id, discord_id)
- * getTournamentDisputesByType(guild_id, dispute_type)
- * TEAMS:
- * createTeam(guild_id, role_id, name) *
- * removeTeam(guild_id, role_id) *
- * getTeamIDByRoleID(guild_id, role_id) *
- * getTeamIDByName(guild_id, name) *
- * getTeamCreatorByTeamID(guild_id, team_id) *
- * getTeamCreatorByRoleID(guild_id, role_id) *
- * setTeamChallongeID(guild_id, team_id, challonge_id) *
- * getTeamChallongeID(guild_id, team_id) *
- * setTeamRoleID(guild_id, team_id, role_id) *
- * getTeamRoleID(guild_id, team_id) *
- * getTeamMembersByID(guild_id, team_id)
- * getTeamMembersByRoleID(guild_id, role_id)
- * PARTICIPANTS:
- * createParticipant(guild_id, name, discord_id, team_id) *
- * removeParticipant(guild_id, discord_id) *
- * getParticipantDiscordID(guild_id, name) *
- * getParticipantTeamID(guild_id, name) *
- * DISPUTES:
- * createDispute(guild_id, originator_id, defendant_id, dispute_type, add_info) *
- * resolveDispute(guild_id, defendant_id) *
- * resolveDisputesByType(guild_id, dispute_type) *
- * getDisputeID(guild_id, defendant_id) *
- * getDisputeByID(guild_id, dispute_id) *
- * CHANNELS:
- * createChannel(guild_id, channel_id, channel_type) *
- * getChannelType(guild_id, channel_id) *
- * deleteChannel(guild_id, channel_id) *
- * deleteChannesByTypel(guild_id, channel_type) *
- */
 var mongoose = require('mongoose');
 var constants = require('../util/constants');
+var propToQuestion = require('../util/parser_util').propToQuestion;
 const Console = require('../util/console');
-const SCHEMAS = require('./schemas/guildSchema.js');
+const SCHEMAS = require('./schemas/guildSchema');
+var Stage = require('./schemas/guildStagingSchema').Stage;
+
 var Guild = SCHEMAS.Guild;
 var Team = SCHEMAS.Team;
 // var Dispute = SCHEMAS.Dispute;
@@ -71,6 +26,7 @@ db.on('error', (err) =>{
 	Console.error.bind(Console, 'connection error:');
 	Console.log(err);
 	Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
+	process.exit();
 });
 db.once('open', () => {
 	Console.log('Connected to MongoDB.');
@@ -82,9 +38,12 @@ exports.clearDB = () =>{
 			if (err) { reject(err);	}
 			Team.remove({}, (err) =>{
 				if(err) {reject(err);}
-				fulfill(constants.REMOVE_SUCCESS);
-			});
-		});
+				Stage.remove({}, (err)=>{
+					if(err) {reject(err);}
+					fulfill(constants.REMOVE_SUCCESS);
+				}).catch(err=>reject(err));
+			}).catch(err=>reject(err));
+		}).catch(err=>reject(err));
 	});
 };
 
@@ -113,8 +72,7 @@ exports.createTournament = (guild_id) => {
 			if (guild_obj === null){
 				Guild.create({
 					guild_id: guild_id,
-					tourney_state: constants.INIT_TOURNEY,
-					tourney_sub_state: constants.STATE_DISPUTE
+					tourney_state: constants.INIT_TOURNEY
 				}).then( () => {
 					Console.log('Guild with guild_id:' + guild_id + ' created');
 					fulfill(constants.CREATE_SUCCESS);
@@ -209,6 +167,32 @@ exports.setTournamentChallongeID = (guild_id, challonge_id) => {
 	});
 };
 
+
+
+/* setTournamentOwner(guild_id, discord_id)
+ * -------------------------------------------------------
+*/
+exports.setTournamentAdmin = (guild_id, admin_discord_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			guild_obj.admin = admin_discord_id;
+			guild_obj.save().then( () =>{
+				Console.log('Owner set to user with Discord ID:' + admin_discord_id +' for guild with id:' + guild_id);
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 /* getTournamentChallongeID(guild_id)
  * -------------------------------------------------------
  * Attempts to find the guild with the given id,
@@ -241,6 +225,38 @@ exports.getTournamentChallongeID = (guild_id) => {
 	});
 };
 
+
+/* getTournamentAdmin(guild_id)
+ * -------------------------------------------------------
+ * Attempts to find the guild with the given id,
+ * and if that guild's challonge id is not null, the promise
+ * is fulfilled and the challonge id is returned.
+ * If tourney not found, fulfill with NO_TOURNEY.
+ * NOTE:If ChallongeID is null, fulfill will be null.
+ * If any error occurs, the promise will be rejected.
+ * Returns: Promise -- On successful fulfill returns challonge ID.
+ * Usage:
+ * db.getTournamentChallongeID(guild_id).then( (challonge_id) =>{
+ * 		//DO STUFF
+ * }).catch( (err) =>{
+ * 		//ERROR HANDLING
+ * });
+ * -------------------------------------------------------
+*/
+exports.getTournamentAdmin = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			var admin = guild_obj.admin;
+			fulfill(admin);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
 /* getTournamentStatus(guild_id)
  * -------------------------------------------------------
  * Attempts to find guild with the given id,
@@ -272,44 +288,135 @@ exports.getTournamentStatus = (guild_id) => {
 	});
 };
 
-/* getTournamentRunState(guild_id)
- * -------------------------------------------------------
- * Attempts to find guild with the given id,
- * if no tourney found fulfills with NO_TOURNEY.
- * If tourney is found, checks the state of the tourney,
- * if the tourney is in RUN_TOURNEY,
- * fulfills with current sub state of tournament.
- * If tourney is not in RUN_TOURNEY, fulfills with
- * null.
- * If any error occurs during retrieval, rejects with error.
- *
- * Returns: Promise -- On success returns tourney state
- * Usage:
- * db.getTournamentRunState(guild_id).then( (tourney_state){
- * 		//DO STUFF
- * }).catch((err)=>{
- * 		//ERROR HANDLING
- * });
- * -------------------------------------------------------
-*/
-exports.getTournamentRunState = (guild_id) => {
-	return new Promise( (fulfill, reject) => {
+
+exports.getTournamentName = (guild_id) => {
+	return new Promise((fulfill, reject) => {
 		Guild.findOne({
 			guild_id: guild_id
-		}).then( (guild_obj) => {
+		}).then((guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
-			var tourney_state = guild_obj.tourney_state;
-			if (tourney_state === constants.RUN_TOURNEY){
-				fulfill(guild_obj.tourney_sub_state);
-			} else {
-				fulfill(null); // If tourney not in run state, return null
-			}
+			fulfill(guild_obj.name);
 		}).catch( (err) => {
 			Console.log(err);
 			reject(err);
 		});
 	});
 };
+
+exports.getTournamentTeamOption = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id
+		}).then((guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			fulfill(guild_obj.teams_allowed);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.getTournamentParticipantCap = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id
+		}).then((guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			fulfill(guild_obj.signup_cap);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.setTournamentParticipantCap = (guild_id,cap) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			guild_obj.signup_cap = cap;
+			guild_obj.save().then( () =>{
+				Console.log('Signup cap set to:' + cap +' for guild with id:' + guild_id);
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+exports.getTourneyAvailability = (guild_id) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id
+		}).then((guild_obj) => {
+			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+			var res = {};
+			if (guild_obj.signup_cap === 0){
+				res.cap = 1;
+				res.cur = 0;
+			}else{
+				res.cap = guild_obj.signup_cap;
+				res.cur = guild_obj.teams.length;
+			}
+			res.teams = guild_obj.teams_allowed;
+			fulfill(res);
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+exports.setTournamentName = (guild_id, name) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			guild_obj.name = name;
+			guild_obj.save().then( () =>{
+				Console.log('Name set to:' + name +' for guild with id:' + guild_id);
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
+
+exports.setTournamentTeamOption = (guild_id, team_opt) => {
+	return new Promise((fulfill, reject) => {
+		Guild.findOne({
+			guild_id: guild_id,
+		}).then( (guild_obj) => {
+			if (guild_obj === null){ fulfill(constants.NO_TOURNEY);return; }
+			guild_obj.teams_allowed = team_opt;
+			guild_obj.save().then( () =>{
+				Console.log('Teams Allowed set to:' + team_opt +' for guild with id:' + guild_id);
+				fulfill(constants.UPDATE_SUCCESS);
+			}).catch( (err) => {
+				Console.log(err);
+				reject(err);
+			});
+		}).catch( (err) => {
+			Console.log(err);
+			reject(err);
+		});
+	});
+};
+
 
 /* advanceTournamentState(guild_id)
  * -------------------------------------------------------
@@ -347,13 +454,7 @@ exports.advanceTournamentState = (guild_id) => {
 					reject(err);
 				});
 			} else {
-				if (current_state === constants.RUN_TOURNEY){
-					guild_obj.tourney_sub_state = -1; // reset run tourney state
-				}
 				current_state++;
-				if (current_state === constants.RUN_TOURNEY){
-					guild_obj.tourney_sub_state = constants.STATE_MATCH; // reset run tourney state
-				}
 				guild_obj.tourney_state = current_state;
 				guild_obj.save().then( () => {
 					fulfill(constants.UPDATE_SUCCESS);
@@ -369,58 +470,7 @@ exports.advanceTournamentState = (guild_id) => {
 	});
 };
 
-/* advanceTournamentRunState(guild_id)
- * -------------------------------------------------------
- * Attempts to find guild with given guild_id,
- * if any errors occur during tourney retrieval
- * or update the promise is rejected.
- * If the guild is not found, fulfills with NO_TOURNEY.
- * If a guild is found, check to ensure it is in RUN_TOURNEY,
- * if it is, check which sub state its in. If it is in the last substate
- * (STATE_ADV_DISPUTE), wrap around back to STATE_MATCH, otherwise
- * simply advance by one. If advance successfull, fulfill with
- * UPDATE_SUCCESS.
- *
- * If tourney was not in RUN_TOURNEY, fulfills with null.
 
- * Returns- Promise, On successful fulfill UPDATE_SUCCESS
- * Usage:
- * db.advanceTournamentRunState(guild_id).then( (status) => {
- * 		//DO STUFF!
- * }).catch( (err) => {
- * 		/error handling
- * });
- * -------------------------------------------------------
-*/
-exports.advanceTournamentRunState = (guild_id) => {
-	return new Promise((fulfill, reject) => {
-		Guild.findOne({
-			guild_id:guild_id
-		}).then( (guild_obj) => {
-			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return;}
-			var current_state = guild_obj.tourney_state;
-			if (current_state === constants.RUN_TOURNEY){
-				var cur_run_state = guild_obj.tourney_sub_state;
-				if (cur_run_state === constants.STATE_ADV_DISPUTE){
-					guild_obj.tourney_sub_state = constants.STATE_MATCH;
-				} else {
-					guild_obj.tourney_sub_state = cur_run_state + 1;
-				}
-				guild_obj.save().then( () => {
-					fulfill(constants.UPDATE_SUCCESS);
-				}).catch( (err) =>{
-					Console.log(err);
-					reject(err);
-				});
-			} else {
-				fulfill(null);
-			}
-		}).catch( (err) => {
-			Console.log(err);
-			reject(err);
-		});
-	});
-};
 
 /* getTournamentTeams(guild_id)
  * -------------------------------------------------------
@@ -1367,8 +1417,10 @@ exports.getParticipantTeamID = (guild_id, discord_id) => {
 			if (guild_obj.teams.length > 0){
 				for (var i in guild_obj.teams){
 					var team = guild_obj.teams[i];
-					var participant = team.members.find(findParticipant);
-					if (participant) {fulfill(team._id);return;}
+					if (team.members){
+						var participant = team.members.find(findParticipant);
+						if (participant) {fulfill(team._id);return;}
+					}
 				}
 			}
 			fulfill(constants.NO_PARTICIPANT);
@@ -1797,21 +1849,167 @@ exports.deleteChannelsByType = (guild_id, channel_type) => {
 		});
 	});
 };
-// TODO: createChatState(???)
-// actually maybe isn't necessary but am not sure
-/* deleteTournament(guild_id)
- * -------------------------------------------------------
- *
- * -------------------------------------------------------
-*/
-// TODO: getChatState(???)
-// returns a chat state object.
-// Users: be sure to obj.save()!!
-/* deleteTournament(guild_id)
- * -------------------------------------------------------
- *
- * -------------------------------------------------------
-*/
 
 
+exports.createStagedTourney = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		Stage.findOne({
+			guild_id:guild_id
+		}).then( (staged_t) =>{
+			if (staged_t === null) {
+				Stage.create({
+					guild_id: guild_id
+				}).then( () => {
+					Console.log('Tourney with guild_id:' + guild_id + ' staged.');
+					fulfill(constants.CREATE_SUCCESS);
+				}).catch( (err)=>{
+					Console.log(err);
+					reject(err);
+				});
+			}else {
+				Console.log('Staged Tournament already exists.');
+				fulfill(constants.NO_TOURNEY);
+				return;
+			}
+		}).catch(err=>reject(err));
+	});
+};
+
+exports.getStagedTourney = (guild_id) =>{
+	return new Promise( (fulfill, reject) => {
+		Stage.findOne({
+			guild_id:guild_id
+		}).then( (staged_t) =>{
+			if (staged_t === null){fulfill(constants.NO_TOURNEY);return;}
+			fulfill(staged_t);
+		}).catch( err=>reject(err));
+	});
+};
+
+exports.removeStagedTourney = (guild_id) =>{
+	return new Promise( (fulfill, reject) => {
+		Stage.findOne({
+			guild_id:guild_id
+		}).then( (staged_t) =>{
+			if (staged_t === null){fulfill(constants.NO_TOURNEY);return;}
+			staged_t.remove().then( () => {
+				fulfill(constants.REMOVE_SUCCESS);
+			}).catch( err=> reject(err));
+		}).catch( err=>reject(err));
+	});
+};
+
+exports.getNextStagedTourneyQuestion = (guild_id) => {
+	return new Promise( (fulfill, reject) => {
+		Stage.findOne({
+			guild_id:guild_id
+		}).then( (staged_t) =>{
+			if (staged_t === null){fulfill(constants.NO_TOURNEY);return;}
+
+			for (var prop_ind in constants.STAGED_PROPS){
+				var prop = constants.STAGED_PROPS[prop_ind];
+				if (staged_t[prop] === null){
+					fulfill(propToQuestion(prop));
+					return;
+				}
+			}
+			fulfill();
+		}).catch( err=>reject(err));
+	});
+};
 module.exports = exports;
+
+
+// ******* NO LONGER IN USE *********************************
+// /* advanceTournamentRunState(guild_id)
+//  * -------------------------------------------------------
+//  * Attempts to find guild with given guild_id,
+//  * if any errors occur during tourney retrieval
+//  * or update the promise is rejected.
+//  * If the guild is not found, fulfills with NO_TOURNEY.
+//  * If a guild is found, check to ensure it is in RUN_TOURNEY,
+//  * if it is, check which sub state its in. If it is in the last substate
+//  * (STATE_ADV_DISPUTE), wrap around back to STATE_MATCH, otherwise
+//  * simply advance by one. If advance successfull, fulfill with
+//  * UPDATE_SUCCESS.
+//  *
+//  * If tourney was not in RUN_TOURNEY, fulfills with null.
+
+//  * Returns- Promise, On successful fulfill UPDATE_SUCCESS
+//  * Usage:
+//  * db.advanceTournamentRunState(guild_id).then( (status) => {
+//  * 		//DO STUFF!
+//  * }).catch( (err) => {
+//  * 		/error handling
+//  * });
+//  * -------------------------------------------------------
+// */
+// exports.advanceTournamentRunState = (guild_id) => {
+// 	return new Promise((fulfill, reject) => {
+// 		Guild.findOne({
+// 			guild_id:guild_id
+// 		}).then( (guild_obj) => {
+// 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return;}
+// 			var current_state = guild_obj.tourney_state;
+// 			if (current_state === constants.RUN_TOURNEY){
+// 				var cur_run_state = guild_obj.tourney_sub_state;
+// 				if (cur_run_state === constants.STATE_ADV_DISPUTE){
+// 					guild_obj.tourney_sub_state = constants.STATE_MATCH;
+// 				} else {
+// 					guild_obj.tourney_sub_state = cur_run_state + 1;
+// 				}
+// 				guild_obj.save().then( () => {
+// 					fulfill(constants.UPDATE_SUCCESS);
+// 				}).catch( (err) =>{
+// 					Console.log(err);
+// 					reject(err);
+// 				});
+// 			} else {
+// 				fulfill(null);
+// 			}
+// 		}).catch( (err) => {
+// 			Console.log(err);
+// 			reject(err);
+// 		});
+// 	});
+// };
+
+
+// /* getTournamentRunState(guild_id)
+//  * -------------------------------------------------------
+//  * Attempts to find guild with the given id,
+//  * if no tourney found fulfills with NO_TOURNEY.
+//  * If tourney is found, checks the state of the tourney,
+//  * if the tourney is in RUN_TOURNEY,
+//  * fulfills with current sub state of tournament.
+//  * If tourney is not in RUN_TOURNEY, fulfills with
+//  * null.
+//  * If any error occurs during retrieval, rejects with error.
+//  *
+//  * Returns: Promise -- On success returns tourney state
+//  * Usage:
+//  * db.getTournamentRunState(guild_id).then( (tourney_state){
+//  * 		//DO STUFF
+//  * }).catch((err)=>{
+//  * 		//ERROR HANDLING
+//  * });
+//  * -------------------------------------------------------
+// */
+// exports.getTournamentRunState = (guild_id) => {
+// 	return new Promise( (fulfill, reject) => {
+// 		Guild.findOne({
+// 			guild_id: guild_id
+// 		}).then( (guild_obj) => {
+// 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return; }
+// 			var tourney_state = guild_obj.tourney_state;
+// 			if (tourney_state === constants.RUN_TOURNEY){
+// 				fulfill(guild_obj.tourney_sub_state);
+// 			} else {
+// 				fulfill(null); // If tourney not in run state, return null
+// 			}
+// 		}).catch( (err) => {
+// 			Console.log(err);
+// 			reject(err);
+// 		});
+// 	});
+// };
