@@ -9,6 +9,9 @@ var prep_one_match = (guild, match) => {
 		var guild_id = guild.id;
 		var match_number = match.name;
 		var ref_id = match.id;
+		var match_number_int = parseInt(match_number);
+		match_number_int += 1;
+		match_number = match_number_int.toString();
 		var promises = [
 			db.getRoleIDByChallongeID(guild_id, match.player1Id),
 			db.getRoleIDByChallongeID(guild_id, match.player2Id)

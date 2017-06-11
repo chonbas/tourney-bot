@@ -62,7 +62,7 @@ You can initiate a vote kick against another player for not showing up, cheating
 exports.tourney_announce_channel = (status) => {
 	return `Hi everyone!\n
 This is the announce tourney channel where you can check the state of the tournament.
-Status: ${status}`;
+Come back here to see who won!`;
 };
 
 exports.tourney_announce_winner = (winner_name, tourney_url) => {
