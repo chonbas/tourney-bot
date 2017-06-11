@@ -40,8 +40,8 @@ handler.handleMsg = (msg) => {
 	// if we get a message to join the tournamnet
 	if (msg.parsed_msg.parse == parser_constants['JOIN_TOURNEY']) {
 		//parse out the team name
-		var team_name = msg.content.split(' ')[2];
-		Console.log('Team name' + team_name);
+		var team_name = msg.parsed_msg.data_object.team_name;
+		Console.log('Team name' + msg.parsed_msg.data_object.team_name);
 		db.getTourneyAvailability(guild_id)
 		.then( res => {
 			//check that tourney isnt full
