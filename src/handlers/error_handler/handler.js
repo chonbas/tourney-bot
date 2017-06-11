@@ -43,7 +43,7 @@ var join_parsing_err = 'I did not get the name of the team you are trying to cre
 // var init_nonsense_err = 'I didn\'t quite get that.';
 
 
-function current_state_msg(t_status, initiator_id, msg){
+var current_state_msg (t_status, initiator_id, msg) =>{
 	if(t_status === constants['NO_TOURNEY']){
 		return no_tourney_err;
 	}
@@ -77,7 +77,7 @@ function current_state_msg(t_status, initiator_id, msg){
 //JOIN TEAM YOU ARE ALREADY ON
 //ONE V ONE BUG!!!!!!!!
 //does not do anything yet, error handle outside of init phase is WIP
-function intended(team_id, initiator_id, msg, t_status){
+var intended = (team_id, initiator_id, msg, t_status) =>{
 	if(t_status != constants['RUN_TOURNEY'] && (msg.parsed_msg.parse===parser_constants['MATCH_REPORT_WIN'] || msg.parsed_msg.parse===parser_constants['MATCH_REPORT_WIN'] || msg.parsed_msg.parse===parser_constants['MATCH_REPORT_AMBIGUOUS'])){
 		var err_msg = match_report_err+current_state_msg(t_status, initiator_id, msg)+command_note;
 		Console.log('reporting a win outside run');
@@ -130,7 +130,7 @@ function intended(team_id, initiator_id, msg, t_status){
 		return false;
 	}
 	return true;
-}
+};
 
 
 //called if messager is admin
@@ -152,7 +152,7 @@ function update_msg(msg, cap=null){
 	if(msg.parsed_msg.parse=='CAP'){return 'Setting participant cap to ' + cap + '.';}
 }*/
 
-function init_checker(initiator_id, msg, question=null){
+var init_checker = (initiator_id, msg, question=null) => {
 	/*if(initiator_id != msg.author.id){
 		Console.log('THEY DO NOT MATCH!!')
 		msg.reply(init_tourney_err);
