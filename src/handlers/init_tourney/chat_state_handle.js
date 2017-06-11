@@ -12,6 +12,9 @@ var getTourneySummary = (staged_t) =>{
 	var cur = 'Congratulations, you are done setting up your tournament. Does everything look right?\n';
 	for (var ind = 0; ind < STAGED_PROPS.length - 1; ind++){
 		var val  = staged_t[STAGED_PROPS[ind]];
+		if (ind === 3 && val === 0){
+			val = 'unlimited';
+		}
 		var prop_txt = STAGED_REVERS[ind];
 		cur = cur + prop_txt + val +'\n';
 	}
