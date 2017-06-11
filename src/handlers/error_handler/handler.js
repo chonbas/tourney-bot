@@ -145,7 +145,7 @@ function init_checker(initiator_id, msg, question=null){
 		msg.reply(init_tourney_err);
 		return false;
 	}*/
-	if(msg.parsed_msg.parse === parser_constants['CAP'] && (msg.parsed_msg.data_object.signup_cap < 4 || msg.parsed_msg.data_object.signup_cap > 255)){
+	if(msg.parsed_msg.parse === parser_constants['CAP'] && (msg.parsed_msg.data_object.signup_cap < 4 || msg.parsed_msg.data_object.signup_cap > 255) && msg.parsed_msg.data_object.signup_cap != 0){
 		msg.reply('The participant cap must be between 4 and 255. ');
 		return false;
 	}
@@ -166,11 +166,12 @@ function init_checker(initiator_id, msg, question=null){
 
 
 
-var errhandle = (initiator_id, msg, tournament_status, channel_type, question=null) => {
+var errhandle = (team_id , initiator_id, msg, tournament_status, channel_type, question=null) => {
 	return new Promise((fulfill, reject) => {
 		//TODO: check states
 		//TODO: give helpful error messages
 		Console.log('ERR HANDLING');
+		Console.log("team_id: " + team_id);
 		Console.log(msg);
 		if(tournament_status == constants['INIT_TOURNEY'] && channel_type == constants['INIT_CHANNEL']){
 			fulfill(init_checker(initiator_id, msg, question));
