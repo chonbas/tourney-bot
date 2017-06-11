@@ -26,6 +26,7 @@ db.on('error', (err) =>{
 	Console.error.bind(Console, 'connection error:');
 	Console.log(err);
 	Console.log('\n\nYou must be running MongoDB. If you are, check the error above for more information.');
+	process.exit();
 });
 db.once('open', () => {
 	Console.log('Connected to MongoDB.');
@@ -169,7 +170,6 @@ exports.setTournamentChallongeID = (guild_id, challonge_id) => {
 
 
 /* setTournamentOwner(guild_id, discord_id)
- * -------------------------------------------------------
  * -------------------------------------------------------
 */
 exports.setTournamentAdmin = (guild_id, admin_discord_id) => {

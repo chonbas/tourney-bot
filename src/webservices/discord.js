@@ -74,17 +74,20 @@ sets permission to only init-user
 */
 exports.transitionNoToInit = (guild, init_user) => {
 	return new Promise((fulfill, reject) => {
+		var msg = null;
 		util.createChannelPinMessage(
 			guild,
 			'init',
 			constants.INIT_CHANNEL,
 			str_gen.tourney_init_channel(init_user)
 		).then((message) => {
+			msg = message;
 			return util.setPermissions(
 				message.channel,
 				['SEND_MESSAGES'],
-				[init_user]);
-		}).then(() => {fulfill();})
+				[init_user],
+				client);
+		}).then(() => {fulfill(msg.channel);})
 		.catch(err => reject(err));
 	});
 };
@@ -113,7 +116,8 @@ exports.transitionInitToSetup = (guild) => {
 				return util.setPermissions(
 					message.channel,
 					['SEND_MESSAGES'],
-					[]);
+					[],
+					client);
 			}),
 			util.createChannelPinMessage(
 				guild,
@@ -132,7 +136,13 @@ exports.transitionInitToSetup = (guild) => {
 				'dispute',
 				constants.JURY_CHANNEL,
 				str_gen.tourney_general_channel()
-			)
+			),
+			guild.createRole({
+				name: discord_constants.GENERAL_ROLE_NAME
+			})
+			.then((role) => {
+				return role.setMentionable(true);
+			})
 		];
 		Promise.all(ps)
 		.then(() => fulfill())
@@ -255,6 +265,10 @@ exports.setupAddToTeam = (guild, user_id, role_id) => {
 		Console.log(role_id);
 		var role = guild.roles.get(role_id);
 		guild_user.addRole(role)
+		.then(() => {
+			var general_role = guild.roles.find('name', discord_constants.GENERAL_ROLE_NAME);
+			return guild_user.addRole(general_role);
+		})
 		.then(() => {fulfill();})
 		.catch(() => {reject();});
 	});
@@ -279,7 +293,8 @@ exports.transitionSetupToRun = (guild) => {
 			).then((msg) => {
 				return util.setPermissions(msg.channel,
 				['SEND_MESSAGES'],
-				[]);
+				[],
+				client);
 			})
 		];
 		var finish_p = Promise.all(promises);
@@ -298,20 +313,19 @@ exports.transitionSetupToRun = (guild) => {
 /*
 
 */
-exports.runInitMatchChannel = (guild, players, match_number, ref_id) => {
+exports.runInitMatchChannel = (guild, role_ids, match_number, ref_id) => {
 	return util.createChannelPinMessage(
 		guild,
 		'match-' + match_number,
 		constants.MATCH_CHANNEL,
-		str_gen.stub(`Hi match ${match_number}.
-			please play: ${players.map(p => {return '<@'+p+'> ';})}`,
-			'match channel greeting'),
+		str_gen.tourney_match_channel(guild, role_ids, match_number),
 		ref_id
 	).then((message) => {
 		return util.setPermissions(
 			message.channel,
 			['SEND_MESSAGES', 'READ_MESSAGES'],
-			players);
+			role_ids,
+			client);
 	});
 };
 

@@ -16,6 +16,7 @@ const handle_it = require('./handle_report_message');
 const process_winner = require('./process_winner');
 const initiate_dispute = require('./initiate_dispute');
 const resolve_dispute = require('./resolve_dispute');
+const message_text = require('../../util/message_text');
 
 
 var handler = {};
@@ -57,10 +58,13 @@ handler.handleReaction = (msgRxn, user) => {
 				var winner_id = answer.payload.winner_challonge_id;
 				var scores = '1-0';
 				process_match(msgRxn, guild_id, match_id, winner_id, scores);
+				return msgRxn.message.channel.send('Congrats! You won the match.');
 			}
 			if(answer.status == constants.EMOJI_NO){
 				// Send message to match channel asking if they want to report
 				Console.log('MATCH REPORT REJECTED!!');
+				Console.log(user);
+				return msgRxn.message.channel.send(message_text.MATCH_REJECTED);
 			}
 		})
 		.catch(err => Console.log(err));

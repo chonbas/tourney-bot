@@ -2,6 +2,7 @@
 //
 
 var discord = require('../webservices/discord');
+var notify = require('../webservices/discord_notifications');
 const Console = require('../util/console');
 const credentials = require('../../credentials.js');
 
@@ -43,8 +44,34 @@ var exportme = (client) => {
 		//LOGIC FOR COMMANDS
 		var cmd = msg.content.split(' ')[1];
 		var dat = msg.content.split(' ')[2];
+		var dat2 = msg.content.split(' ')[3];
 
 		switch (cmd) {
+		/*
+		TESTING discord_notifications.JS FILE
+		*/
+		case 'notifyRole':
+			var role_id = dat.slice(3, -1);
+			Console.log(dat);
+			Console.log(role_id);
+			notify.notifyRole(msg.guild, role_id, 'DM Role test')
+			.then(res => Console.log(res));
+			break;
+		case 'notifyPlayer':
+			var player_id = dat.slice(2, -1);
+			Console.log(dat);
+			Console.log(player_id);
+			notify.notifyPlayer(msg.guild, player_id, 'DM player test')
+			.then(res => Console.log(res));
+			break;
+		case 'notifyAllPlayers':
+			notify.notifyAllPlayers(msg.guild, 'DM all players test')
+			.then(res => Console.log(res))
+			.catch(res => Console.log(res));
+			break;
+		/*
+		TESTING DISCORD.JS FILE
+		*/
 		case 'setupNewTeam':
 			discord.setupNewTeam(msg.guild, dat)
 			.then(role_id => {discord.setupAddToTeam(msg.guild, msg.author.id, role_id);});
@@ -62,10 +89,17 @@ var exportme = (client) => {
 			discord.sendConfirmJoinTeam(msg.channel, msg.author, dat.slice(2,-1),'TEAM_NAME');
 			break;
 		case 'initMatchChannel':
+			var role1_id = dat.slice(3, -1);
+			var role2_id = dat2.slice(3, -1);
+			Console.log(dat);
+			var arr = [];
+			arr.push(role1_id);
+			arr.push(role2_id);
 			discord.runInitMatchChannel(
 				msg.guild,
-				['317512206281605120','317512564349075458'],
-				42
+				arr,
+				3,
+				'ref_id'
 			);
 			break;
 		case 'initDisputeChannel':
@@ -80,11 +114,9 @@ var exportme = (client) => {
 			discord.deleteAllTourneyChannels(msg.guild);
 			break;
 		default:
-			discord.stub('message came in', cmd, dat)
-			.then(() => {
-				Console.log(cmd);
-				Console.log(dat);
-			});
+			Console.log('unrecognized message');
+			Console.log(cmd);
+			Console.log(dat);
 		}
 	});
 
