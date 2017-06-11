@@ -64,7 +64,7 @@ var current_state_msg = (t_status, initiator_id, msg) =>{
 	if(t_status === constants['CLOSE_TOURNEY']){
 		return close_tourney_err;
 	}
-}
+};
 
 //only join teams once?
 //report already reported user
@@ -174,8 +174,7 @@ var init_checker = (initiator_id, msg, question=null) => {
 		msg.reply('I did not understand that.  Could you please rephrase?');
 		return false;
 	}
-
-}
+};
 
 
 
