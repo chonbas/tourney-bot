@@ -135,7 +135,7 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'dispute',
 				constants.JURY_CHANNEL,
-				str_gen.tourney_general_channel()
+				str_gen.tourney_dispute_channel()
 			),
 			guild.createRole({
 				name: discord_constants.GENERAL_ROLE_NAME
