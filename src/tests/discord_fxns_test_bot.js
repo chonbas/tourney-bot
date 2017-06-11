@@ -61,7 +61,7 @@ var exportme = (client) => {
 			var player_id = dat.slice(2, -1);
 			Console.log(dat);
 			Console.log(player_id);
-			notify.notifyPlayer(msg.guild, player_id, 'DM player test')
+			notify.notifyPlayer(msg.guild, msg.author.id, 'DM player test')
 			.then(res => Console.log(res));
 			break;
 		case 'deleteDMChannel':

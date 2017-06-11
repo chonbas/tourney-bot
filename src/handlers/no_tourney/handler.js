@@ -31,7 +31,7 @@ var advanceTournamentStatus = (msg) => {
 
 handler.handleMsg = (msg) => {
 	Console.log(msg.parsed_msg);
-	msg.reply('no tourney handler handling');
+	msg.reply('Generating a new tournament. I created a tourney-init channel for you to set your preferences for this tournament.');
 	// TODO: detect if someone wants to create a tournament
 	var done = (msg.parsed_msg.parse == parser_constants['CREATE_TOURNEY']);
 	if (done) {

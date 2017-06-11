@@ -26,6 +26,7 @@ returns a Promise<message>
 */
 exports.notifyPlayer = (guild_obj, player_id, message_txt) => {
 	var player_obj = guild_obj.members.get(player_id);
+	Console.log(player_obj);
 	return dmPlayer(player_obj, message_txt);
 };
 

@@ -123,7 +123,7 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'join',
 				constants.JOIN_CHANNEL,
-				str_gen.stub('join message', 'join message')
+				str_gen.tourney_join_channel()
 			),
 			util.createChannelPinMessage(
 				guild,

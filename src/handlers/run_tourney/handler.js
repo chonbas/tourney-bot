@@ -8,7 +8,6 @@ in handlers.
 
 const discord = require('../../webservices/discord');
 const challonge = require('../../webservices/challonge');
-const db = require('../../webservices/mongodb');
 const constants = require('../../util/constants');
 const parse_constants = require('../../util/parse_constants');
 const Console = require('../../util/console');
@@ -18,6 +17,7 @@ const process_winner = require('./process_winner');
 const initiate_dispute = require('./initiate_dispute');
 const resolve_dispute = require('./resolve_dispute');
 const message_text = require('../../util/message_text');
+const str_gen = require('../../webservices/discord_util/message_generator');
 
 
 var handler = {};
@@ -56,10 +56,12 @@ handler.handleReaction = (msgRxn, user) => {
 				Console.log('MATCH REPORT CONFIRMED!!');
 				var guild_id = msgRxn.message.guild.id;
 				var match_id = answer.payload.challonge_match_id;
-				var winner_id = answer.payload.winner_challonge_id;
+				var winner_challonge_id = answer.payload.winner_challonge_id;
+				var winner_role_id = answer.payload.winner_role_id;
 				var scores = '1-0';
-				process_match(msgRxn, guild_id, match_id, winner_id, scores);
-				return msgRxn.message.channel.send('Congrats! You won the match.');
+				process_match(msgRxn, guild_id, match_id, winner_challonge_id, scores);
+				var congrats = str_gen.tourney_message_match_winner(msgRxn.message.guild, winner_role_id);
+				return msgRxn.message.channel.send(congrats);
 			}
 			if(answer.status == constants.EMOJI_NO){
 				// Send message to match channel asking if they want to report
@@ -71,35 +73,19 @@ handler.handleReaction = (msgRxn, user) => {
 		.catch(err => Console.log(err));
 	}
 };
-// db.removeTeam(guild_id, role_id)
+
 var process_match = (msgRxn, guild_id, match_id, winner_id, scores) => {
 	challonge.updateMatch(guild_id, match_id, winner_id, scores)
-	.then(() => {
-		return challonge.getMatch(guild_id, match_id);
-	})
-	// Remove loser
-	.then((match_obj) => {
-		var team1_challonge_id = match_obj.match.player1Id;
-		var team2_challonge_id = match_obj.match.player2Id;
-		if (team1_challonge_id == winner_id) {
-			db.getRoleIDByChallongeID(guild_id, team2_challonge_id)
-			.then((team2_role_id) => {
-				return db.removeTeam(guild_id, team2_role_id);
-			}).catch(err => Console.log(err));
-		} else {
-			db.getRoleIDByChallongeID(guild_id, team1_challonge_id)
-			.then((team1_role_id) => {
-				return db.removeTeam(guild_id, team1_role_id);
-			}).catch(err => Console.log(err));
-		}
-	})
 	.then(() => {
 		return challonge.isTourneyDone(guild_id);
 	}).then((done) => {
 		if (done == true) {
 			return process_winner(msgRxn.message.guild);
 		} else {
-			return prep_round(msgRxn.message.guild, 1);
+			msgRxn.message.channel.send(message_text.NEXT_MATCH)
+			.then(() => {
+				return prep_round(msgRxn.message.guild, 1);
+			}).catch(err => Console.log(err));
 		}
 	})
 	.catch(err => Console.log(err));

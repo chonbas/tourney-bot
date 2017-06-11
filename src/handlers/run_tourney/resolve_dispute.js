@@ -8,6 +8,7 @@ This is responsible for resolving disputes
 var constants = require('../../util/constants');
 var db = require('../../webservices/mongodb');
 const discord = require('../../webservices/discord');
+const challonge = require('../../webservices/challonge');
 var Console = require('../../util/console');
 
 var resolve_dispute = (msgRxn, user) => {
@@ -22,9 +23,10 @@ var resolve_dispute = (msgRxn, user) => {
 		var scores = '1-0';
 		var winner_team_id = null;
 
-		db.getTournamentTeams(guild_id)
-		.then((teams) => {
-			num_teams = teams.length;
+		challonge.getMatchList(guild_id)
+		.then((matches) => {
+			var open_matches = matches.filter((m) => { return m.state == 'open';});
+			num_teams = open_matches.length * 2;
 			return discord.receiveDisputeChannelVote(msgRxn, user);
 		})
 		.then((votes) => {
@@ -38,10 +40,6 @@ var resolve_dispute = (msgRxn, user) => {
 			counts = votes.payload.counts;
 			yays = counts[constants.EMOJI_YES] + 1;
 			nays = counts[constants.EMOJI_NO] + 1;
-
-			Console.log("Dispute threshold: ");
-			Console.log(num_teams);
-			Console.log((yays + nays) >= (num_teams / 3));
 			if ((yays + nays) >= (num_teams / 3)) {
 				if (yays > nays) {
 					winner_discord_id = originator_id;

@@ -249,7 +249,13 @@ exports.getMatchList = (guild_id) => {
 					Console.log(err);
 					reject(err);
 				} else {
-					fulfill(matches);
+					var match_arr = [];
+					for(var match in matches){
+						let m = matches[match].match;
+						m.name = match;
+						match_arr.push(m);
+					}
+					fulfill(match_arr);
 				}
 			}
 		});

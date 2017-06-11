@@ -10,9 +10,9 @@ Clean up all tourney channels
 
 var Console = require('../../util/console');
 var parser_constants = require('../../util/parse_constants');
-// eslint-disable-next-line
-const challonge = require('../../webservices/challonge');
 const discord = require('../../webservices/discord');
+// eslint-disable-next-line
+const discord_notifications = require('../../webservices/discord_notifications');
 
 var handler = {};
 
@@ -22,6 +22,9 @@ handler.handleMsg = (msg) => {
 		discord.deleteAllTourneyChannels(msg.guild);
 		Console.log('Your tournament is all wrapped up!');
 	}
+	Console.log('msg author in close handler');
+	Console.log(msg.author);
+	// discord_notifications.notifyPlayer(msg.guild, msg.author.id, 'Thanks for using TourneyBot! Hope you enjoyed your tournament!');
 };
 
 
