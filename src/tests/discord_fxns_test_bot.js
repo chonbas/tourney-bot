@@ -44,6 +44,7 @@ var exportme = (client) => {
 		//LOGIC FOR COMMANDS
 		var cmd = msg.content.split(' ')[1];
 		var dat = msg.content.split(' ')[2];
+		var dat2 = msg.content.split(' ')[3];
 
 		switch (cmd) {
 		/*
@@ -66,6 +67,11 @@ var exportme = (client) => {
 		case 'deleteDMChannel':
 			var player_id2 = dat.slice(2, -1);
 			msg.guild.members.get(player_id2).deleteDM();
+      break;
+		case 'notifyAllPlayers':
+			notify.notifyAllPlayers(msg.guild, 'DM all players test')
+			.then(res => Console.log(res))
+			.catch(res => Console.log(res));
 			break;
 		/*
 		TESTING DISCORD.JS FILE
@@ -87,10 +93,17 @@ var exportme = (client) => {
 			discord.sendConfirmJoinTeam(msg.channel, msg.author, dat.slice(2,-1),'TEAM_NAME');
 			break;
 		case 'initMatchChannel':
+			var role1_id = dat.slice(3, -1);
+			var role2_id = dat2.slice(3, -1);
+			Console.log(dat);
+			var arr = [];
+			arr.push(role1_id);
+			arr.push(role2_id);
 			discord.runInitMatchChannel(
 				msg.guild,
-				['317512206281605120','317512564349075458'],
-				42
+				arr,
+				3,
+				'ref_id'
 			);
 			break;
 		case 'initDisputeChannel':

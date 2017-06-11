@@ -57,7 +57,7 @@ var guild_schema = new mongoose.Schema({
 		unique: true,
 		index: true
 	},
-	owner: {
+	admin: {
 		type:String,
 		index:true
 	},
