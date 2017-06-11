@@ -10,7 +10,7 @@ const constants = require('../../util/constants');
 var command_note = 'Remember, you can issue commands of the format +<COMMAND> if we seem to be miscommunicating.  Type +HELP for a list of commands.';
 
 //MUST FINISH THIS HELP NOTE!!!
-var help_note = 'Hi! This bot will allow you to manage and run tournaments over discord and challonge with minimal admnistrative work.  \n\n Here is a list of commands you can use if I am misunderstanding you: \n+HELP: brings up this page\n+CREATE_TOURNEY: The first step to creating a new tournament\nINIT_TOURNEY:\n';
+// var help_note = 'Hi! This bot will allow you to manage and run tournaments over discord and challonge with minimal admnistrative work.  \n\n Here is a list of commands you can use if I am misunderstanding you: \n+HELP: brings up this page\n+CREATE_TOURNEY: The first step to creating a new tournament\nINIT_TOURNEY:\n';
 
 var no_tourney_err = 'There is currently no tourney in this guild.  You can create one by telling me +CREATE_TOURNEY\n';
 //var init_tourney_admin_err = 'The tourney is currently in the init stage. You are the tourney administrator- please go to the #tourney-init channel to set the parameters for the tourney.\n';
@@ -29,18 +29,18 @@ var join_tourney_already_err = 'You have already entered this tournament. To joi
 
 //var join_tourney_late = 'You seem to be trying to join a tournament.  Unfortunately, this tournament is no longer accepting new players or teams.\n';
 var create_tourney_err = 'You seem to by trying to create a tourney. Unfortunately, there is already a tourney present in this guild. You will have to switch to a new guild to create a new tournament.\n';
-var drop_tourney_err = 'you are not currently a participant in this tournament.\n';
+// var drop_tourney_err = 'you are not currently a participant in this tournament.\n';
 var report_err = 'You cannot report people at this time.\n';
 var unidentified_err = 'I could not quite understand what you are trying to do.\n';
 var end_tourney_err = 'It seems that you are trying to end/destroy a tournament.\n';
 var end_tourney_non_admin_err = 'It seems that you are trying to end/destroy a tournament. Like the one ring, this tournament can only be destroyed by that which it was created from (in this case, the tourney creator).\n';
 
-var kilL_tourney_err = 'It seems you are trying to end a tournament';
+// var kilL_tourney_err = 'It seems you are trying to end a tournament';
 
 var report_parsing_err = 'Please let me know who you are trying to report- type @username in the report message.\n';
 var join_parsing_err = 'I did not get the name of the team you are trying to create and/or join. Remember to your team name in quotes.';
 
-var init_nonsense_err = 'I didn\'t quite get that.';
+// var init_nonsense_err = 'I didn\'t quite get that.';
 
 
 function current_state_msg(t_status, initiator_id, msg){
@@ -184,7 +184,7 @@ var errhandle = (team_id , initiator_id, msg, tournament_status, channel_type, q
 		//TODO: check states
 		//TODO: give helpful error messages
 		Console.log('ERR HANDLING');
-		Console.log("team_id: " + team_id);
+		Console.log('team_id: ' + team_id);
 		Console.log(msg);
 		if(tournament_status == constants['INIT_TOURNEY'] && channel_type == constants['INIT_CHANNEL']){
 			fulfill(init_checker(initiator_id, msg, question));
@@ -193,6 +193,7 @@ var errhandle = (team_id , initiator_id, msg, tournament_status, channel_type, q
 			//Console.log('FULFILLING TRUE');
 			fulfill(intended(team_id, initiator_id, msg, tournament_status));
 		}
+		reject();
 	});
 };
 /*

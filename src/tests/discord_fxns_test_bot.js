@@ -67,7 +67,7 @@ var exportme = (client) => {
 		case 'deleteDMChannel':
 			var player_id2 = dat.slice(2, -1);
 			msg.guild.members.get(player_id2).deleteDM();
-      break;
+			break;
 		case 'notifyAllPlayers':
 			notify.notifyAllPlayers(msg.guild, 'DM all players test')
 			.then(res => Console.log(res))

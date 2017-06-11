@@ -40,7 +40,7 @@ manager.distributeMsg = (msg) => {
 	}
 	var tournament_status = null;
 	var channel_type = null;
-	var discord_id = null;
+	var initiator_id = null;
 	var team_id = null;
 	// retrieve tournament status
 	db.getTournamentStatus(msg.guild.id).then((status) => {
