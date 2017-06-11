@@ -63,6 +63,10 @@ var exportme = (client) => {
 			notify.notifyPlayer(msg.guild, player_id, 'DM player test')
 			.then(res => Console.log(res));
 			break;
+		case 'deleteDMChannel':
+			var player_id2 = dat.slice(2, -1);
+			msg.guild.members.get(player_id2).deleteDM();
+			break;
 		/*
 		TESTING DISCORD.JS FILE
 		*/

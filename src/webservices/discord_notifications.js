@@ -8,17 +8,7 @@ var exports = {};
 returns a Promise<message>
 */
 var dmPlayer = (user_obj, msg_txt) => {
-	if(user_obj.dmChannel){
-		return user_obj.dmChannel.send(msg_txt);
-	}
-	if(user_obj.createDM){
-		return user_obj.createDM()
-		.then((channel) => {return channel.send(msg_txt);});
-	}
-	return Promise.reject({
-		user: user_obj,
-		err: 'ATTEMPTED TO SEND MESSAGE TO USER ABOVE BUT USER DID NOT HAVE CREATE_DMCHANNEL FXN'
-	});
+	return user_obj.send(msg_txt);
 };
 
 /*
