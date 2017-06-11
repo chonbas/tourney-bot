@@ -26,11 +26,11 @@ var advanceTournamentStatus = (tourney_params, msg) => {
 	.then((challonge_id) => {
 		Console.log('challonge_id: ' + challonge_id);
 		return db.setTournamentChallongeID(msg.guild.id, challonge_id);
-		// TODO return
-	}).then(() => {
+	}).
+	then(() => {
 		return db.advanceTournamentState(msg.guild.id);
-		// TODO return
-	}).then(() => {
+	}).
+	then(() => {
 		return discord.transitionInitToSetup(msg.guild);
 	}).catch(err => Console.log(err));
 };

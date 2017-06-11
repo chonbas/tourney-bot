@@ -35,22 +35,34 @@ exports.stub = (txt, todo) => {
 
 exports.tourney_init_channel = (user) => {
 	return `Hello ${user.username}!\n
-	You're in charge of initializing the tournament, but don't worry - I've got you covered.\n
-	By typing "doneski", I will create a Challonge tournament for you that other people can join.\n
-	Blah blah blah. Yep!\n
-	First off -- what would you like the tournament name to be?`;
+You're in charge of initializing the tournament, but don't worry - I've got you covered.
+Just answer these four questions about tournament name, type and size, and you will be ready to go!`;
 };
 
 exports.tourney_general_channel = () => {
 	return `Hi everyone!\n
-	This is the general tourney channel.`;
+This is the general tourney channel where you can talk about what is going on in the tournament.
+If you are looking to join the tournament, please head to the join-tourney channel to join the tournament!`;
 };
+
+exports.tourney_join_channel = () => {
+	return `Hi everyone!\n
+This is the join tourney channel where you can join or create a team in the tournament.
+Let @tourney-bot know what you or team would like to be called during the tournament by messaging @tourney-bot followed by join or add and then the name.`;
+};
+
+exports.tourney_dispute_channel = () => {
+	return `Hi everyone!\n
+This is the dispute tourney channel where all of the vote kicks will be tallied.
+If you see a new message appear in this channel, please head over and vote!\n
+You can initiate a vote kick against another player for not showing up, cheating, etc. by messaging @tourney-bot report @player. Select the "check" to vote for the person who started the vote kick or the "X" if you think the other person is being unfairly targeted.`;
+};
+
 
 exports.tourney_announce_channel = (status) => {
 	return `Hi everyone!\n
-	This is the general tourney channel.
-	${universals.ANNOUNCE_CHANNEL}
-	Status: ${status}`;
+This is the announce tourney channel where you can check the state of the tournament.
+Status: ${status}`;
 };
 
 exports.tourney_announce_winner = (winner_name, tourney_url) => {
@@ -65,6 +77,11 @@ exports.tourney_match_channel = (guild, role_ids, match_number) => {
 Contenders:
 ${ppl}
 Good luck! Don't cheat!`;
+};
+
+exports.tourney_message_match_winner = (guild, role_id) => {
+	var winner = getTeamStr(guild, role_id);
+	return `Congratulations ${winner} on winning the match!`;
 };
 
 module.exports = exports;

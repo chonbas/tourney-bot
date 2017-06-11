@@ -123,7 +123,7 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'join',
 				constants.JOIN_CHANNEL,
-				str_gen.stub('join message', 'join message')
+				str_gen.tourney_join_channel()
 			),
 			util.createChannelPinMessage(
 				guild,
@@ -135,7 +135,7 @@ exports.transitionInitToSetup = (guild) => {
 				guild,
 				'dispute',
 				constants.JURY_CHANNEL,
-				str_gen.tourney_general_channel()
+				str_gen.tourney_dispute_channel()
 			),
 			guild.createRole({
 				name: discord_constants.GENERAL_ROLE_NAME
@@ -332,7 +332,7 @@ exports.runInitMatchChannel = (guild, role_ids, match_number, ref_id) => {
 exports.sendConfirmMatchReport = (channel, reporter_user_id, confirmer_role_id, report) => {
 	return util.sendConfirmMessage(
 		channel,
-		str_gen.stub(`Hey <@${confirmer_role_id}>], <@${reporter_user_id}> says ${report.txt}. Is that right?`, 'join team confirm'),
+		str_gen.stub(`Hey <@&${confirmer_role_id}>], <@${reporter_user_id}> says ${report.txt}. Is that right?`, 'join team confirm'),
 		discord_constants.MATCH_REPORT_MESSAGE,
 		reporter_user_id,
 		confirmer_role_id,

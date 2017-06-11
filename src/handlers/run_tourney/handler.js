@@ -17,6 +17,7 @@ const process_winner = require('./process_winner');
 const initiate_dispute = require('./initiate_dispute');
 const resolve_dispute = require('./resolve_dispute');
 const message_text = require('../../util/message_text');
+const str_gen = require('../../webservices/discord_util/message_generator');
 
 
 var handler = {};
@@ -55,10 +56,12 @@ handler.handleReaction = (msgRxn, user) => {
 				Console.log('MATCH REPORT CONFIRMED!!');
 				var guild_id = msgRxn.message.guild.id;
 				var match_id = answer.payload.challonge_match_id;
-				var winner_id = answer.payload.winner_challonge_id;
+				var winner_challonge_id = answer.payload.winner_challonge_id;
+				var winner_role_id = answer.payload.winner_role_id;
 				var scores = '1-0';
-				process_match(msgRxn, guild_id, match_id, winner_id, scores);
-				return msgRxn.message.channel.send('Congrats! You won the match.');
+				process_match(msgRxn, guild_id, match_id, winner_challonge_id, scores);
+				var congrats = str_gen.tourney_message_match_winner(msgRxn.message.guild, winner_role_id);
+				return msgRxn.message.channel.send(congrats);
 			}
 			if(answer.status == constants.EMOJI_NO){
 				// Send message to match channel asking if they want to report
@@ -79,7 +82,10 @@ var process_match = (msgRxn, guild_id, match_id, winner_id, scores) => {
 		if (done == true) {
 			return process_winner(msgRxn.message.guild);
 		} else {
-			return prep_round(msgRxn.message.guild, 1);
+			msgRxn.message.channel.send(message_text.NEXT_MATCH)
+			.then(() => {
+				return prep_round(msgRxn.message.guild, 1);
+			}).catch(err => Console.log(err));
 		}
 	})
 	.catch(err => Console.log(err));

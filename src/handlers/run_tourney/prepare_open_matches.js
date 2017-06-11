@@ -4,16 +4,6 @@ var db = require('../../webservices/mongodb');
 const discord = require('../../webservices/discord');
 const challonge = require('../../webservices/challonge');
 
-var convertMatchesTArray = (matches) => {
-	var arr = [];
-	for(var match in matches){
-		let m = matches[match].match;
-		m.name = match;
-		arr.push(m);
-	}
-	return arr;
-};
-
 var prep_one_match = (guild, match) => {
 	return new Promise((fulfill, reject) => {
 		var guild_id = guild.id;
@@ -34,7 +24,6 @@ var prep_one_match = (guild, match) => {
 			Console.log(err);
 			reject(err);
 		});
-		//discord.runInitMatchChannel(guild, players, match_number, ref_id)
 	});
 };
 
@@ -44,8 +33,7 @@ var prepare_open_matches = (guild) => {
 		Console.log('Preparing open matches');
 		challonge.getMatchList(guild.id)
 		.then((ms) => {
-			var matches = convertMatchesTArray(ms);
-			var promises = matches
+			var promises = ms
 			.filter((m) => {return m.state == 'open';})
 			.map((m) => {
 				return db.getChannelChannelIDByRefID(guild.id, m.id)

@@ -22,7 +22,6 @@ var advanceTournamentStatus = (msg) => {
 			return discord.transitionNoToInit(msg.guild, msg.author);
 		})
 		.then((init_channel) => {
-			Console.log(init_channel.name);
 			return init_channel.send('<@'+msg.author.id + '> Let us get started! What would you like to name the tournament?');
 		})
 		.catch(err => Console.log(err));
@@ -32,7 +31,7 @@ var advanceTournamentStatus = (msg) => {
 
 handler.handleMsg = (msg) => {
 	Console.log(msg.parsed_msg);
-	msg.reply('no tourney handler handling');
+	msg.reply('Generating a new tournament. I created a tourney-init channel for you to set your preferences for this tournament.');
 	// TODO: detect if someone wants to create a tournament
 	var done = (msg.parsed_msg.parse == parser_constants['CREATE_TOURNEY']);
 	if (done) {
