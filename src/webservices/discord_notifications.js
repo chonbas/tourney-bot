@@ -8,11 +8,7 @@ var exports = {};
 returns a Promise<message>
 */
 var dmPlayer = (user_obj, msg_txt) => {
-	if(user_obj.dmChannel){
-		return user_obj.dmChannel.send(msg_txt);
-	}
-	return user_obj.createDM()
-	.then((channel) => {return channel.send(msg_txt);});
+	return user_obj.send(msg_txt);
 };
 
 /*
