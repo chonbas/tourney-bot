@@ -1417,8 +1417,10 @@ exports.getParticipantTeamID = (guild_id, discord_id) => {
 			if (guild_obj.teams.length > 0){
 				for (var i in guild_obj.teams){
 					var team = guild_obj.teams[i];
-					var participant = team.members.find(findParticipant);
-					if (participant) {fulfill(team._id);return;}
+					if (team.members){
+						var participant = team.members.find(findParticipant);
+						if (participant) {fulfill(team._id);return;}
+					}
 				}
 			}
 			fulfill(constants.NO_PARTICIPANT);
