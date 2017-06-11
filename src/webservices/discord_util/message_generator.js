@@ -48,7 +48,7 @@ If you are looking to join the tournament, please head to the join-tourney chann
 exports.tourney_join_channel = () => {
 	return `Hi everyone!\n
 This is the join tourney channel where you can join or create a team in the tournament.
-Let @tourney-bot know what you or team would like to be called during the tournament by messaging @tourney-bot followed by join or add and then the name.`;
+Let @tourney-bot know what you or team would like to be called during the tournament by messaging @tourney-bot followed by join or add and then the "name" in quotes.`;
 };
 
 exports.tourney_dispute_channel = () => {
@@ -76,7 +76,10 @@ exports.tourney_match_channel = (guild, role_ids, match_number) => {
 	return `Hi match ${match_number}.
 Contenders:
 ${ppl}
-Good luck! Don't cheat!`;
+Good luck! Don't cheat!
+How to report your win/loss: simply say "I won" or "I lost" @TourneyBot.
+Your opponent must confirm your report. If you disagree with their claim, you can check the X.
+If you would like to report the other player for cheating, being afk, etc. please message @tourney-bot report @player.`;
 };
 
 exports.tourney_message_match_winner = (guild, role_id) => {
