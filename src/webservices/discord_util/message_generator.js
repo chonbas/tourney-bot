@@ -59,9 +59,10 @@ You can initiate a vote kick against another player for not showing up, cheating
 };
 
 
-exports.tourney_announce_channel = (status) => {
+exports.tourney_announce_channel = (tourney_url) => {
 	return `Hi everyone!\n
 This is the announce tourney channel where you can check the state of the tournament.
+You can check out the tournament bracket at:  http://www.challonge.com/${tourney_url}
 Come back here to see who won!`;
 };
 

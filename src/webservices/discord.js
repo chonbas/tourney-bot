@@ -6,7 +6,7 @@ const str_gen = require('./discord_util/message_generator');
 const discord_constants = require('./discord_util/constants');
 
 // var db_m = require('./mongodb_messages');
-// var db = require('./mongodb');
+var challonge = require('./challonge');
 var constants = require('../util/constants');
 
 var client = new Discord.Client();
@@ -106,13 +106,18 @@ Creates a join channel.
 */
 exports.transitionInitToSetup = (guild) => {
 	return new Promise((fulfill, reject) => {
+		var tourney_url = null;
 		var ps = [
-			util.createChannelPinMessage(
-				guild,
-				'announce',
-				constants.ANNOUNCE_CHANNEL,
-				str_gen.tourney_announce_channel(discord_constants.SETUP_PHASE)
-			).then((message) => {
+			challonge.getTourney(guild.id).then( (tour) =>{
+				tourney_url = tour.tournament.url;
+				return util.createChannelPinMessage(
+					guild,
+					'announce',
+					constants.ANNOUNCE_CHANNEL,
+					str_gen.tourney_announce_channel(tourney_url)
+				);
+			})
+			.then((message) => {
 				return util.setPermissions(
 					message.channel,
 					['SEND_MESSAGES'],
