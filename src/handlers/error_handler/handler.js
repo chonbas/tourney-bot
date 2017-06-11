@@ -3,13 +3,14 @@ var Console = require('../../util/console');
 var parser_constants = require('../../util/parse_constants');
 const constants = require('../../util/constants');
 
-
+//HELP NOTE
+//START TOURNEY WITH NOT ENOUGH PLAYERS
 //eslint-disable-next-line
 
 var command_note = 'Remember, you can issue commands of the format +<COMMAND> if we seem to be miscommunicating.  Type +HELP for a list of commands.';
 
 //MUST FINISH THIS HELP NOTE!!!
-var help_note = 'Here is a list of commands you can use if I am misunderstanding you:\n+HELP: brings up this page\n+CREATE_TOURNEY: The first step to creating a new tournament\nINIT_TOURNEY:\n';
+var help_note = 'Hi! This bot will allow you to manage and run tournaments over discord and challonge with minimal admnistrative work.  \n\n Here is a list of commands you can use if I am misunderstanding you: \n+HELP: brings up this page\n+CREATE_TOURNEY: The first step to creating a new tournament\nINIT_TOURNEY:\n';
 
 var no_tourney_err = 'There is currently no tourney in this guild.  You can create one by telling me +CREATE_TOURNEY\n';
 //var init_tourney_admin_err = 'The tourney is currently in the init stage. You are the tourney administrator- please go to the #tourney-init channel to set the parameters for the tourney.\n';
@@ -23,7 +24,9 @@ var close_tourney_err = 'This tournament has completed and is in the process of 
 
 //INTENTION MESSAGES: (sent based on what the bot thinks the user is trying to do)
 var match_report_err = 'You seem to be trying to report a match, which currently is not applicable at this time.\n';
-var join_tourney_err = 'You cannot joint a tournament in this guild at this time.\n';
+var join_tourney_err = 'You cannot join a tournament in this guild at this time.\n';
+var join_tourney_already_err = 'You have already entered this tournament. To join a different team or enter under a different nickname, you will need to drop from the tournament, and then re-enter.\n';
+
 //var join_tourney_late = 'You seem to be trying to join a tournament.  Unfortunately, this tournament is no longer accepting new players or teams.\n';
 var create_tourney_err = 'You seem to by trying to create a tourney. Unfortunately, there is already a tourney present in this guild. You will have to switch to a new guild to create a new tournament.\n';
 var drop_tourney_err = 'you are not currently a participant in this tournament.\n';
@@ -74,7 +77,7 @@ function current_state_msg(t_status, initiator_id, msg){
 //JOIN TEAM YOU ARE ALREADY ON
 //ONE V ONE BUG!!!!!!!!
 //does not do anything yet, error handle outside of init phase is WIP
-function intended(initiator_id, msg, t_status){
+function intended(team_id, initiator_id, msg, t_status){
 	if(t_status != constants['RUN_TOURNEY'] && (msg.parsed_msg.parse===parser_constants['MATCH_REPORT_WIN'] || msg.parsed_msg.parse===parser_constants['MATCH_REPORT_WIN'] || msg.parsed_msg.parse===parser_constants['MATCH_REPORT_AMBIGUOUS'])){
 		var err_msg = match_report_err+current_state_msg(t_status, initiator_id, msg)+command_note;
 		Console.log('reporting a win outside run');
@@ -101,6 +104,11 @@ function intended(initiator_id, msg, t_status){
 		msg.reply(err_msg);
 		return false;
 	}
+	if(t_status === constants['SETUP_TOURNEY'] && msg.parsed_msg.parse === parser_constants['JOIN_TOURNEY'] && parseInt(team_id, 16) > 10){
+		err_msg = join_tourney_already_err;
+		msg.reply(err_msg);
+		return false;
+	}
 	if(t_status != constants['RUN_TOURNEY'] && msg.parsed_msg.parse===parser_constants['REPORT']){
 		err_msg = report_err+current_state_msg(t_status, initiator_id, msg)+command_note;
 		msg.reply(err_msg);
@@ -113,6 +121,11 @@ function intended(initiator_id, msg, t_status){
 	}
 	if(t_status === constants['SETUP_TOURNEY'] && msg.parsed_msg.parse===parser_constants['JOIN_TOURNEY'] && msg.parsed_msg.data_object.team_name === null){
 		err_msg = join_parsing_err;
+		msg.reply(err_msg);
+		return false;
+	}
+	if(msg.parsed_msg.parse===parser_constants['UNIDENTIFIED']){
+		err_msg = unidentified_err+current_state_msg(t_status, initiator_id, msg)+command_note;
 		msg.reply(err_msg);
 		return false;
 	}
@@ -178,7 +191,7 @@ var errhandle = (team_id , initiator_id, msg, tournament_status, channel_type, q
 		}
 		else{
 			//Console.log('FULFILLING TRUE');
-			fulfill(intended(initiator_id, msg, tournament_status));
+			fulfill(intended(team_id, initiator_id, msg, tournament_status));
 		}
 	});
 };

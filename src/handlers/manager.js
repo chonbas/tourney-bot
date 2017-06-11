@@ -52,10 +52,7 @@ manager.distributeMsg = (msg) => {
 		return db.getTournamentAdmin(msg.guild.id);
 	}).then((initiator_id_return) => {
 		initiator_id = initiator_id_return;
-		return db.getParticipantDiscordID(msg.guild.id, msg.author);
-	}).then((discord_id_return) => {
-		discord_id = discord_id_return;
-		return db.getParticipantTeamID(msg.guild.id, discord_id);
+		return db.getParticipantTeamID(msg.guild.id, msg.author.id);
 	}).then((team_id_return) => {
 		team_id = team_id_return;
 		//give info to parser and attach parsed info to msg object
