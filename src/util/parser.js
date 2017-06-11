@@ -271,7 +271,8 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 	var handler;
 	var data_object = {};
 
-	var words = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
+	//var words = msg.match(/(?:[^\s"]+|"[^"]*")+/g);
+	var words = msg.match(/(?:[^\s"]+|("|')[^"]*("|'))+/g);
 	for(var i = 0; i < words.length; i++){
 		if(!words[i].search('\"') && !words[i].search('\'')){
 			words[i] = natural.PorterStemmer.stem(words[i]);
@@ -305,6 +306,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 	} else if(words.includes('join') || words.includes('sign') || words.includes('add') || words.includes('enter')){ //will return null if "team name" not found
 		parse = 'JOIN_TOURNEY';
 		handler = 'setup_tourney';
+		data_object.team_name = null;
 		for(i = 0; i < words.length; i++){
 			if(msg.match(/(\"|\').+(\"|\')/i) != null){
 				data_object.team_name = msg.match(/\".+\"/i)[0];
@@ -346,7 +348,7 @@ var parseMessage = (msg, tourney_state, channel_type, question=null) => {
 	} else if(words.includes('resolve') || (words.includes('move') && words.includes('on')) || ((words.includes('end') || words.includes('stop') || words.includes('finish'))&& words.includes('dispute'))){ //HOW DOES JURY WORK??
 		parse = 'RESOLVE';
 		handler='dispute';
-	} else if(tourney_state === constants['INIT_TOURNEY']){
+	} else if(tourney_state === constants['INIT_TOURNEY'] && channel_type === constants['INIT_CHANNEL']){
 		return parseMessageInit(msg, tourney_state, channel_type, question);
 	}else if(words.includes('yes') || words.includes('y') || words.includes('affirmative') || words.includes('yeah') || words.includes('yep') || words.includes('yup') || words.includes('ya')){
 		parse = 'YES';

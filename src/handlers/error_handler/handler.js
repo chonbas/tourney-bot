@@ -15,8 +15,8 @@ var command_note = 'Remember, you can issue commands of the format +<COMMAND> if
 var help_note = 'Here is a list of commands you can use if I am misunderstanding you:\n+HELP: brings up this page\n+CREATE_TOURNEY: The first step to creating a new tournament\nINIT_TOURNEY:\n';
 
 var no_tourney_err = 'There is currently no tourney in this guild.  You can create one by telling me +CREATE_TOURNEY\n';
-var init_tourney_admin_err = 'The tourney is currently in the init stage.\n';
-var init_tourney_err = 'The tourney is currently in the init stage. Please wait for the administrator, {0}, to finish deciding the tournament\'s parameters.\n';
+var init_tourney_admin_err = 'The tourney is currently in the init stage. You are the tourney administrator- please go to the #tourney-init channel to set the parameters for the tourney.\n';
+var init_tourney_err = 'The tourney is currently in the init stage. Please wait for the tourney creator to finish deciding the tournament\'s parameters.\n \n If you created the tournament, go to the tourney-init channel to set the tournament\'s parameters';
 var setup_tourney_err = 'The tourney in this guild is still in the set-up phase. You can join the tournament by telling me @bot+JOIN_TOURNEY\n';
 var run_tourney_err = 'This tournament is currently in the matches phase. You can report matches by typing @bot+MATCH_REPORT_WIN or @bot+MATCH_REPORT_LOSE, or report a cheater with @bot+REPORT <User ID>\n';
 var close_tourney_err = 'This tournament has completed and is in the process of shutting down\n'
@@ -26,23 +26,30 @@ var init_tourney_admin_err = 'You are still in the process of setting the tourna
 
 //INTENTION MESSAGES: (sent based on what the bot thinks the user is trying to do)
 var match_report_err = 'You seem to be trying to report a match, which currently is not applicable at this time.\n';
-var join_tourney_early = 'You seem to be trying to join a tournament.\n';
+var join_tourney_early = 'You seem to be trying to join the tournament.\n';
 var join_tourney_late = 'You seem to be trying to join a tournament.  Unfortunately, this tournament is no longer accepting new players or teams.\n';
 var create_tourney_err = 'You seem to by trying to create a tourney. Unfortunately, there is already a tourney present in this guild. You will have to switch to a new guild to create a new tournament.\n';
 var drop_tourney_err = 'you are not currently a participant in this tournament.\n';
 var report_err = 'You cannot report people at this time.\n';
-var report_parsing_err = 'Please let me know who you are trying to report- type @username in the report message.\n';
 var unidentified_err = 'I could not quite understand what you are trying to do.\n';
 
-var init_nonsense_err = 'I didn\'t quite get that.]';
+var report_parsing_err = 'Please let me know who you are trying to report- type @username in the report message.\n';
+var join_parsing_err = 'I did not get the name of the team you are trying to create and/or join. Remember to your team name in quotes.'
+
+var init_nonsense_err = 'I didn\'t quite get that.';
 
 
-function current_state_msg(t_status){
+function current_state_msg(t_status, initiator_id, msg){
 	if(t_status === constants['NO_TOURNEY']){
 		return no_tourney_err
 	}
 	if(t_status === constants['INIT_TOURNEY']){
-		return init_tourney_err
+		if(initiator_id === msg.author.id){
+			return init_tourney_err
+		}
+		else{
+			return init_tourney_err
+		}
 	}
 	if(t_status === constants['SETUP_TOURNEY']){
 		return setup_tourney_err
@@ -54,28 +61,38 @@ function current_state_msg(t_status){
 		return close_tourney_err
 	}
 }
-
+//MUST HANDLE JOINING WITHOUT ARGUMENT
+//TOURNAMENT CAP UNDER 3 OR OVER 256
+//INIT WHEN NOT INITIATOR
+//PARSER: CREATE TO JOIN TEAMS
+//JOIN TEAM YOU ARE ALREADY ON
 //does not do anything yet, error handle outside of init phase is WIP
-function intended(msg, t_status){
+function intended(initiator_id, msg, t_status){
 	if(t_status != constants['RUN_TOURNEY'] && (msg.parsed_msg.parse===parser_constants['MATCH_REPORT_WIN'] || msg.parsed_msg.parse===parser_constants['MATCH_REPORT_WIN'] || msg.parsed_msg.parse===parser_constants['MATCH_REPORT_AMBIGUOUS'])){
-		err_msg = match_report_err+current_state_msg(t_status)+command_note;
+		err_msg = match_report_err+current_state_msg(t_status, initiator_id, msg)+command_note;
+		Console.log('reporting a win outside run')
 		msg.reply(err_msg)
 		return false;
 	}
 	if(t_status != constants['NO_TOURNEY'] && msg.parsed_msg.parse===parser_constants['CREATE_TOURNEY']){
-		err_msg = create_tourney_err+current_state_msg(t_status)+command_note;
+		err_msg = create_tourney_err+current_state_msg(t_status, initiator_id, msg)+command_note;
 		msg.reply(err_msg)
 		return false;
 	}
 	//if(t_status != constants['END_TOURNEY']){
 	//if(t_status != constants['DROP_TOURNEY']){
 	if(t_status != constants['RUN_TOURNEY'] && msg.parsed_msg.parse===parser_constants['REPORT']){
-		err_msg = report_err+current_state_msg(t_status)+command_note;
+		err_msg = report_err+current_state_msg(t_status, initiator_id, msg)+command_note;
 		msg.reply(err_msg)
 		return false;
 	}
 	if(t_status === constants['RUN_TOURNEY'] && msg.parsed_msg.parse===parser_constants['REPORT'] && msg.parsed_msg.data_object.reported_user === null){
-		err_msg = report_parsing_err+current_state_msg(t_status)+command_note;
+		err_msg = report_parsing_err;
+		msg.reply(err_msg)
+		return false;
+	}
+	if(t_status === constants['SETUP_TOURNEY'] && msg.parsed_msg.parse===parser_constants['JOIN'] && msg.parsed_msg.data_object.team_name === null){
+		err_msg = join_parsing_err;
 		msg.reply(err_msg)
 		return false;
 	}
@@ -107,12 +124,17 @@ function unidentified_err(msg){
 	return err_msg;
 }
 
-function init_checker(msg, question=null){
+function init_checker(initiator_id, msg, question=null){
+	/*if(initiator_id != msg.author.id){
+		Console.log('THEY DO NOT MATCH!!')
+		msg.reply(init_tourney_err);
+		return false;
+	}*/
 	if(question === 'NAME' || msg.parsed_msg.parse === parser_constants['SINGLE_ELIM'] || msg.parsed_msg.parse === parser_constants['DOUBLE_ELIM'] ||
 		msg.parsed_msg.parse === parser_constants['SWISS'] || msg.parsed_msg.parse === parser_constants['ROUND_ROBIN'] ||
 		msg.parsed_msg.parse === parser_constants['NO_TEAMS'] || msg.parsed_msg.parse === parser_constants['YES_TEAMS'] ||
 		msg.parsed_msg.parse === parser_constants['CAP'] || msg.parsed_msg.parse === parser_constants['NO_CAP'] || msg.parsed_msg.parse === parser_constants['YES']
-		|| msg.parsed_msg.parse === parser_constants['NO']){
+		|| msg.parsed_msg.parse === parser_constants['NO'] || msg.parsed_msg.parse === parser_constants['DEFINE_NAME']){
 		Console.log('identified parse, returning true');
 		return true;
 	} else{
@@ -140,18 +162,18 @@ function admin_errors(msg, t_status, channel_type){
 
 
 
-var errhandle = (msg, tournament_status, channel_type, question=null) => {
+var errhandle = (initiator_id, msg, tournament_status, channel_type, question=null) => {
 	return new Promise((fulfill, reject) => {
 		//TODO: check states
 		//TODO: give helpful error messages
 		Console.log('ERR HANDLING');
 		Console.log(msg);
-		if(tournament_status == constants['INIT_TOURNEY']){
-			fulfill(init_checker(msg, question));
+		if(tournament_status == constants['INIT_TOURNEY'] && channel_type == constants['INIT_CHANNEL']){
+			fulfill(init_checker(initiator_id, msg, question));
 		}
 		else{
 			//Console.log('FULFILLING TRUE');
-			fulfill(intended(msg, tournament_status));
+			fulfill(intended(initiator_id, msg, tournament_status));
 		}
 	});
 };
