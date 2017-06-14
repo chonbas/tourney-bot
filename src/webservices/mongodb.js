@@ -446,7 +446,7 @@ exports.advanceTournamentState = (guild_id) => {
 		}).then( (guild_obj) => {
 			if (guild_obj === null) { fulfill(constants.NO_TOURNEY);return;}
 			var current_state = guild_obj.tourney_state;
-			if (current_state === constants.CLOSE_TOURNEY){
+			if (current_state === constants.RUN_TOURNEY){
 				exports.deleteTournament(guild_id).then( (status) =>{
 					fulfill(status);
 				}).catch( (err) => {
