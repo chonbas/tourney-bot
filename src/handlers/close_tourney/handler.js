@@ -11,6 +11,7 @@ Clean up all tourney channels
 var Console = require('../../util/console');
 var parser_constants = require('../../util/parse_constants');
 const discord = require('../../webservices/discord');
+const db = require('../../webservices/mongodb');
 // eslint-disable-next-line
 const discord_notifications = require('../../webservices/discord_notifications');
 
@@ -20,7 +21,9 @@ handler.handleMsg = (msg) => {
 	Console.log(msg.parsed_msg.parse);
 	if(msg.parsed_msg.parse == parser_constants.END_TOURNEY) {
 		discord.deleteAllTourneyChannels(msg.guild);
-		Console.log('Your tournament is all wrapped up!');
+		db.advanceTournamentState(msg.guild.id).then( () => {
+			Console.log('Your tournament is all wrapped up!');
+		}).catch( (err) => {Console.log(err);});
 	}
 	Console.log('msg author in close handler');
 	Console.log(msg.author);
